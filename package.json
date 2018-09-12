@@ -124,6 +124,7 @@
     "@types/react-router-redux": "^5.0.2",
     "@types/redux-logger": "^3.0.0",
     "@types/sinon": "^4.0.0",
+    "@types/prop-types": "^15.5.5",
     "asar": "^0.14.0",
     "boiler-room-custodian": "^0.6.2",
     "concurrently": "^3.1.0",
@@ -164,6 +165,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^3.0.3",
+    "@material-ui/icons": "^3.0.1",
     "electron-debug": "^1.1.0",
     "font-awesome": "^4.7.0",
     "history": "^4.6.1",

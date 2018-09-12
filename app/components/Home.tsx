@@ -1,124 +1,101 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
+import MobileStepper from '@material-ui/core/MobileStepper';
+import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import CardMedia from '@material-ui/core/CardMedia';
-import { spawn } from 'child_process';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import { Card } from '@material-ui/core';
 
-
-
-export default class Home extends React.Component<{initialText: string}, {ret: any}> {
-
-  state = {
-    ret : new Array<string>()
-  }
-
-  extProg()
+const tutorialSteps = [
   {
-    var self = this;
-    let res = spawn("cowsay", ['Hello World'])
+    label: 'How to be happy :)',
+    header: "Welcome to the contamination tool"
+    //imgPath: '/static/images/steppers/1-happy.jpg',
+  },
+  {
+    label: '1. Work with something that you like, like…',
+    header: "WORK",
+    imgPath: '/static/images/steppers/2-work.jpg',
+    content: <Button variant="contained" color="default">
+    Upload
+    <CloudUploadIcon />
+  </Button>
+  },
+  {
+    label: '2. Keep your friends close to you and hangout with them',
+    header: "FRIENDS",
+    imgPath: '/static/images/steppers/3-friends.jpg',
+  },
+  {
+    label: '3. Travel everytime that you have a chance',
+    header: "TRAVEL",
+    imgPath: '/static/images/steppers/4-travel.jpg',
+  },
+  {
+    label: '4. And contribute to Material-UI :D',
+    header: "MUI",
+    imgPath: '/static/images/steppers/5-mui.png',
+  },
+];
 
-    res.stdout.on('data', function(data) {
-        console.log('stdout: ' + data);
 
-        var elem : string = "" + data;
-        var newret = self.state.ret;
-        newret.push(elem);
-        
-        self.setState({ret: newret})
-      });
+class TextMobileStepper extends React.Component<{},{activeStep:any}> {
+  state = {
+    activeStep: 0,
+  };
 
-  }
+  handleNext = () => {
+    this.setState(prevState => ({
+      activeStep: prevState.activeStep + 1,
+    }));
+  };
 
+  handleBack = () => {
+    this.setState(prevState => ({
+      activeStep: prevState.activeStep - 1,
+    }));
+  };
 
   render() {
+    const { activeStep } = this.state;
 
-    var self=this;
-   
-    var outStr = [];
-
-    if (this.state.ret.length == 0)
-    {
-      var newCard = <Card>
-            <CardContent>
-              <Typography component="pre" style={{fontFamily: "Helvetica"}}>
-              {
-                this.props.initialText
-              }
-              </Typography>
-            </CardContent>
-          </Card>;
-
-      outStr.push(newCard);
-    } else {
-
-      for (var i = 0; i < this.state.ret.length; ++i)
-      {
-
-
-            var newCard = <Card>
-            <CardContent>
-              <Typography component="pre" style={{fontFamily: "Helvetica"}}>
-              {
-                this.state.ret[i]
-              }
-              </Typography>
-            </CardContent>
-          </Card>;
-      
-      outStr.push(newCard);
-
-      }
-
-
-    }
-  
+    const maxSteps = tutorialSteps.length;
 
     return (
       <div>
+                <Card style={{marginBottom: "50px"}}>
 
-<Card>
-      <CardActionArea>
-        <CardMedia
-          component="img"
-          image="https://material-ui.com/static/images/cards/contemplative-reptile.jpg"
-          title="Contemplative Reptile"
+        <p>{tutorialSteps[activeStep].header}</p>
+        <MobileStepper
+          steps={maxSteps}
+          position="static"
+          activeStep={activeStep}
+          nextButton={
+            <Button size="small" onClick={this.handleNext} disabled={activeStep === maxSteps - 1}>
+              Next
+              <KeyboardArrowRight />
+            </Button>
+          }
+          backButton={
+            <Button size="small" onClick={this.handleBack} disabled={activeStep === 0}>
+              <KeyboardArrowLeft />
+              Back
+            </Button>
+          }
         />
-        <CardContent>
-          <Typography gutterBottom variant="headline" component="h2">
-            minION Lizard
-          </Typography>
-          <Typography component="p">
-            Sequencing genomes flawlessly using Oxford Nanopore minION technology is like taming a lizard: hard and impossible.
-          </Typography>
-          <Typography component="p">
-            Even if you think you did the wetlab part right, your drylab master will tell you, something is screwed up.
-          </Typography>
-        </CardContent>
-      </CardActionArea>
-      <CardActions>
-          <Button component={({ innerRef, ...props }) => <Link {...props} to="/counter" />}>
-              Bring me to my truth.
-          </Button>
-
-          <Button onClick={() => { self.extProg() }}>
-              Let's have fun.
-          </Button>
-
-      </CardActions>
-    </Card>
-
-
-      {outStr}
-
-
-
+        </Card>
+        <Card>
+        <Paper square elevation={0}>
+          <Typography>{tutorialSteps[activeStep].label}</Typography>
+        </Paper>
+        {tutorialSteps[activeStep].content}
+        </Card>
       </div>
-
     );
   }
 }
+
+
+export default TextMobileStepper;

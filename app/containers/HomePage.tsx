@@ -6,9 +6,8 @@ export class HomePage extends React.Component<RouteComponentProps<any>, void> {
   render() {
     return (
       <div>
-        <div><Home initialText="Bla Blubb"/></div>
+        <div><Home /></div>
       </div>
-      
     );
   }
 }
