@@ -97,5 +97,4 @@ class TextMobileStepper extends React.Component<{},{activeStep:any}> {
   }
 }
 
-
 export default TextMobileStepper;
