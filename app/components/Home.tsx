@@ -7,17 +7,21 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { Card } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
+import Icon from '@material-ui/core/Icon';
+import SaveIcon from '@material-ui/icons/Save';
 
 const tutorialSteps = [
   {
-    label: 'How to be happy :)',
-    header: "Welcome to the contamination tool"
-    //imgPath: '/static/images/steppers/1-happy.jpg',
+    label: 'Even if you think you did the wetlab part right, your drylab master will tell you, something is screwed up.',
+    header: "Welcome to the contamination tool",
+    imgPath: '../Minion_blog.jpg',
   },
   {
     label: '1. Work with something that you like, like…',
     header: "WORK",
-    imgPath: '/static/images/steppers/2-work.jpg',
+    
     content: <Button variant="contained" color="default">
     Upload
     <CloudUploadIcon />
@@ -26,17 +30,41 @@ const tutorialSteps = [
   {
     label: '2. Keep your friends close to you and hangout with them',
     header: "FRIENDS",
-    imgPath: '/static/images/steppers/3-friends.jpg',
+    
+    content: <div>
+      <Card style={{marginBottom: "50px"}}>
+        <Button variant="contained" color="default">
+        Upload
+        <CloudUploadIcon />
+        </Button>
+      </Card>
+      <Card style={{marginBottom: "50px"}}>
+      <p><i>E.coli</i></p>
+      <IconButton aria-label="Delete" disabled color="primary">
+        <DeleteIcon />
+      </IconButton>
+    </Card>
+    <Card style={{marginBottom: "50px"}}>
+      <p>Human</p>
+      <IconButton aria-label="Delete" disabled color="primary">
+        <DeleteIcon />
+      </IconButton>
+    </Card>
+    </div>
   },
   {
     label: '3. Travel everytime that you have a chance',
-    header: "TRAVEL",
-    imgPath: '/static/images/steppers/4-travel.jpg',
+    header: "TRAVEL"
   },
   {
     label: '4. And contribute to Material-UI :D',
     header: "MUI",
-    imgPath: '/static/images/steppers/5-mui.png',
+    content: <div>
+      <Button variant="contained" size="small" >
+        <SaveIcon />
+        Save
+      </Button>
+    </div>
   },
 ];
 
@@ -65,33 +93,41 @@ class TextMobileStepper extends React.Component<{},{activeStep:any}> {
 
     return (
       <div>
-                <Card style={{marginBottom: "50px"}}>
-
+        <Card style={{marginBottom: "50px"}}>
+        <img
+          src={tutorialSteps[activeStep].imgPath}
+        />
         <p>{tutorialSteps[activeStep].header}</p>
         <MobileStepper
           steps={maxSteps}
           position="static"
           activeStep={activeStep}
-          nextButton={
-            <Button size="small" onClick={this.handleNext} disabled={activeStep === maxSteps - 1}>
+          nextButton={ activeStep == maxSteps-2 ?
+            (<Button variant="contained" color="primary" onClick={this.handleNext} disabled={activeStep === maxSteps - 1} >
+              Send
+              <Icon >send</Icon>
+            </Button>
+            ):(<Button size="small" onClick={this.handleNext} disabled={activeStep === maxSteps - 1}>
               Next
               <KeyboardArrowRight />
-            </Button>
+            </Button>)
           }
+          
           backButton={
             <Button size="small" onClick={this.handleBack} disabled={activeStep === 0}>
               <KeyboardArrowLeft />
-              Back
+              Reset
             </Button>
           }
         />
         </Card>
-        <Card>
+        <Card style={{marginBottom: "50px"}}>
         <Paper square elevation={0}>
           <Typography>{tutorialSteps[activeStep].label}</Typography>
         </Paper>
-        {tutorialSteps[activeStep].content}
         </Card>
+        {tutorialSteps[activeStep].content}
+        
       </div>
     );
   }
