@@ -15,8 +15,8 @@ import SaveIcon from '@material-ui/icons/Save';
 const tutorialSteps = [
   {
     label: 'Even if you think you did the wetlab part right, your drylab master will tell you, something is screwed up.',
-    header: "Welcome to the contamination tool",
-    imgPath: '../Minion_blog.jpg',
+    header: "Welcome to the contamination tool SequInto",
+    imgPath: '../sequinfo_logo.jpeg',
   },
   {
     label: '1. Work with something that you like, like…',
@@ -88,14 +88,13 @@ class TextMobileStepper extends React.Component<{},{activeStep:any}> {
 
   render() {
     const { activeStep } = this.state;
-
     const maxSteps = tutorialSteps.length;
 
     return (
       <div>
         <Card style={{marginBottom: "50px"}}>
         <img
-          src={tutorialSteps[activeStep].imgPath}
+          src={tutorialSteps[activeStep].imgPath} width="600" height="300"
         />
         <p>{tutorialSteps[activeStep].header}</p>
         <MobileStepper
@@ -104,8 +103,8 @@ class TextMobileStepper extends React.Component<{},{activeStep:any}> {
           activeStep={activeStep}
           nextButton={ activeStep == maxSteps-2 ?
             (<Button variant="contained" color="primary" onClick={this.handleNext} disabled={activeStep === maxSteps - 1} >
-              Send
-              <Icon >send</Icon>
+              Start 
+              <Icon >search</Icon>
             </Button>
             ):(<Button size="small" onClick={this.handleNext} disabled={activeStep === maxSteps - 1}>
               Next
@@ -117,6 +116,7 @@ class TextMobileStepper extends React.Component<{},{activeStep:any}> {
             <Button size="small" onClick={this.handleBack} disabled={activeStep === 0}>
               <KeyboardArrowLeft />
               Reset
+              <Icon>youtube_searched_for</Icon>
             </Button>
           }
         />
