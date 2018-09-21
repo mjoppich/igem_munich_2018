@@ -19,6 +19,9 @@ import Avatar from '@material-ui/core/Avatar';
 import { exec } from 'child_process';
 
 
+import Switch from '@material-ui/core/Switch';
+
+
 
 var app = require('electron').remote;
 var dialog = app.dialog;
@@ -42,7 +45,7 @@ class TextMobileStepper extends React.Component<{}, {
     activeStep: 0,
     inputFiles: new Array(),
     
-    // TODO Add default (ecoli/human)
+    // TODO Add default (ecoli/human) ---> use initiate function include maximum of refs
     inputRefs: new Array(),
     showProgress: false
   };
@@ -93,6 +96,8 @@ class TextMobileStepper extends React.Component<{}, {
           <IconButton aria-label="Delete" color="primary" onClick={() => self.handleSeqPathDelete(element)}>
             <DeleteIcon />
           </IconButton>
+
+          
         
         
         </ListItem>
@@ -181,6 +186,14 @@ class TextMobileStepper extends React.Component<{}, {
             Start
               <Icon>bubble_chart</Icon>
           </Button>
+
+
+          <Switch checked={false}
+          />
+
+
+
+
         </div>
       },
 
@@ -683,9 +696,9 @@ class TextMobileStepper extends React.Component<{}, {
   startPython() {
     var self = this;
 
-    // fetch all necessary input values
+    // fetch all necessary input values -> FILES, string für python
 
-    // call python
+    // call python 
 
     // when python finished, next
     exec('echo "bla"', (error, stdout, stderr) => {
