@@ -17,6 +17,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import { exec } from 'child_process';
+import TextField from '@material-ui/core/TextField';
 
 
 import Switch from '@material-ui/core/Switch';
@@ -25,6 +26,7 @@ import Switch from '@material-ui/core/Switch';
 
 var app = require('electron').remote;
 var dialog = app.dialog;
+const path = require('path');
 
 
 
@@ -34,6 +36,7 @@ class TextMobileStepper extends React.Component<{}, {
   activeStep: any,
   inputFiles: Array<any>,
   inputRefs: Array<any>,
+  outputDir: String,
   showProgress: boolean
 }>
 
@@ -44,7 +47,7 @@ class TextMobileStepper extends React.Component<{}, {
   state = {
     activeStep: 0,
     inputFiles: new Array(),
-    
+    outputDir: "",
     // TODO Add default (ecoli/human) ---> use initiate function include maximum of refs
     inputRefs: new Array(),
     showProgress: false
@@ -52,8 +55,12 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
+  
 
-
+  
+  handleOutputDirChange = (outputDir:any) => (event:any) => {
+    this.setState({outputDir: event.target.value,});
+  };
 
 
 
@@ -240,7 +247,7 @@ class TextMobileStepper extends React.Component<{}, {
                 component="label"
                 onClick={() => this.handleSeqPath("folder")}
               >
-                Choose Path
+                Choose Directory
                 <Icon>attach_file</Icon>
               </Button>
             </CardActions>
@@ -250,6 +257,25 @@ class TextMobileStepper extends React.Component<{}, {
 
             <CardContent>
               {inputFileList}
+            </CardContent>
+          </Card>
+          <Card style={{ marginTop: "25px" }}>
+          <CardContent>
+            <div style={{ display: "inline-flex", verticalAlign: "middle", alignItems: "center" }}>
+               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" /></svg>
+               &nbsp; Output directory: &nbsp;
+             </div>
+            {this.state.outputDir}
+            <div>
+            <TextField
+              id="standard-full-name"
+              label="Change output directory"
+              value={this.state.outputDir}
+              fullWidth
+              onChange={this.handleOutputDirChange('outputDir')}
+              margin="normal"
+            />
+            </div>
             </CardContent>
           </Card>
         </div>,
@@ -424,7 +450,7 @@ class TextMobileStepper extends React.Component<{}, {
 
 
         <Card style={{ marginBottom: "25px" }}>
-          <AppBar position="static" style={{ backgroundColor: 'yellow' }}>
+          <AppBar position="static" style={{ backgroundColor: 'black' }}>
             <Toolbar>
               <Typography variant="title" color="default">
                 <img src={tutorialSteps[activeStep].topimgPath} width="190" height="48" />
@@ -586,8 +612,9 @@ class TextMobileStepper extends React.Component<{}, {
           console.log("No file selected");
           return;
         }
-
+        
         fileNames.forEach((element: any) => {
+          self.state.outputDir=path.join(path.dirname(element), "tmp");
           self.state.inputFiles.push({
             path: element,
             type: upType,
@@ -596,18 +623,47 @@ class TextMobileStepper extends React.Component<{}, {
         });
 
         console.log(self.state.inputFiles)
-        self.setState({ inputFiles: self.state.inputFiles })
-
+        self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
       });
 
 
 
     } else {
-
-
-      // TODO implement CHOOSE PATH
-
-
+      dialog.showOpenDialog(
+          { properties: ['openDirectory']},
+        
+        (dirName: any) => {
+        
+        if (dirName === undefined) {
+          console.log("No file selected");
+          return;
+        }
+        //@Rita this will push directory path to the array of inputFiles (also can be seen in card)
+        //dirName.forEach((element: any) => {
+        //  self.state.outputDir = path.join(element,'tmp')
+        //  self.state.inputFiles.push({
+        //    path: element,
+        //    type: upType,
+        //  });
+        //});
+        
+        //@Rita this will push all .fastq files into the array of inputFiles (also can be seen in card)
+        var fs = require('fs');
+        dirName.forEach((element: any) => {
+          fs.readdir(element, (err: any, files:any) => {
+            files.forEach((file: any) => {
+              self.state.outputDir=path.join(element, "tmp");
+              if(file.endsWith(".fastq") || file.endsWith("FQ") || file.endsWith("fq") || file.endsWith("FASTAQ")){
+                self.state.inputFiles.push({
+                  path: file,
+                  type: "file",
+                });
+              }
+            });
+            self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
+          })
+        });
+      });
     }
   }
 
