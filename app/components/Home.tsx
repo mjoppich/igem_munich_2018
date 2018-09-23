@@ -571,6 +571,7 @@ class TextMobileStepper extends React.Component<{}, {
   handleBack = () => {
     this.setState(prevState => ({
       activeStep: 0,
+      outputDir: "",
       inputFiles: new Array(),
       showProgress: false,
     }));
