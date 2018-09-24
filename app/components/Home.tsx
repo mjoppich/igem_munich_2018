@@ -62,6 +62,14 @@ class TextMobileStepper extends React.Component<{}, {
     this.setState({outputDir: event.target.value,});
   };
 
+  handleEcoliChange = (ecoli:any) => (event:any) => {
+    this.state.inputFiles.push({
+      path: ecoli,
+      type: "file",
+    });
+    this.setState({inputFiles: this.state.inputFiles})
+  };
+
 
 
   getStepperSteps() {
@@ -168,7 +176,7 @@ class TextMobileStepper extends React.Component<{}, {
 
     return [
       {
-        // nothing happens here
+        
         header: "Step1",
         
         label: 
@@ -312,7 +320,6 @@ class TextMobileStepper extends React.Component<{}, {
        <div>
           <Card>
             <CardActions>
-
               <Button 
               variant="contained" 
               color="default" 
@@ -323,11 +330,24 @@ class TextMobileStepper extends React.Component<{}, {
                 <Icon>attach_file</Icon>
               </Button>
             </CardActions>
-        
-
-
             <CardContent>
               {inputRefList}
+            </CardContent>
+          </Card>
+          <Card style={{ marginTop: "25px" }}>
+            <CardContent>
+              <CardActions><span> <i>Escherichia coli</i> 
+              <Switch 
+              checked={false} 
+              color="primary"
+              onChange={this.handleEcoliChange('checkedB')}/> 
+              </span> 
+              </CardActions>
+            </CardContent>
+          </Card>
+          <Card style={{ marginTop: "25px" }}>
+            <CardContent>
+             <CardActions><span> Homo sapiens <Switch checked={false}/> </span> </CardActions>
             </CardContent>
           </Card>
         </div>
