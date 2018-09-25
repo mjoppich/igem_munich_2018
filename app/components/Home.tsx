@@ -1,7 +1,6 @@
 import * as React from 'react';
 import MobileStepper from '@material-ui/core/MobileStepper';
 import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
@@ -10,8 +9,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import CardContent from '@material-ui/core/CardContent';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -64,28 +61,6 @@ class TextMobileStepper extends React.Component<{}, {
 
     return (
       <div>
-
-        <Card 
-            style={{ 
-                marginBottom: "5px"}}>
-          <AppBar 
-                position="static" 
-                style={{ backgroundColor: 'black' }}>
-            <Toolbar>
-              <Typography 
-                    variant="title" 
-                    color="default">
-                        <img 
-                            src={tutorialSteps[activeStep].topimgPath} 
-                            width="190" 
-                            height="48"/>
-              </Typography>
-            </Toolbar>
-
-          </AppBar>
-        </Card>
-
-
         <Card
             style={{ marginBottom: "5px" }}>
 
@@ -105,6 +80,17 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
+
+                        <Button 
+                            size="small" 
+                            onClick={this.handleNext} 
+                            disabled={activeStep === maxSteps - 1}>
+                                Next
+                                <KeyboardArrowRight/>
+                        </Button>
+
+                        /**
+                         * TODO use correct buttons again
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -122,6 +108,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
+                        */
                     }
 
                     backButton=
@@ -163,9 +150,9 @@ class TextMobileStepper extends React.Component<{}, {
 
     var self = this;
 
+
     // TODO doppelten upload verhindern -> fastq und fasta
     
-
     // File List FastQ
     var inputListItems: any = [];
     var inputFileList = <List> {inputListItems} </List>;
@@ -250,7 +237,8 @@ class TextMobileStepper extends React.Component<{}, {
                         xmlns="http://www.w3.org/2000/svg" 
                         width="24" 
                         height="24" 
-                        viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
+                        viewBox="0 0 24 24">
+                        <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
                     </svg>
                     unter svg
                 </div>
@@ -373,6 +361,13 @@ class TextMobileStepper extends React.Component<{}, {
                         {inputRefList}
                     </CardContent>
 
+                    {this.state.showProgress ? 
+                        <div>
+                            <LinearProgress color="secondary"/>
+                        </div>
+                        :
+                        <div></div>
+                    }
                 </Card>
             </div>,
 
@@ -411,40 +406,32 @@ class TextMobileStepper extends React.Component<{}, {
                     <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
                 </svg>
                 Please check the correctness carefully!
-
-                <div>
-                    <CardContent>
-                        {JSON.stringify(this.state.contamResult, null, 10)}
-                    </CardContent>
-                </div>
             </div>,
 
-            topimgPath: '../sequinfo_neg.jpg',
+        topimgPath: '../sequinfo_neg.jpg',
 
-            imgPath: '../sequinfo_logo.jpeg',
+        imgPath: '../sequinfo_logo.jpeg',
 
-            content: 
-                <div>
-                    <Card>
+        content:
+
+            <div>
+                <Card>
+                    <div>
+                        <CardContent>
+                            {JSON.stringify(this.state.contamResult, null, 10)}
+                        </CardContent>
+                    </div>
+                </Card>
+
+
+                <Card>
                         <CardContent>
                             <p>Inserted .fastq files of sequencing reads:</p>
                             {inputFileList}
                         </CardContent>
-                    </Card>
+                </Card>
 
-
-                    {this.state.showProgress ? 
-                        <div>
-                            <LinearProgress />
-                            <br />
-                            <LinearProgress color="secondary"/>
-                        </div>
-                        :
-                        <div></div>
-                    }
-
-
-                     <div>
+                <div>
                         <Button
                             variant="contained" 
                             size="small" >
@@ -466,9 +453,13 @@ class TextMobileStepper extends React.Component<{}, {
                                     style={{ backgroundColor: 'red', color: "white" }}>
                                         Reset
                                         <Icon>bubble_chart</Icon>
-                                 </Button>
+                                </Button>
                         </div>
-                </div>              
+                    </div>
+                
+
+
+
             </div>,
 
       },

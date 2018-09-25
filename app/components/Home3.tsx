@@ -384,6 +384,7 @@ class TextMobileStepper extends React.Component<{}, {
           </div> : <div></div>}
         </div>,
         topimgPath: '../sequinfo_neg.jpg',
+        
         buttonAction: () => {
           var self = this
           this.state.showProgress = true;
