@@ -90,7 +90,6 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-                         /**
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -98,8 +97,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-                        */
                         
+                        /**
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -116,7 +115,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 disabled={activeStep === maxSteps - 1}>
                                 Next
                                 <KeyboardArrowRight/>
-                            </Button>)                
+                            </Button>)
+                        */            
                     }
 
                     backButton=
@@ -235,25 +235,44 @@ class TextMobileStepper extends React.Component<{}, {
     var innerSaveItems: any = [];
     var innerSaveList = <List>{innerSaveItems}</List>
 
-
-    // for each ref singular
-    // for all ref at once -> only if length > 1 additional card
+    // check aligned
+    // check not aligned
+    // additional card if ref.length > 1 for intersection
+    // keyerror
+    // on change -> python script
 
     this.state.inputFiles.forEach(element => {
+
+        var icon = <Icon>insert_drive_file</Icon>;
+        if (element.type == "folder") {icon = <Icon>folder_open</Icon>;}
+
         innerSaveItems.push(
             <ListItem
                 key={inputSaveItems.length}>
-                    <ListItemText primary={element.path}/>
+
+                    <Avatar>
+                        {icon}
+                    </Avatar>
+
+                    <ListItemText 
+                        primary={element.path}
+                        secondary={element.type}/>
 
                     <Checkbox
-                        value = "true"/>                     
+                        value = "true"/>
+                    aligned
+
+                    <Checkbox
+                        value = "true"/>
+                    not aligned
+
             </ListItem>
         )})
 
     this.state.inputRefs.forEach(element => {
         inputSaveItems.push(
             <ListItem
-                key={inputSaveItems.length + inputRefList.key}>
+                key={inputRefList.key}>
                     <Card>
                         <ListItemText primary={element.path}/>
                         {innerSaveList}
@@ -267,12 +286,6 @@ class TextMobileStepper extends React.Component<{}, {
     
 
 
-
-
-
-    
-
-    
 
     return [
     {
@@ -515,6 +528,14 @@ class TextMobileStepper extends React.Component<{}, {
       },
     ]; // return
   } // getStepperSteps()
+
+
+
+
+
+
+
+
 
 
 
