@@ -17,6 +17,7 @@ import TextField from '@material-ui/core/TextField';
 
 
 import Switch from '@material-ui/core/Switch';
+//import { element } from 'prop-types';
 
 
 
@@ -30,6 +31,7 @@ class TextMobileStepper extends React.Component<{}, {
 
   activeStep: any,
   inputFiles: Array<any>,
+  //saveFiles: Array<any>,
   inputRefs: Array<any>,
   outputDir: String,
   showProgress: boolean,
@@ -42,6 +44,7 @@ class TextMobileStepper extends React.Component<{}, {
   state = {
     activeStep: 0,
     inputFiles: new Array(),
+    //saveFiles: new Array(),
     outputDir: "",
     inputRefs: new Array(),
     showProgress: false,
@@ -65,12 +68,19 @@ class TextMobileStepper extends React.Component<{}, {
             style={{ marginBottom: "5px" }}>
 
             <CardContent>
-                <div style={{ display: "block", marginLeft: "auto", marginRight: "auto", width: "50%" }}>
-                    {tutorialSteps[activeStep].imgPath ? 
-                        <img src={tutorialSteps[activeStep].imgPath} width="400" height="100"/> 
-                        : 
-                        <div></div>}
-                    <p>{tutorialSteps[activeStep].header}</p> 
+                <div 
+                    style={{ 
+                        display: "block", 
+                        marginLeft: "auto", 
+                        marginRight: "auto", 
+                        width: "50%" }}>
+                            
+                            {tutorialSteps[activeStep].imgPath ? 
+                            <img src={tutorialSteps[activeStep].imgPath} width="400" height="100"/> 
+                            : 
+                            <div></div>}
+                            
+                            <p>{tutorialSteps[activeStep].header}</p> 
                 </div>
 
                 <MobileStepper
@@ -80,7 +90,8 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-
+                        /**
+                         * TODO use correct buttons again
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -88,9 +99,9 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
+                                  */
 
-                        /**
-                         * TODO use correct buttons again
+                        
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -108,7 +119,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
-                        */
+              
+                
                     }
 
                     backButton=
@@ -158,7 +170,7 @@ class TextMobileStepper extends React.Component<{}, {
     var inputFileList = <List> {inputListItems} </List>;
 
     this.state.inputFiles.forEach(element => {
-
+        
         var icon = <Icon>insert_drive_file</Icon>;
         if (element.type == "folder") {icon = <Icon>folder_open</Icon>;}
 
@@ -180,6 +192,30 @@ class TextMobileStepper extends React.Component<{}, {
             </ListItem>        
         )
     });
+
+    /** 
+    var inputFilesSave = inputListItems;
+    var saveFiles = this.state.inputFiles;
+    saveFiles.forEach(element => {
+
+        var icon = <Icon>insert_drive_file</Icon>;
+
+        inputFilesSave.push(
+            <ListItem>
+                <Avatar> {icon} </Avatar>
+
+                <ListItemText 
+                    primary={element.path} secondary={element.type}
+                />
+            </ListItem>
+        )
+    });
+
+    */
+
+
+
+
 
 
     // File List FastA
@@ -413,55 +449,50 @@ class TextMobileStepper extends React.Component<{}, {
         imgPath: '../sequinfo_logo.jpeg',
 
         content:
-
             <div>
                 <Card>
                     <div>
                         <CardContent>
-                            {JSON.stringify(this.state.contamResult, null, 10)}
+                            <p>Results / Summary:</p>
+                            {JSON.stringify(this.state.contamResult)} 
                         </CardContent>
                     </div>
                 </Card>
 
-
-                <Card>
+                <Card
+                    style={{ marginTop: "5px" }}>
                         <CardContent>
-                            <p>Inserted .fastq files of sequencing reads:</p>
-                            {inputFileList}
+                            <p>Inserted .fastq files of sequencing reads:  --> what to safe</p>
+                            //inputFilesSave in {}
                         </CardContent>
                 </Card>
 
-                <div>
-                        <Button
-                            variant="contained" 
-                            size="small" >
-                                Save
-                                <Icon>save</Icon>
-                        </Button>                    
-                       
-                        <div 
-                            style={{ 
-                                display: "block", 
-                                marginLeft: "auto", 
-                                marginRight: "auto", 
-                                width: "10%" }}>
-                                
-                                <Button 
-                                    variant="contained" 
-                                    onClick={this.handleBack} 
-                                    size="large" 
-                                    style={{ backgroundColor: 'red', color: "white" }}>
+                <div
+                    style={{ 
+                        marginTop: "25px",
+                        marginBottom: "25px",
+                        marginRight: "50px"}}>
+                            <Button
+                                variant="contained" 
+                                onClick={this.handleBack} 
+                                size="large" 
+                                style={{ 
+                                    backgroundColor: 'red', 
+                                    color: "white",
+                                    marginRight: "50px"
+                                     }}>
                                         Reset
                                         <Icon>bubble_chart</Icon>
-                                </Button>
-                        </div>
-                    </div>
-                
+                            </Button>
 
-
-
+                            <Button 
+                                variant="contained" 
+                                size="small">
+                                    Save
+                                    <Icon>save</Icon>
+                            </Button>                            
+                </div>
             </div>,
-
       },
     ]; // return
   } // getStepperSteps()
@@ -470,15 +501,7 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
-
-
-
-
-
-
-
-  // TODO
-
+  
 
   // ### ALL ###
   // set correct next step in stage
@@ -495,6 +518,7 @@ class TextMobileStepper extends React.Component<{}, {
       outputDir: "",
       inputFiles: new Array(),
       showProgress: false,
+      contamStrRes: "",
       contamResult: {},
     }));
   };
@@ -713,7 +737,7 @@ class TextMobileStepper extends React.Component<{}, {
           console.log(`child process returned ${self.state.contamStrRes}`);
 
     
-          self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+          //self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
     
           self.handleNext();
         });

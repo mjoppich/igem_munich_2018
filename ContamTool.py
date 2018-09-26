@@ -2,8 +2,6 @@ import argparse
 from pathlib import Path
 import json
 import os
-import HTSeq
-import pysam
 
 ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
 #ap.add_argument("--reads", required=True, help="path to the read file")
@@ -51,15 +49,16 @@ for file in cont_file:
 os.system("cat " + ' '.join(read_file) + " >" + os.path.join(output_dir, "complete.fastq"))
 read_file = os.path.join(output_dir, "complete.fastq")
 
+sam_output_files = []
 for file in cont_file:
     sam_file_name = os.path.split(file)[1][:-6]+".sam"
     os.system("graphmap align -r "+file+" -d "+read_file+" -o "+os.path.join(output_dir,sam_file_name))
-
-
-
+    sam_output_files.append(os.path.join(output_dir,sam_file_name))
+import pysam
 sam_file_to_dict = dict()
 fasta_file_to_dict = dict()
-for file in os.listdir(output_dir):
+
+for file in sam_output_files:
 
     alignedLength = 0
     alignmentBases = 0
@@ -69,9 +68,10 @@ for file in os.listdir(output_dir):
     idAlignedReads = []
     idNotAlignedReads = []
 
+
     if file.endswith(".sam"):
         fasta_file_name = os.path.split(file)[1][:-4]+".fasta"
-        samFile = pysam.AlignmentFile(output_dir+"/"+file, "r")
+        samFile = pysam.AlignmentFile(file, "r")
 
         for aln in samFile:
             totalBases += len(aln.seq)
@@ -115,9 +115,7 @@ if extracted_not_aligned:
         if not intersected_reads:
             intersected_reads=sam_file_to_dict[sam_file_name]["idNotAlignedReads"]
         intersected_reads = list(set(intersected_reads).intersection(sam_file_to_dict[sam_file_name]["idNotAlignedReads"]))
-       
-       
-
+        import HTSeq
         fastq_file = HTSeq.FastqReader(read_file)
         my_fastq_file = open(os.path.join(output_dir, "extracted_not_aligned_reads.fastq"), "w")
         for read in fastq_file:
@@ -133,11 +131,7 @@ if extracted_aligned:
         if not intersected_reads:
             intersected_reads=sam_file_to_dict[sam_file_name]["idAlignedReads"]
         intersected_reads = list(set(intersected_reads).intersection(sam_file_to_dict[sam_file_name]["idAlignedReads"]))
-   
-   
-   
-   
-
+    import HTSeq
     fastq_file = HTSeq.FastqReader(read_file)
     my_fastq_file = open(os.path.join(output_dir, "extracted_aligned_reads.fastq"), "w")
     for read in fastq_file:
