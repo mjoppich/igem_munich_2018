@@ -90,7 +90,7 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-                       
+                         /**
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -98,9 +98,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-                            
-
-                         /**
+                        */
+                        
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -117,10 +116,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 disabled={activeStep === maxSteps - 1}>
                                 Next
                                 <KeyboardArrowRight/>
-                            </Button>)
-                        */
-              
-                
+                            </Button>)                
                     }
 
                     backButton=
@@ -236,7 +232,6 @@ class TextMobileStepper extends React.Component<{}, {
     // File List Saving Fastq
     var inputSaveItems: any = [];
     var saveFileList = <List> {inputSaveItems} </List>
-    
     var innerSaveItems: any = [];
     var innerSaveList = <List>{innerSaveItems}</List>
 
@@ -245,7 +240,6 @@ class TextMobileStepper extends React.Component<{}, {
     // for all ref at once -> only if length > 1 additional card
 
     this.state.inputFiles.forEach(element => {
-
         innerSaveItems.push(
             <ListItem
                 key={inputSaveItems.length}>
