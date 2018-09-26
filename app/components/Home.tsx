@@ -244,28 +244,22 @@ class TextMobileStepper extends React.Component<{}, {
     // for each ref singular
     // for all ref at once -> only if length > 1 additional card
 
-    this.state.inputRefs.forEach(element => {
+    this.state.inputFiles.forEach(element => {
 
-
-
-        this.state.inputFiles.forEach(element => {
-
-            innerSaveItems.push(
-                <ListItem
-                    key={inputSaveItems.length}>
-                        <ListItemText primary={element.path}/>
-
-                        <Checkbox
-                            value = "true"/>                     
-                </ListItem>
-            )})
-
-
-
-
-        inputSaveItems.push(
+        innerSaveItems.push(
             <ListItem
                 key={inputSaveItems.length}>
+                    <ListItemText primary={element.path}/>
+
+                    <Checkbox
+                        value = "true"/>                     
+            </ListItem>
+        )})
+
+    this.state.inputRefs.forEach(element => {
+        inputSaveItems.push(
+            <ListItem
+                key={inputSaveItems.length + inputRefList.key}>
                     <Card>
                         <ListItemText primary={element.path}/>
                         {innerSaveList}
