@@ -4,7 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import { Card, CardActions } from '@material-ui/core';
+import { Card, CardActions, Checkbox } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
@@ -31,7 +31,7 @@ class TextMobileStepper extends React.Component<{}, {
 
   activeStep: any,
   inputFiles: Array<any>,
-  //saveFiles: Array<any>,
+  saveFiles: Array<any>,
   inputRefs: Array<any>,
   outputDir: String,
   showProgress: boolean,
@@ -44,7 +44,7 @@ class TextMobileStepper extends React.Component<{}, {
   state = {
     activeStep: 0,
     inputFiles: new Array(),
-    //saveFiles: new Array(),
+    saveFiles: new Array(),
     outputDir: "",
     inputRefs: new Array(),
     showProgress: false,
@@ -90,8 +90,7 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-                        /**
-                         * TODO use correct buttons again
+                       
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -99,9 +98,9 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-                                  */
+                            
 
-                        
+                         /**
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -119,6 +118,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
+                        */
               
                 
                     }
@@ -162,7 +162,7 @@ class TextMobileStepper extends React.Component<{}, {
 
     var self = this;
 
-
+    
     // TODO doppelten upload verhindern -> fastq und fasta
     
     // File List FastQ
@@ -175,47 +175,23 @@ class TextMobileStepper extends React.Component<{}, {
         if (element.type == "folder") {icon = <Icon>folder_open</Icon>;}
 
         inputListItems.push(
-            <ListItem key={inputListItems.length}>
-                <Avatar> {icon} </Avatar>
-                
-                <ListItemText 
-                primary={element.path} secondary={element.type}
-                />
-                
-                <IconButton 
-                    aria-label="Delete" 
-                    color="primary" 
-                    onClick={() => self.handleSeqPathDelete(element)}>
-                    <DeleteIcon/>
-                </IconButton>
-
+            <ListItem 
+                key={inputListItems.length}>
+                    <Avatar> {icon} </Avatar>
+                    
+                    <ListItemText 
+                    primary={element.path} secondary={element.type}
+                    />
+                    
+                    <IconButton 
+                        aria-label="Delete" 
+                        color="primary" 
+                        onClick={() => self.handleSeqPathDelete(element)}>
+                        <DeleteIcon/>
+                    </IconButton>
             </ListItem>        
         )
     });
-
-    /** 
-    var inputFilesSave = inputListItems;
-    var saveFiles = this.state.inputFiles;
-    saveFiles.forEach(element => {
-
-        var icon = <Icon>insert_drive_file</Icon>;
-
-        inputFilesSave.push(
-            <ListItem>
-                <Avatar> {icon} </Avatar>
-
-                <ListItemText 
-                    primary={element.path} secondary={element.type}
-                />
-            </ListItem>
-        )
-    });
-
-    */
-
-
-
-
 
 
     // File List FastA
@@ -230,30 +206,84 @@ class TextMobileStepper extends React.Component<{}, {
         element.enabled = element.enabled === undefined ? true : element.enabled;
           
         inputRefItems.push(
-            <ListItem key={inputRefItems.length}>
-                <Avatar>
-                    {icon}
-                </Avatar>
-               
-                <ListItemText 
-                    primary={element.title || element.path} 
-                    secondary={element.type}/>
+            <ListItem 
+                key={inputRefItems.length}>
+                    <Avatar>
+                        {icon}
+                    </Avatar>
                 
-                <Switch 
-                    checked={element.enabled} 
-                    color="primary"
-                    onChange={() => {element.enabled = !element.enabled; 
-                    this.setState({inputRefs: this.state.inputRefs})}}/> 
-                
-                <IconButton 
-                    aria-label="Delete" 
-                    color="primary" 
-                    onClick={() => self.handleRefPathDelete(element)}>
-                     <DeleteIcon/>
-                </IconButton>
+                    <ListItemText 
+                        primary={element.title || element.path} 
+                        secondary={element.type}/>
+                    
+                    <Switch 
+                        checked={element.enabled} 
+                        color="primary"
+                        onChange={() => {element.enabled = !element.enabled; 
+                        this.setState({inputRefs: this.state.inputRefs})}}/> 
+                    
+                    <IconButton 
+                        aria-label="Delete" 
+                        color="primary" 
+                        onClick={() => self.handleRefPathDelete(element)}>
+                        <DeleteIcon/>
+                    </IconButton>
             </ListItem>
         )
     })
+
+
+    // File List Saving Fastq
+    var inputSaveItems: any = [];
+    var saveFileList = <List> {inputSaveItems} </List>
+    
+    var innerSaveItems: any = [];
+    var innerSaveList = <List>{innerSaveItems}</List>
+
+
+    // for each ref singular
+    // for all ref at once -> only if length > 1 additional card
+
+    this.state.inputRefs.forEach(element => {
+
+
+
+        this.state.inputFiles.forEach(element => {
+
+            innerSaveItems.push(
+                <ListItem
+                    key={inputSaveItems.length}>
+                        <ListItemText primary={element.path}/>
+
+                        <Checkbox
+                            value = "true"/>                     
+                </ListItem>
+            )})
+
+
+
+
+        inputSaveItems.push(
+            <ListItem
+                key={inputSaveItems.length}>
+                    <Card>
+                        <ListItemText primary={element.path}/>
+                        {innerSaveList}
+                    </Card>
+            </ListItem>
+        )
+   
+   
+   
+    });
+    
+
+
+
+
+
+    
+
     
 
     return [
@@ -460,12 +490,13 @@ class TextMobileStepper extends React.Component<{}, {
                 </Card>
 
                 <Card
-                    style={{ marginTop: "5px" }}>
+                    style={{ marginTop: "25px" }}>
                         <CardContent>
-                            <p>Inserted .fastq files of sequencing reads:  --> what to safe</p>
-                            //inputFilesSave in {}
+                            <p>Inserted .fastq files of sequencing reads:  --> TODO what to safe</p>
+                            {saveFileList}
                         </CardContent>
                 </Card>
+
 
                 <div
                     style={{ 
@@ -577,6 +608,9 @@ class TextMobileStepper extends React.Component<{}, {
           console.log("No file selected");
           return;
         }
+
+        // TODO folder uploaded as folder
+
         //@Rita this will push directory path to the array of inputFiles (also can be seen in card)
         //dirName.forEach((element: any) => {
         //  self.state.outputDir = path.join(element,'tmp')
