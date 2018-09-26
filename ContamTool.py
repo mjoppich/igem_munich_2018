@@ -49,16 +49,17 @@ for file in cont_file:
 os.system("cat " + ' '.join(read_file) + " >" + os.path.join(output_dir, "complete.fastq"))
 read_file = os.path.join(output_dir, "complete.fastq")
 
-sam_output_files = []
+sam_fasta_map = {}
+
 for file in cont_file:
     sam_file_name = os.path.split(file)[1][:-6]+".sam"
     os.system("graphmap align -r "+file+" -d "+read_file+" -o "+os.path.join(output_dir,sam_file_name))
-    sam_output_files.append(os.path.join(output_dir,sam_file_name))
+    sam_fasta_map[os.path.join(output_dir,sam_file_name)]=file
 import pysam
 sam_file_to_dict = dict()
 fasta_file_to_dict = dict()
 
-for file in sam_output_files:
+for file in sam_fasta_map.keys():
 
     alignedLength = 0
     alignmentBases = 0
@@ -69,43 +70,43 @@ for file in sam_output_files:
     idNotAlignedReads = []
 
 
-    if file.endswith(".sam"):
-        fasta_file_name = os.path.split(file)[1][:-4]+".fasta"
-        samFile = pysam.AlignmentFile(file, "r")
 
-        for aln in samFile:
-            totalBases += len(aln.seq)
-            totalReads += 1
-            if not aln.is_unmapped:
-                alignmentBases += aln.alen
-                alignedLength += len(aln.seq)
-                alignedReads += 1
-                idAlignedReads.append(aln.query_name)
-            else:
-                idNotAlignedReads.append(aln.query_name)
-        sep = "\t"
+    fasta_file_name = sam_fasta_map[file]
+    samFile = pysam.AlignmentFile(file, "r")
 
-        #print(file)
-        #print("DESCR", "ABS", "REL", sep=sep)
-        #print("reads", totalReads, "{:.5}".format(1.0), sep=sep)
-        #print("aligned reads", alignedReads, "{:.5}".format(alignedReads / totalReads), sep=sep)
-        #print("unaligned reads", totalReads - alignedReads, "{:.5}".format((totalReads - alignedReads) / totalReads),
-        #      sep=sep)
-        #print("bases", totalBases, "{:.5}".format(1.0), sep=sep)
-        #print("alignment bases", alignmentBases, "{:.5}".format(alignmentBases / totalBases), sep=sep)
-        #print("aligned bases", alignedLength, "{:.5}".format(alignedLength / totalBases), sep=sep)
-        #print("unaligned bases", totalBases - alignedLength, "{:.5}".format((totalBases - alignedLength) / totalBases),
-        #      sep=sep)
-        if not extracted_not_aligned and not extracted_aligned:
-            tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases,
-                            alignmentBases=alignmentBases,
-                            alignedLength=alignedLength)
-            fasta_file_to_dict[os.path.join(output_dir, fasta_file_name)] = tmp_dict
+    for aln in samFile:
+        totalBases += len(aln.seq)
+        totalReads += 1
+        if not aln.is_unmapped:
+            alignmentBases += aln.alen
+            alignedLength += len(aln.seq)
+            alignedReads += 1
+            idAlignedReads.append(aln.query_name)
         else:
-            tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases, alignmentBases=alignmentBases,
-                            alignedLength=alignedLength, idAlignedReads=idAlignedReads, idNotAlignedReads=idNotAlignedReads)
-            sam_file_to_dict[os.path.join(output_dir,file)] = tmp_dict
-            fasta_file_to_dict[os.path.join(output_dir, fasta_file_name)]=tmp_dict
+            idNotAlignedReads.append(aln.query_name)
+    sep = "\t"
+
+    #print(file)
+    #print("DESCR", "ABS", "REL", sep=sep)
+    #print("reads", totalReads, "{:.5}".format(1.0), sep=sep)
+    #print("aligned reads", alignedReads, "{:.5}".format(alignedReads / totalReads), sep=sep)
+    #print("unaligned reads", totalReads - alignedReads, "{:.5}".format((totalReads - alignedReads) / totalReads),
+    #      sep=sep)
+    #print("bases", totalBases, "{:.5}".format(1.0), sep=sep)
+    #print("alignment bases", alignmentBases, "{:.5}".format(alignmentBases / totalBases), sep=sep)
+    #print("aligned bases", alignedLength, "{:.5}".format(alignedLength / totalBases), sep=sep)
+    #print("unaligned bases", totalBases - alignedLength, "{:.5}".format((totalBases - alignedLength) / totalBases),
+    #      sep=sep)
+    if not extracted_not_aligned and not extracted_aligned:
+        tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases,
+                        alignmentBases=alignmentBases,
+                        alignedLength=alignedLength)
+        fasta_file_to_dict[fasta_file_name] = tmp_dict
+    else:
+        tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases, alignmentBases=alignmentBases,
+                        alignedLength=alignedLength, idAlignedReads=idAlignedReads, idNotAlignedReads=idNotAlignedReads)
+        sam_file_to_dict[file] = tmp_dict
+        fasta_file_to_dict[fasta_file_name]=tmp_dict
 print(json.dumps(fasta_file_to_dict))
 
 if extracted_not_aligned:
