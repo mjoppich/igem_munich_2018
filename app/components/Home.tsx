@@ -4,7 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import { Card, CardActions } from '@material-ui/core';
+import { Card, CardActions} from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
@@ -21,6 +21,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+
 
 
 var app = require('electron').remote;
@@ -782,8 +784,18 @@ class TextMobileStepper extends React.Component<{}, {
                 <Typography align='center'>
                     Results for contamination file</Typography>
                 <Typography color='secondary' align='center'>{element.path}</Typography>
-                <img src={this.state.contamResult[element.path]["readLengthPlot"]}/> 
                 {tablePart}
+                <React.Fragment>
+                    <Grid container>
+                        <Grid item xs>
+                            <img src={this.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
+                        </Grid>
+                        <Grid item xs>
+                            <img src={this.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
+                        </Grid>
+                    </Grid>
+                </React.Fragment>
+                <img src={this.state.contamResult[element.path]["readLengthPlot"]}/> 
               </CardContent>
           </Card></div>
         })
