@@ -782,7 +782,7 @@ class TextMobileStepper extends React.Component<{}, {
                 <Typography align='center'>
                     Results for contamination file</Typography>
                 <Typography color='secondary' align='center'>{element.path}</Typography>
-                
+                <img src={this.state.contamResult[element.path]["readLengthPlot"]}/> 
                 {tablePart}
               </CardContent>
           </Card></div>
