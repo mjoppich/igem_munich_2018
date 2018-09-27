@@ -14,10 +14,13 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import TextField from '@material-ui/core/TextField';
-
-
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import Switch from '@material-ui/core/Switch';
-
+import Typography from '@material-ui/core/Typography';
 
 
 var app = require('electron').remote;
@@ -35,6 +38,7 @@ class TextMobileStepper extends React.Component<{}, {
   showProgress: boolean,
   contamResult: any,
   contamStrRes: String,
+  resultTable: any
 }>
 
 
@@ -47,6 +51,7 @@ class TextMobileStepper extends React.Component<{}, {
     showProgress: false,
     contamResult: JSON.parse("{}"),
     contamStrRes: "",
+    resultTable: <div></div>
   };
 
 
@@ -415,21 +420,7 @@ class TextMobileStepper extends React.Component<{}, {
         content:
 
             <div>
-                <Card>
-                    <div>
-                        <CardContent>
-                            
-                            {JSON.stringify(this.state.contamResult)}
-                            
-                            
-                        </CardContent>
-                    </div>
-                </Card>
-                <Card>
-                    {JSON.stringify(this.state.contamResult["/Users/rita/iGEM/test/tmp/test.fasta"])}
-                    
-                </Card>
-
+                {this.state.resultTable}
                 <Card>
                         <CardContent>
                             <p>Inserted .fastq files of sequencing reads:</p>
@@ -502,7 +493,8 @@ class TextMobileStepper extends React.Component<{}, {
       inputFiles: new Array(),
       showProgress: false,
       contamResult: JSON.parse("{}"),
-      contamStrRes: ""
+      contamStrRes: "",
+      resultTable: <div></div>
     }));
   };
 
@@ -718,20 +710,90 @@ class TextMobileStepper extends React.Component<{}, {
           console.log(`child process returned ${self.state.contamStrRes}`);
 
           self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+
+          
+          var resultTable = <div></div>
           this.state.inputRefs.forEach((element: any) => {
-            console.log(element.path)
-            console.log(JSON.stringify(this.state.contamResult[element.path]))
-          })
-    
+            var tablePart =
+            <Table>
+              <TableHead>
+              <TableRow>
+              <TableCell>Number of</TableCell>
+              <TableCell numeric>Absolute value</TableCell>
+              <TableCell numeric>Relative value</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Reads
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["totalReads"]}</TableCell>
+              <TableCell numeric>1.00000</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Aligned reads
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["alignedReads"]}</TableCell>
+              <TableCell numeric>{(this.state.contamResult[element.path]["alignedReads"]/this.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Unaligned reads
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["totalReads"]-this.state.contamResult[element.path]["alignedReads"]}</TableCell>
+              <TableCell numeric>{((this.state.contamResult[element.path]["totalReads"]-this.state.contamResult[element.path]["alignedReads"])/this.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Bases
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["totalBases"]}</TableCell>
+              <TableCell numeric>1.00000</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Alignment bases
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["alignmentBases"]}</TableCell>
+              <TableCell numeric>{(this.state.contamResult[element.path]["alignmentBases"]/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Aligned bases
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["alignedLength"]}</TableCell>
+              <TableCell numeric>{(this.state.contamResult[element.path]["alignedLength"]/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Unaligned bases
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["totalBases"]-this.state.contamResult[element.path]["alignedLength"]}</TableCell>
+              <TableCell numeric>{((this.state.contamResult[element.path]["totalBases"]-this.state.contamResult[element.path]["alignedLength"])/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+          </TableRow>
+          </TableBody>
+        </Table>
+          
+          resultTable = <div> {resultTable}
+          <Card>
+              <CardContent >
+                <Typography align='center'>
+                    Results for contamination file</Typography>
+                <Typography color='secondary' align='center'>{element.path}</Typography>
+                
+                {tablePart}
+              </CardContent>
+          </Card></div>
+        })
+        
+        self.setState({resultTable: resultTable})
           self.handleNext();
         });
       }
-    
 
-
-
-
-
+   
 
 }
 
