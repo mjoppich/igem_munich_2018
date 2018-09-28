@@ -17,8 +17,16 @@ import TextField from '@material-ui/core/TextField';
 
 
 import Switch from '@material-ui/core/Switch';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
 //import { element } from 'prop-types';
 
+
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 
 
 var app = require('electron').remote;
@@ -37,6 +45,7 @@ class TextMobileStepper extends React.Component<{}, {
   showProgress: boolean,
   contamResult: any,
   contamStrRes: String,
+  resultTable: any,
 }>
 
 
@@ -50,6 +59,7 @@ class TextMobileStepper extends React.Component<{}, {
     showProgress: false,
     contamResult: JSON.parse("{}"),
     contamStrRes: "",
+    resultTable: <div></div>,
   };
 
 
@@ -90,6 +100,7 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
+                             /**
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -97,8 +108,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-                        
-                        /**
+                            */ 
+                
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -116,7 +127,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
-                        */            
+                           
                     }
 
                     backButton=
@@ -481,15 +492,9 @@ class TextMobileStepper extends React.Component<{}, {
 
         content:
             <div>
-                <Card>
-                    <div>
-                        <CardContent>
-                            <p>Results / Summary:</p>
-                            {JSON.stringify(this.state.contamResult)} 
-                        </CardContent>
-                    </div>
-                </Card>
-
+            
+                {this.state.resultTable}
+                
                 <Card
                     style={{ marginTop: "25px" }}>
                         <CardContent>
@@ -558,8 +563,9 @@ class TextMobileStepper extends React.Component<{}, {
       outputDir: "",
       inputFiles: new Array(),
       showProgress: false,
+      contamResult: JSON.parse("{}"),
       contamStrRes: "",
-      contamResult: {},
+      resultTable: <div></div>
     }));
   };
 
@@ -749,16 +755,15 @@ class TextMobileStepper extends React.Component<{}, {
         //}
         //console.log(`stdout: ${stdout}`);
         //console.log(`stderr: ${stderr}`);
-      //}); stdout: /Users/rita/iGEM/electron_boilerplate !!!!!!!!
+        //}); stdout: /Users/rita/iGEM/electron_boilerplate !!!!!!!!
         var self = this;
         var command = "ContamTool.py --reads ";
         self.state.inputFiles.forEach(element => {command = command + element.path+" "})
-       
-    
         command = command + "--cont "
         self.state.inputRefs.forEach(element => {if (element.enabled) {command = command + element.path+" "}})
+        console.log(self.state.inputRefs)
         command = command + "--o " + self.state.outputDir
-        console.log(command)
+        console.log("THIS IS OUR COMMAND: "+command)
         var splitted_command = command.split(" "); 
     
         const {spawn} = require('child_process');
@@ -779,23 +784,99 @@ class TextMobileStepper extends React.Component<{}, {
           console.log(`child process exited with code ${code}`);
           console.log(`child process returned ${self.state.contamStrRes}`);
 
-    
-          //self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
-    
+          self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+
+          
+          var resultTable = <div></div>
+          this.state.inputRefs.forEach((element: any) => {
+            var tablePart =
+            <Table>
+              <TableHead>
+              <TableRow>
+              <TableCell>Number of</TableCell>
+              <TableCell numeric>Absolute value</TableCell>
+              <TableCell numeric>Relative value</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Reads
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["totalReads"]}</TableCell>
+              <TableCell numeric>1.00000</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Aligned reads
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["alignedReads"]}</TableCell>
+              <TableCell numeric>{(this.state.contamResult[element.path]["alignedReads"]/this.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Unaligned reads
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["totalReads"]-this.state.contamResult[element.path]["alignedReads"]}</TableCell>
+              <TableCell numeric>{((this.state.contamResult[element.path]["totalReads"]-this.state.contamResult[element.path]["alignedReads"])/this.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Bases
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["totalBases"]}</TableCell>
+              <TableCell numeric>1.00000</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Alignment bases
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["alignmentBases"]}</TableCell>
+              <TableCell numeric>{(this.state.contamResult[element.path]["alignmentBases"]/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Aligned bases
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["alignedLength"]}</TableCell>
+              <TableCell numeric>{(this.state.contamResult[element.path]["alignedLength"]/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+          </TableRow>
+          <TableRow>
+              <TableCell component="th" scope="row">    
+              Unaligned bases
+              </TableCell>
+              <TableCell numeric>{this.state.contamResult[element.path]["totalBases"]-this.state.contamResult[element.path]["alignedLength"]}</TableCell>
+              <TableCell numeric>{((this.state.contamResult[element.path]["totalBases"]-this.state.contamResult[element.path]["alignedLength"])/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+          </TableRow>
+          </TableBody>
+        </Table>
+          
+          resultTable = <div> {resultTable}
+          <Card>
+              <CardContent >
+                <Typography align='center'>
+                    Results for contamination file</Typography>
+                <Typography color='secondary' align='center'>{element.path}</Typography>
+                {tablePart}
+                <React.Fragment>
+                    <Grid container>
+                        <Grid item xs>
+                            <img src={this.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
+                        </Grid>
+                        <Grid item xs>
+                            <img src={this.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
+                        </Grid>
+                    </Grid>
+                </React.Fragment>
+                <img src={this.state.contamResult[element.path]["readLengthPlot"]}/> 
+              </CardContent>
+          </Card></div>
+        })
+        
+        self.setState({resultTable: resultTable})
           self.handleNext();
         });
       }
-    
-
-
-
-
-
-
 }
-
-
-
-
 
 export default TextMobileStepper;

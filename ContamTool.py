@@ -2,6 +2,8 @@ import argparse
 from pathlib import Path
 import json
 import os
+import HTSeq
+import matplotlib.pyplot as plt
 
 ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
 #ap.add_argument("--reads", required=True, help="path to the read file")
@@ -17,6 +19,7 @@ cont_file = args["cont"]
 output_dir = args["o"]
 extracted_not_aligned = args["extract_not_aligned"]
 extracted_aligned = args["extract_aligned"]
+
 #if not read_file.endswith(".fastq"):
 #    print('Please enter read file in fastq format')
 #file = Path(args["reads"])
@@ -45,9 +48,22 @@ for file in cont_file:
         print('Contamination file does not exist')
         exit()
 
-#print("cat " + ' '.join(read_file) + " > " + os.path.join(output_dir, "complete.fastq"))
 os.system("cat " + ' '.join(read_file) + " >" + os.path.join(output_dir, "complete.fastq"))
 read_file = os.path.join(output_dir, "complete.fastq")
+
+reads = HTSeq.FastqReader(read_file)
+n_reads = 0
+len_reads=[]
+for read in reads:
+    len_reads.append(len(read.seq))
+    n_reads= n_reads + 1
+plt.ylabel('Frequency', fontsize=10)
+plt.xlabel('Length of reads', fontsize=10)
+plt.title('Length frequencies of all reads', fontsize=12)
+plt.hist(len_reads, bins=100, color='green')
+plt.savefig(os.path.join(output_dir,"reads_length.png"))
+plt.close()
+
 
 sam_fasta_map = {}
 
@@ -97,14 +113,36 @@ for file in sam_fasta_map.keys():
     #print("aligned bases", alignedLength, "{:.5}".format(alignedLength / totalBases), sep=sep)
     #print("unaligned bases", totalBases - alignedLength, "{:.5}".format((totalBases - alignedLength) / totalBases),
     #      sep=sep)
+
+    labels = 'Aligned \n Reads', 'Unaligned \n Reads'
+    plt.pie([alignedReads, (totalReads-alignedReads)], explode=(0,0), labels=labels, colors=['gold', 'yellowgreen'],
+            autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
+    plt.axis('equal')
+
+    plt.savefig(os.path.join(output_dir,os.path.split(file)[1][:-4]+"_read_pie.png"))
+    plt.close()
+
+    labels = 'Aligned \n Bases', 'Unaligned \n Bases'
+    plt.pie([alignedLength, (totalBases - alignedLength)], explode=(0, 0), labels=labels, colors=['lightcoral', 'lightskyblue'],
+            autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
+    plt.axis('equal')
+    plt.savefig(os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
+    plt.close()
+
     if not extracted_not_aligned and not extracted_aligned:
         tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases,
                         alignmentBases=alignmentBases,
-                        alignedLength=alignedLength)
+                        alignedLength=alignedLength,
+                        readLengthPlot=os.path.join(output_dir,"reads_length.png"),
+                        readsPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_read_pie.png"),
+                        basesPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
         fasta_file_to_dict[fasta_file_name] = tmp_dict
     else:
         tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases, alignmentBases=alignmentBases,
-                        alignedLength=alignedLength, idAlignedReads=idAlignedReads, idNotAlignedReads=idNotAlignedReads)
+                        alignedLength=alignedLength, idAlignedReads=idAlignedReads, idNotAlignedReads=idNotAlignedReads,
+                        readLengthPlot=os.path.join(output_dir, "reads_length.png"),
+                        readsPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_read_pie.png"),
+                        basesPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
         sam_file_to_dict[file] = tmp_dict
         fasta_file_to_dict[fasta_file_name]=tmp_dict
 print(json.dumps(fasta_file_to_dict))
