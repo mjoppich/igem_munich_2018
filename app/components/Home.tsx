@@ -4,7 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import { Card, CardActions, CardHeader } from '@material-ui/core';
+import { Card, CardActions, Checkbox } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
@@ -17,17 +17,6 @@ import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-<<<<<<< HEAD
-//import { element } from 'prop-types';
-
-
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-
-=======
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -35,7 +24,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 //import * as contaminants from '../contaminants.json';
->>>>>>> rita
 
 var app = require('electron').remote;
 var dialog = app.dialog;
@@ -46,11 +34,10 @@ class TextMobileStepper extends React.Component<{}, {
 
   activeStep: any,
   inputFiles: Array<any>,
-  saveFiles: any,
+  saveFiles: Array<any>,
   inputRefs: Array<any>,
   outputDir: String,
   showProgress: boolean,
-  showProgress2:boolean,
   contamResult: any,
   contamStrRes: String,
   resultTable: any,
@@ -61,11 +48,10 @@ class TextMobileStepper extends React.Component<{}, {
   state = {
     activeStep: 0,
     inputFiles: new Array(),
-    saveFiles: JSON.parse("{}"),
+    saveFiles: new Array(),
     outputDir: "",
     inputRefs: new Array(),
     showProgress: false,
-    showProgress2: false,
     contamResult: JSON.parse("{}"),
     contamStrRes: "",
     resultTable: <div></div>,
@@ -126,15 +112,7 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                        
-=======
-                             /**
->>>>>>> rita
-=======
-                        /**
->>>>>>> 06aabb5a9a29c0763a286801fd97b3bc6a0817aa
+                        /** 
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -142,18 +120,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    
-                        /**
-=======
-                            */ 
-                
->>>>>>> rita
-=======
-                        */
-                    
->>>>>>> 06aabb5a9a29c0763a286801fd97b3bc6a0817aa
+                    */
+                        
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -171,14 +139,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
-<<<<<<< HEAD
-<<<<<<< HEAD
-                        */
-=======
-                           
->>>>>>> rita
-=======
->>>>>>> 06aabb5a9a29c0763a286801fd97b3bc6a0817aa
+                        
                     }
 
                     backButton=
@@ -338,31 +299,11 @@ class TextMobileStepper extends React.Component<{}, {
     })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // File List Saving Fastq
     var inputSaveItems: any = [];
+    var saveFileList = <List> {inputSaveItems} </List>
+    var innerSaveItems: any = [];
+    var innerSaveList = <List>{innerSaveItems}</List>
 
     // check aligned
     // check not aligned
@@ -370,139 +311,47 @@ class TextMobileStepper extends React.Component<{}, {
     // keyerror
     // on change -> python script
 
-    this.state.inputRefs.forEach((element, idx) => {
+    this.state.inputFiles.forEach(element => {
 
+        var icon = <Icon>insert_drive_file</Icon>;
+        if (element.type == "folder") {icon = <Icon>folder_open</Icon>;}
 
-        
-
-
-        var innerSaveItems: any = [];
-        
-        if (this.state.saveFiles[element.path] === undefined)
-        {
-            this.state.saveFiles[element.path] = {aligned: {}, unaligned: {}};
-        }
-
-        this.state.inputFiles.forEach((innerElement, innerIdx) => {
-
-
-    
-        
-
-            if (this.state.saveFiles[element.path]['aligned'][innerElement.path] === undefined)
-            {
-                console.log("Setting aligned inner element" + element.path);
-                this.state.saveFiles[element.path]['aligned'][innerElement.path] = false;
-            }
-
-            if (this.state.saveFiles[element.path]['unaligned'][innerElement.path] === undefined)
-            {
-                console.log("Setting unaligned inner element" + element.path);
-
-                this.state.saveFiles[element.path]['unaligned'][innerElement.path] = false;
-            }
-
-
-            var icon = <Icon>insert_drive_file</Icon>;
-            if (innerElement.type == "folder") {icon = <Icon>folder_open</Icon>;}
-
-
-
-            innerSaveItems.push(
+        innerSaveItems.push(
             <ListItem
-                key={idx + innerIdx}>
+                key={inputSaveItems.length}>
 
                     <Avatar>
                         {icon}
                     </Avatar>
 
-<<<<<<< HEAD
                     <ListItemText
-<<<<<<< HEAD
                         primary={path.basename(element.path)}
-=======
-                    <ListItemText 
-                        primary={element.path}
->>>>>>> rita
                         secondary={element.type}/>
-=======
-                        primary={path.basename(innerElement.path)}
-                        secondary={innerElement.type}/>
->>>>>>> 06aabb5a9a29c0763a286801fd97b3bc6a0817aa
 
-                          <Switch 
-                        value={String(this.state.saveFiles[element.path]['aligned'][innerElement.path])} 
-                        color="primary"
-                        onChange={() => {
-                            this.state.saveFiles[element.path]['aligned'][innerElement.path] = !this.state.saveFiles[element.path]['aligned'][innerElement.path];
-                            this.forceUpdate();
-                            
-                        }}/> 
+                    <Checkbox
+                        value = "true"/>
                     aligned
 
-
-                          <Switch 
-                        value={String(this.state.saveFiles[element.path]['unaligned'][innerElement.path])} 
-                        color="primary"
-                        onChange={() => {
-
-                            this.state.saveFiles[element.path]['unaligned'][innerElement.path] = !this.state.saveFiles[element.path]['unaligned'][innerElement.path];
-                            this.forceUpdate();
-                            
-                        }}/> 
+                    <Checkbox
+                        value = "true"/>
                     not aligned
 
             </ListItem>
-        )
+        )})
 
-        });
-
-
+    this.state.inputRefs.forEach(element => {
         inputSaveItems.push(
             <ListItem
-                key={idx*this.state.inputFiles.length}>
+                key={inputRefList.key}>
                     <Card>
-
-                        <CardHeader
-                            title={path.basename(element.path)}
-                            subheader={"subheader"}/>
-                        
-                        <List>{innerSaveItems}</List>
+                        <ListItemText
+                            primary={path.basename(element.path)}/>
+                        {innerSaveList}
                     </Card>
             </ListItem>
         )
-  
-  
-  
     });
     
-    var saveFileList = <List>{inputSaveItems}</List>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -654,8 +503,6 @@ class TextMobileStepper extends React.Component<{}, {
                         :
                         <div></div>
                     }
-
-
                 </Card>
             </div>,
 
@@ -712,39 +559,6 @@ class TextMobileStepper extends React.Component<{}, {
                             <p>Inserted .fastq files of sequencing reads:  --> TODO what to safe</p>
                             {saveFileList}
                         </CardContent>
-
-                        <Button 
-                                variant="contained" 
-                                size="small"
-                                onClick={() => {this.startPythonSave()}}
-                                style={{
-                                    marginBottom: "25px",
-                                    marginRight: "50px",
-                                    marginLeft: "50px"}}>
-                                
-                                    Save Files&nbsp;
-                                    <Icon>save</Icon>
-                            </Button> 
-
-
-
-
-                            {this.state.showProgress2 ? 
-                        <div>
-                            <LinearProgress color="secondary"/>
-                        </div>
-                        :
-                        <div></div>
-                    }
-
-
-
-
-
-
-
-
-
                 </Card>
 
 
@@ -762,9 +576,16 @@ class TextMobileStepper extends React.Component<{}, {
                                     color: "white",
                                     marginRight: "50px"
                                      }}>
-                                        Reset&nbsp;
+                                        Reset
                                         <Icon>bubble_chart</Icon>
-                            </Button>                          
+                            </Button>
+
+                            <Button 
+                                variant="contained" 
+                                size="small">
+                                    Save
+                                    <Icon>save</Icon>
+                            </Button>                            
                 </div>
             </div>,
       },
@@ -826,7 +647,6 @@ class TextMobileStepper extends React.Component<{}, {
 
                     });
 
-<<<<<<< HEAD
                     console.log(self.state.inputFiles)
                     
                     self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
@@ -871,121 +691,6 @@ class TextMobileStepper extends React.Component<{}, {
                     //});
                 });
             }
-=======
-
-
-
-
-
-
-
-
-  
-
-  // ### ALL ###
-  // set correct next step in stage
-  handleNext = () => {
-    this.setState(prevState => ({
-      activeStep: prevState.activeStep + 1,
-    }));
-  };
-
-  // correct backwards step
-  handleBack = () => {
-    this.setState(prevState => ({
-      activeStep: 0,
-      outputDir: "",
-      inputFiles: new Array(),
-      showProgress: false,
-      contamResult: JSON.parse("{}"),
-      contamStrRes: "",
-      resultTable: <div></div>
-    }));
-  };
-
-
-
-
- // ### STEP 2 ###
- handleSeqPath(upType: String) {
-    var self = this;
-
-    if (upType == "file") {
-      
-      dialog.showOpenDialog(
-
-
-        // remember selection for future use?
-
-
-        // update for .fast5
-        { filters: [
-          { name: 'FastQ', extensions: ['fastq', 'FASTAQ', 'fq', 'FQ'] }
-         ]},
-        
-        
-        (fileNames: any) => {
-        
-        // fileNames is an array that contains all the selected
-        if (fileNames === undefined) {
-          console.log("No file selected");
-          return;
-        }
-        
-        fileNames.forEach((element: any) => {
-          self.state.outputDir=path.join(path.dirname(element), "tmp");
-          self.state.inputFiles.push({
-            path: element,
-            type: upType,
-            protected: false
-          });
-
-        });
-
-        console.log(self.state.inputFiles)
-        self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
-      });
-
-
-
-    } else {
-      dialog.showOpenDialog(
-          { properties: ['openDirectory']},
-        
-        (dirName: any) => {
-        
-        if (dirName === undefined) {
-          console.log("No file selected");
-          return;
-        }
-        //@Rita this will push directory path to the array of inputFiles (also can be seen in card)
-        dirName.forEach((element: any) => {
-          self.state.outputDir = path.join(element,'tmp')
-          self.state.inputFiles.push({
-            path: element,
-            type: upType,
-          });
-        });
-        
-        //@Rita this will push all .fastq files into the array of inputFiles (also can be seen in card)
-        /*
-        var fs = require('fs');
-        dirName.forEach((element: any) => {
-          fs.readdir(element, (err: any, files:any) => {
-            files.forEach((file: any) => {
-              self.state.outputDir=path.join(element, "tmp");
-              if(file.endsWith(".fastq") || file.endsWith("FQ") || file.endsWith("fq") || file.endsWith("FASTAQ")){
-                self.state.inputFiles.push({
-                  path: path.join(element, file),
-                  type: "file",
-                });
-              }
-            });*/
-            self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
-          //})
-        //});
-      });
->>>>>>> rita
     }
 
     handleSeqPathDelete(element: any) {
@@ -1025,7 +730,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 type: upType,
                             });
                         });
- 
+
                         console.log(self.state.inputRefs)
                         self.setState({ inputRefs: self.state.inputRefs })
                     }
@@ -1050,15 +755,6 @@ class TextMobileStepper extends React.Component<{}, {
     
   }
 
-<<<<<<< HEAD
-    handleRefPathDelete(element: any) {    
-        var index = this.state.inputRefs.indexOf(element)
-        if (index >= 0) {
-            this.state.inputRefs.splice(index, 1)
-        }
-        this.setState({ inputRefs: this.state.inputRefs })
-    }
-=======
   handleRefPathDelete(element: any) {
     var index = this.state.inputRefs.indexOf(element)
     console.log(index)
@@ -1080,159 +776,15 @@ class TextMobileStepper extends React.Component<{}, {
     this.setState({outputDir: event.target.value,});
   };
 
-  
->>>>>>> rita
-
-    handleOutputDirChange = (outputDir:any) => (event:any) => {
-        this.setState({outputDir: event.target.value,});
-    };
-
-
-
-    startPythonSave() {
-
-
-
-
-
-        /**
-         * writeextract.py -> takes reads ids of which to extract from fastq
-         * 
-         * per ref{{aligned}{unaligend}} -> per aligned/unaligend fastq.path: true/false
-         * 
-         * TODO
-         * write extract script, input is ref (1 oder n), and true/false-dict (aligned, not aligend) -> open as json/dict in python
-         * open new folder in python per ref! with ref names
-         * output safe files in python accordding to correct name
-         * 
-         * typescript aufruf PER REF CARD, PER CARD
-         * 
-         * 
-         * 
-         * NICHT ZWEITES PYTHON SKRIPT SONDENR NOCHMAL AUFRUFEN
-         * 
-         * 
-         * 
-         */
-
-
-
-
-
-
-        var self = this
-
-
-        Object.keys(self.state.contamResult).forEach(function(key){
-
-            //  key -> {"/Users/juliamayer/Desktop/electron/ref1.fasta":
-
-            console.log(self.state.contamResult[key]["idNotAlignedReads"])
-
-
-        })
-
-
-
-
-
-
-
-
-        console.log("#######################    " + JSON.stringify(this.state.contamResult))
-
-
-
-        // TODO set true again
-        this.state.showProgress2 = false;
-        this.setState({ showProgress: this.state.showProgress })
-        this.render()
-
-
-        // window.setTimeout(myFunction, 3000);
-
-        console.log(JSON.stringify(this.state.saveFiles, undefined, 2))
-
-
-
-
-
-
-
-
-
-        //var command = "ContamTool.py --reads ";
-        //var fs = require('fs');
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // TODO stop progressbar when files are saved -> not a new step
-        /**
-        this.state.showProgress2 = true;
-        this.setState({ showProgress: this.state.showProgress })
-        this.render()
-         */
-
-
-
-
-    }
-
-
-
-
-
-
-
 
 
 
 
     // TODO clean up code
 
-<<<<<<< HEAD
-   // ### STEP 3 ###
-=======
 
 
    // ### STEP 4 ###
->>>>>>> rita
        startPython() {
         //const { exec } = require('child_process');
         //exec('pwd', (error:any, stdout:any, stderr:any) => {
@@ -1243,17 +795,12 @@ class TextMobileStepper extends React.Component<{}, {
         //console.log(`stdout: ${stdout}`);
         //console.log(`stderr: ${stderr}`);
         //}); stdout: /Users/rita/iGEM/electron_boilerplate !!!!!!!!
-     
-    
-    var self = this;
+        var self = this;
         var command = "ContamTool.py --reads ";
         var fs = require('fs');
     
         self.state.inputFiles.forEach(element => {
-            
             var stats = fs.lstatSync(element.path)
-            
-            
             if (stats.isDirectory()){
                 var allFilesInDir = fs.readdirSync(element.path);
                 allFilesInDir.forEach((myFile:any) => {
@@ -1288,16 +835,6 @@ class TextMobileStepper extends React.Component<{}, {
             child.on('close', (code:any) => {
                 console.log(`child process exited with code ${code}`);
                 console.log(`child process returned ${self.state.contamStrRes}`);
-<<<<<<< HEAD
-                self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
-                //try {
-                //    JSON.parse(self.state.contamStrRes);
-                //    self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
-                //} catch (e) {
-                //    self.setState({resultTable: <div{self.state.contamStrRes}</div>})
-                //    self.handleNext();
-                //}
-=======
                 //self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
                 try {
                     JSON.parse(self.state.contamStrRes);
@@ -1313,7 +850,6 @@ class TextMobileStepper extends React.Component<{}, {
                     self.handleNext();
                     return;
                 }
->>>>>>> rita
             var resultTable = <div></div>
             self.state.inputRefs.forEach((element: any) => {
                 var tablePart =
@@ -1403,6 +939,7 @@ class TextMobileStepper extends React.Component<{}, {
             self.handleNext();
             });  
         }
+    
 }
 
 export default TextMobileStepper;
