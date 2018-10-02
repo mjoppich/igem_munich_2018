@@ -32,20 +32,20 @@ if not os.path.exists(output_dir):
 
 for file in read_file:
     if not file.endswith(".fastq"):
-        print('Please enter contamination in fastq format')
+        print('Please enter contamination in fastq format \n *Please no spaces in file name!*')
         exit()
     file = Path(file)
     if not file.is_file:
-        print('Read file does not exist')
+        print('Read file does not exist \n *Please no spaces in file name!*')
         exit()
 
 for file in cont_file:
     if not file.endswith(".fasta"):
-        print('Please enter contamination in fasta format')
+        print('Please enter contamination in fasta format \n *Please no spaces in file name!*')
         exit()
     file = Path(file)
     if not file.is_file:
-        print('Contamination file does not exist')
+        print('Contamination file does not exist \n *Please no spaces in file name!*')
         exit()
 
 os.system("cat " + ' '.join(read_file) + " >" + os.path.join(output_dir, "complete.fastq"))
@@ -54,15 +54,20 @@ read_file = os.path.join(output_dir, "complete.fastq")
 reads = HTSeq.FastqReader(read_file)
 n_reads = 0
 len_reads=[]
-for read in reads:
-    len_reads.append(len(read.seq))
-    n_reads= n_reads + 1
-plt.ylabel('Frequency', fontsize=10)
-plt.xlabel('Length of reads', fontsize=10)
-plt.title('Length frequencies of all reads', fontsize=12)
-plt.hist(len_reads, bins=100, color='green')
-plt.savefig(os.path.join(output_dir,"reads_length.png"))
-plt.close()
+
+try:
+    for read in reads:
+        len_reads.append(len(read.seq))
+        n_reads= n_reads + 1
+    plt.ylabel('Frequency', fontsize=10)
+    plt.xlabel('Length of reads', fontsize=10)
+    plt.title('Length frequencies of all reads', fontsize=12)
+    plt.hist(len_reads, bins=100, color='green')
+    plt.savefig(os.path.join(output_dir,"reads_length.png"))
+    plt.close()
+except ValueError:
+    print('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
+    exit()
 
 
 sam_fasta_map = {}

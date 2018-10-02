@@ -14,11 +14,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import TextField from '@material-ui/core/TextField';
-
-
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+<<<<<<< HEAD
 //import { element } from 'prop-types';
 
 
@@ -28,12 +27,20 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
+=======
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
+//import * as contaminants from '../contaminants.json';
+>>>>>>> rita
 
 var app = require('electron').remote;
 var dialog = app.dialog;
 const path = require('path');
-
-
+const contaminants = require('../contaminants.json');
 
 class TextMobileStepper extends React.Component<{}, {
 
@@ -62,7 +69,24 @@ class TextMobileStepper extends React.Component<{}, {
     resultTable: <div></div>,
   };
 
+  constructor(props: any)
+  {
+    super(props);
 
+    var self=this;
+    Object.keys(contaminants).forEach(function(k){
+        self.state.inputRefs.push({
+            path: contaminants[k]["path"],
+            type: contaminants[k]["type"],
+            protected: contaminants[k]["protected"]
+        });
+    })
+  }
+
+  componentWillMount()
+  {
+
+  }
 
   render() {
 
@@ -100,7 +124,11 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
+<<<<<<< HEAD
                         
+=======
+                             /**
+>>>>>>> rita
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -108,8 +136,13 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
+<<<<<<< HEAD
                     
                         /**
+=======
+                            */ 
+                
+>>>>>>> rita
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -127,7 +160,11 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
+<<<<<<< HEAD
                         */
+=======
+                           
+>>>>>>> rita
                     }
 
                     backButton=
@@ -204,7 +241,50 @@ class TextMobileStepper extends React.Component<{}, {
     // File List FastA
     var inputRefItems: any = [];
     var inputRefList = <List> {inputRefItems} </List>;
-    
+    var self = this;
+    /*
+    console.log(JSON.stringify(contaminants, undefined, 2))
+    Object.keys(contaminants).forEach(function(k){
+        console.log(k+" "+JSON.stringify(contaminants[k]))
+        var icon = <Icon>insert_drive_file</Icon>;
+        contaminants[k]["enabled"] = contaminants[k]["enabled"] === undefined ? true : contaminants[k]["enabled"];
+        inputRefItems.push(
+            <ListItem 
+                key={inputRefItems.length}>
+                    <Avatar>
+                        {icon}
+                    </Avatar>
+                
+                    <ListItemText 
+                        primary={contaminants[k]["name"]} 
+                        secondary={contaminants[k]["type"]}/>
+                    
+                    <Switch 
+                        checked={contaminants[k]["enabled"]} 
+                        color="primary"
+                        onChange={() => {contaminants[k]["enabled"] = !contaminants[k]["enabled"]; 
+                        self.setState({inputRefs: self.state.inputRefs})}}/> 
+                    {contaminants[k]["protected"] ? <div></div>
+                    : <IconButton 
+                    aria-label="Delete" 
+                    color="primary" 
+                    //onClick={() => delete contaminants[k]}
+                    onClick={() => self.handleRefPathDeleteJSON(k)}
+                    >
+                        <DeleteIcon/>
+                    </IconButton>}
+            </ListItem>
+            )
+
+    });
+
+    */
+
+
+
+    console.log("JSON HAS "+JSON.stringify(contaminants))
+    console.log("References "+self.state.inputRefs)
+
     this.state.inputRefs.forEach(element => {
 
         var icon = <Icon>insert_drive_file</Icon>;
@@ -228,13 +308,17 @@ class TextMobileStepper extends React.Component<{}, {
                         color="primary"
                         onChange={() => {element.enabled = !element.enabled; 
                         this.setState({inputRefs: this.state.inputRefs})}}/> 
+
+                    {element["protected"] ? <div></div>
+                    : <IconButton 
+                    aria-label="Delete" 
+                    color="primary" 
+                    //onClick={() => delete contaminants[k]}
+                    onClick={() => self.handleRefPathDelete(element)}>
                     
-                    <IconButton 
-                        aria-label="Delete" 
-                        color="primary" 
-                        onClick={() => self.handleRefPathDelete(element)}>
                         <DeleteIcon/>
-                    </IconButton>
+                    </IconButton>}
+                    
             </ListItem>
         )
     })
@@ -265,8 +349,13 @@ class TextMobileStepper extends React.Component<{}, {
                         {icon}
                     </Avatar>
 
+<<<<<<< HEAD
                     <ListItemText
                         primary={path.basename(element.path)}
+=======
+                    <ListItemText 
+                        primary={element.path}
+>>>>>>> rita
                         secondary={element.type}/>
 
                     <Checkbox
@@ -588,6 +677,7 @@ class TextMobileStepper extends React.Component<{}, {
 
                     });
 
+<<<<<<< HEAD
                     console.log(self.state.inputFiles)
                     
                     self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
@@ -632,6 +722,121 @@ class TextMobileStepper extends React.Component<{}, {
                     //});
                 });
             }
+=======
+
+
+
+
+
+
+
+
+  
+
+  // ### ALL ###
+  // set correct next step in stage
+  handleNext = () => {
+    this.setState(prevState => ({
+      activeStep: prevState.activeStep + 1,
+    }));
+  };
+
+  // correct backwards step
+  handleBack = () => {
+    this.setState(prevState => ({
+      activeStep: 0,
+      outputDir: "",
+      inputFiles: new Array(),
+      showProgress: false,
+      contamResult: JSON.parse("{}"),
+      contamStrRes: "",
+      resultTable: <div></div>
+    }));
+  };
+
+
+
+
+ // ### STEP 2 ###
+ handleSeqPath(upType: String) {
+    var self = this;
+
+    if (upType == "file") {
+      
+      dialog.showOpenDialog(
+
+
+        // remember selection for future use?
+
+
+        // update for .fast5
+        { filters: [
+          { name: 'FastQ', extensions: ['fastq', 'FASTAQ', 'fq', 'FQ'] }
+         ]},
+        
+        
+        (fileNames: any) => {
+        
+        // fileNames is an array that contains all the selected
+        if (fileNames === undefined) {
+          console.log("No file selected");
+          return;
+        }
+        
+        fileNames.forEach((element: any) => {
+          self.state.outputDir=path.join(path.dirname(element), "tmp");
+          self.state.inputFiles.push({
+            path: element,
+            type: upType,
+            protected: false
+          });
+
+        });
+
+        console.log(self.state.inputFiles)
+        self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
+      });
+
+
+
+    } else {
+      dialog.showOpenDialog(
+          { properties: ['openDirectory']},
+        
+        (dirName: any) => {
+        
+        if (dirName === undefined) {
+          console.log("No file selected");
+          return;
+        }
+        //@Rita this will push directory path to the array of inputFiles (also can be seen in card)
+        dirName.forEach((element: any) => {
+          self.state.outputDir = path.join(element,'tmp')
+          self.state.inputFiles.push({
+            path: element,
+            type: upType,
+          });
+        });
+        
+        //@Rita this will push all .fastq files into the array of inputFiles (also can be seen in card)
+        /*
+        var fs = require('fs');
+        dirName.forEach((element: any) => {
+          fs.readdir(element, (err: any, files:any) => {
+            files.forEach((file: any) => {
+              self.state.outputDir=path.join(element, "tmp");
+              if(file.endsWith(".fastq") || file.endsWith("FQ") || file.endsWith("fq") || file.endsWith("FASTAQ")){
+                self.state.inputFiles.push({
+                  path: path.join(element, file),
+                  type: "file",
+                });
+              }
+            });*/
+            self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
+          //})
+        //});
+      });
+>>>>>>> rita
     }
 
     handleSeqPathDelete(element: any) {
@@ -682,7 +887,21 @@ class TextMobileStepper extends React.Component<{}, {
             }
     }
 
+  handleRefPathDeleteJSON(key: any) {
+    var fs = require('fs');
+    delete contaminants[key];
+    console.log(JSON.stringify(contaminants))
+    fs.writeFile("./contaminants.json", JSON.stringify(contaminants), (err:any) => {
+        if (err) {
+            console.error(err);
+            return;
+        };
+        console.log("File has been created");
+    });
+    
+  }
 
+<<<<<<< HEAD
     handleRefPathDelete(element: any) {    
         var index = this.state.inputRefs.indexOf(element)
         if (index >= 0) {
@@ -690,6 +909,30 @@ class TextMobileStepper extends React.Component<{}, {
         }
         this.setState({ inputRefs: this.state.inputRefs })
     }
+=======
+  handleRefPathDelete(element: any) {
+    var index = this.state.inputRefs.indexOf(element)
+    console.log(index)
+    if (index >= 0) {
+      this.state.inputRefs.splice(index, 1)
+    }
+    this.setState({ inputRefs: this.state.inputRefs })
+
+    // save inputRefs to json
+    
+  }
+
+
+
+
+
+  
+  handleOutputDirChange = (outputDir:any) => (event:any) => {
+    this.setState({outputDir: event.target.value,});
+  };
+
+  
+>>>>>>> rita
 
     handleOutputDirChange = (outputDir:any) => (event:any) => {
         this.setState({outputDir: event.target.value,});
@@ -700,7 +943,13 @@ class TextMobileStepper extends React.Component<{}, {
 
     // TODO clean up code
 
+<<<<<<< HEAD
    // ### STEP 3 ###
+=======
+
+
+   // ### STEP 4 ###
+>>>>>>> rita
        startPython() {
         //const { exec } = require('child_process');
         //exec('pwd', (error:any, stdout:any, stderr:any) => {
@@ -751,6 +1000,7 @@ class TextMobileStepper extends React.Component<{}, {
             child.on('close', (code:any) => {
                 console.log(`child process exited with code ${code}`);
                 console.log(`child process returned ${self.state.contamStrRes}`);
+<<<<<<< HEAD
                 self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
                 //try {
                 //    JSON.parse(self.state.contamStrRes);
@@ -759,6 +1009,23 @@ class TextMobileStepper extends React.Component<{}, {
                 //    self.setState({resultTable: <div{self.state.contamStrRes}</div>})
                 //    self.handleNext();
                 //}
+=======
+                //self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+                try {
+                    JSON.parse(self.state.contamStrRes);
+                    self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+                } catch (e) {
+                    self.setState({resultTable: <div>
+                        <Card>
+                            <CardContent>
+                                <Typography color='secondary'>{self.state.contamStrRes}</Typography>
+                            </CardContent>
+                        </Card>
+                        </div>})
+                    self.handleNext();
+                    return;
+                }
+>>>>>>> rita
             var resultTable = <div></div>
             self.state.inputRefs.forEach((element: any) => {
                 var tablePart =
