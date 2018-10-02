@@ -725,7 +725,7 @@ class TextMobileStepper extends React.Component<{}, {
           console.log(`child process returned ${self.state.contamStrRes}`);
 
           self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
-        });     
+           
         
         var resultTable = <div></div>
         self.state.inputRefs.forEach((element: any) => {
@@ -814,7 +814,7 @@ class TextMobileStepper extends React.Component<{}, {
         })
         self.setState({resultTable: resultTable})
         self.handleNext();
-        
+        });  
     }
 }
 
