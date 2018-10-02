@@ -23,12 +23,12 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
-//import contaminants from '/Users/rita/iGEM/electron_boilerplate/app/contaminants.json';
+//import * as contaminants from '../contaminants.json';
 
 var app = require('electron').remote;
 var dialog = app.dialog;
 const path = require('path');
-
+const contaminants = require('../contaminants.json');
 
 class TextMobileStepper extends React.Component<{}, {
 
@@ -57,7 +57,24 @@ class TextMobileStepper extends React.Component<{}, {
     resultTable: <div></div>,
   };
 
+  constructor(props: any)
+  {
+    super(props);
 
+    var self=this;
+    Object.keys(contaminants).forEach(function(k){
+        self.state.inputRefs.push({
+            path: contaminants[k]["path"],
+            type: contaminants[k]["type"],
+            protected: contaminants[k]["protected"]
+        });
+    })
+  }
+
+  componentWillMount()
+  {
+
+  }
 
   render() {
 
@@ -199,7 +216,50 @@ class TextMobileStepper extends React.Component<{}, {
     // File List FastA
     var inputRefItems: any = [];
     var inputRefList = <List> {inputRefItems} </List>;
-    
+    var self = this;
+    /*
+    console.log(JSON.stringify(contaminants, undefined, 2))
+    Object.keys(contaminants).forEach(function(k){
+        console.log(k+" "+JSON.stringify(contaminants[k]))
+        var icon = <Icon>insert_drive_file</Icon>;
+        contaminants[k]["enabled"] = contaminants[k]["enabled"] === undefined ? true : contaminants[k]["enabled"];
+        inputRefItems.push(
+            <ListItem 
+                key={inputRefItems.length}>
+                    <Avatar>
+                        {icon}
+                    </Avatar>
+                
+                    <ListItemText 
+                        primary={contaminants[k]["name"]} 
+                        secondary={contaminants[k]["type"]}/>
+                    
+                    <Switch 
+                        checked={contaminants[k]["enabled"]} 
+                        color="primary"
+                        onChange={() => {contaminants[k]["enabled"] = !contaminants[k]["enabled"]; 
+                        self.setState({inputRefs: self.state.inputRefs})}}/> 
+                    {contaminants[k]["protected"] ? <div></div>
+                    : <IconButton 
+                    aria-label="Delete" 
+                    color="primary" 
+                    //onClick={() => delete contaminants[k]}
+                    onClick={() => self.handleRefPathDeleteJSON(k)}
+                    >
+                        <DeleteIcon/>
+                    </IconButton>}
+            </ListItem>
+            )
+
+    });
+
+    */
+
+
+
+    console.log("JSON HAS "+JSON.stringify(contaminants))
+    console.log("References "+self.state.inputRefs)
+
     this.state.inputRefs.forEach(element => {
 
         var icon = <Icon>insert_drive_file</Icon>;
@@ -223,13 +283,17 @@ class TextMobileStepper extends React.Component<{}, {
                         color="primary"
                         onChange={() => {element.enabled = !element.enabled; 
                         this.setState({inputRefs: this.state.inputRefs})}}/> 
+
+                    {element["protected"] ? <div></div>
+                    : <IconButton 
+                    aria-label="Delete" 
+                    color="primary" 
+                    //onClick={() => delete contaminants[k]}
+                    onClick={() => self.handleRefPathDelete(element)}>
                     
-                    <IconButton 
-                        aria-label="Delete" 
-                        color="primary" 
-                        onClick={() => self.handleRefPathDelete(element)}>
                         <DeleteIcon/>
-                    </IconButton>
+                    </IconButton>}
+                    
             </ListItem>
         )
     })
@@ -431,7 +495,6 @@ class TextMobileStepper extends React.Component<{}, {
                     </CardActions>
                    
                     <CardContent>
-                        {/*JSON.stringify(contaminants["ecoli"])*/}
                         {inputRefList}
                     </CardContent>
 
@@ -600,6 +663,7 @@ class TextMobileStepper extends React.Component<{}, {
           self.state.inputFiles.push({
             path: element,
             type: upType,
+            protected: false
           });
 
         });
@@ -712,13 +776,29 @@ class TextMobileStepper extends React.Component<{}, {
     }
   }
 
+  handleRefPathDeleteJSON(key: any) {
+    var fs = require('fs');
+    delete contaminants[key];
+    console.log(JSON.stringify(contaminants))
+    fs.writeFile("./contaminants.json", JSON.stringify(contaminants), (err:any) => {
+        if (err) {
+            console.error(err);
+            return;
+        };
+        console.log("File has been created");
+    });
+    
+  }
 
   handleRefPathDelete(element: any) {
     var index = this.state.inputRefs.indexOf(element)
+    console.log(index)
     if (index >= 0) {
       this.state.inputRefs.splice(index, 1)
     }
     this.setState({ inputRefs: this.state.inputRefs })
+
+    // save inputRefs to json
     
   }
 
