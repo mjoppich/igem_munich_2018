@@ -100,7 +100,7 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-                             /**
+                        
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -108,8 +108,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-                            */ 
-                
+                    
+                        /**
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -127,7 +127,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
-                           
+                        */
                     }
 
                     backButton=
@@ -170,7 +170,7 @@ class TextMobileStepper extends React.Component<{}, {
     var self = this;
 
     
-    // TODO doppelten upload verhindern -> fastq und fasta
+    // TODO doppelten upload verhindern -> fastq und fasta?
     
     // File List FastQ
     var inputListItems: any = [];
@@ -265,8 +265,8 @@ class TextMobileStepper extends React.Component<{}, {
                         {icon}
                     </Avatar>
 
-                    <ListItemText 
-                        primary={element.path}
+                    <ListItemText
+                        primary={path.basename(element.path)}
                         secondary={element.type}/>
 
                     <Checkbox
@@ -285,14 +285,12 @@ class TextMobileStepper extends React.Component<{}, {
             <ListItem
                 key={inputRefList.key}>
                     <Card>
-                        <ListItemText primary={element.path}/>
+                        <ListItemText
+                            primary={path.basename(element.path)}/>
                         {innerSaveList}
                     </Card>
             </ListItem>
         )
-   
-   
-   
     });
     
 
@@ -536,215 +534,173 @@ class TextMobileStepper extends React.Component<{}, {
   } // getStepperSteps()
 
 
+    // set correct next step in stage
+    handleNext = () => {
+        this.setState(
+            prevState => ({
+                activeStep: prevState.activeStep + 1,
+            }));
+    };
 
+    // correct backwards step
+    handleBack = () => {
+        this.setState(
+            prevState => ({
+                activeStep: 0,
+                outputDir: "",
+                inputFiles: new Array(),
+                showProgress: false,
+                contamResult: JSON.parse("{}"),
+                contamStrRes: "",
+                resultTable: <div></div>
+            }));
+    };
 
-
-
-
-
-
-
-
-
-
-  
-
-  // ### ALL ###
-  // set correct next step in stage
-  handleNext = () => {
-    this.setState(prevState => ({
-      activeStep: prevState.activeStep + 1,
-    }));
-  };
-
-  // correct backwards step
-  handleBack = () => {
-    this.setState(prevState => ({
-      activeStep: 0,
-      outputDir: "",
-      inputFiles: new Array(),
-      showProgress: false,
-      contamResult: JSON.parse("{}"),
-      contamStrRes: "",
-      resultTable: <div></div>
-    }));
-  };
-
-
-
-
- // ### STEP 2 ###
- handleSeqPath(upType: String) {
-    var self = this;
-
-    if (upType == "file") {
-      
-      dialog.showOpenDialog(
-
-
-        // remember selection for future use?
-
-
-        // update for .fast5
-        { filters: [
-          { name: 'FastQ', extensions: ['fastq', 'FASTAQ', 'fq', 'FQ'] }
-         ]},
-        
-        
-        (fileNames: any) => {
-        
-        // fileNames is an array that contains all the selected
-        if (fileNames === undefined) {
-          console.log("No file selected");
-          return;
-        }
-        
-        fileNames.forEach((element: any) => {
-          self.state.outputDir=path.join(path.dirname(element), "tmp");
-          self.state.inputFiles.push({
-            path: element,
-            type: upType,
-          });
-
-        });
-
-        console.log(self.state.inputFiles)
-        self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
-      });
-
-
-
-    } else {
-      dialog.showOpenDialog(
-          { properties: ['openDirectory']},
-        
-        (dirName: any) => {
-        
-        if (dirName === undefined) {
-          console.log("No file selected");
-          return;
-        }
-        //@Rita this will push directory path to the array of inputFiles (also can be seen in card)
-        dirName.forEach((element: any) => {
-          self.state.outputDir = path.join(element,'tmp')
-          self.state.inputFiles.push({
-            path: element,
-            type: upType,
-          });
-        });
-        
-        //@Rita this will push all .fastq files into the array of inputFiles (also can be seen in card)
-        /*
-        var fs = require('fs');
-        dirName.forEach((element: any) => {
-          fs.readdir(element, (err: any, files:any) => {
-            files.forEach((file: any) => {
-              self.state.outputDir=path.join(element, "tmp");
-              if(file.endsWith(".fastq") || file.endsWith("FQ") || file.endsWith("fq") || file.endsWith("FASTAQ")){
-                self.state.inputFiles.push({
-                  path: path.join(element, file),
-                  type: "file",
-                });
-              }
-            });*/
-            self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
-          //})
-        //});
-      });
-    }
-  }
-
-
-  handleSeqPathDelete(element: any) {
-    var index = this.state.inputFiles.indexOf(element)
-    if (index >= 0) {
-      this.state.inputFiles.splice(index, 1)
-    }
-    this.setState({ inputFiles: this.state.inputFiles })
-  }
-
-
-
-
-
-
-  // ### STEP 3 ###
-  handleRefPath(upType: String) {
-    var self = this;
-
-    if (upType == "file") {
-
-      dialog.showOpenDialog(
-        { filters: [
-          { name: 'Fasta', extensions: ['fasta', 'FASTA', 'fa', 'FA'] }
-         ]},
-
-         (fileNames: any) => {
-          if (fileNames === undefined) {
-            console.log("No file selected");
-            return;
-          }
-
-          fileNames.forEach((element: any) => {
-            self.state.inputRefs.push({
-              path: element,
-              type: upType,
-            });
-  
-          });
-  
-          console.log(self.state.inputRefs)
-          self.setState({ inputRefs: self.state.inputRefs })
-
-
-
-
-         }
-
-
-
-      )
-      
-      
-
-    } else {
-
-
-      // TODO implement CHOOSE PATH
-
-
-    }
-  }
-
-
-  handleRefPathDelete(element: any) {
-    var index = this.state.inputRefs.indexOf(element)
-    if (index >= 0) {
-      this.state.inputRefs.splice(index, 1)
-    }
-    this.setState({ inputRefs: this.state.inputRefs })
     
-  }
+    // ### STEP 1 ###
+    handleSeqPath(upType: String) {
+        var self = this;
+        if (upType == "file") {
+            
+            dialog.showOpenDialog(
+                // TODO remember selection for future use?
+                // TODO update for .fast5
+                {filters: [
+                    {
+                        name: 'FastQ', 
+                        extensions: ['fastq', 'FASTAQ', 'fq', 'FQ']
+                    }
+                ]},
+                
+                (fileNames: any) => {
+                    // fileNames is an array that contains all the selected
+                    if (fileNames === undefined) {
+                        console.log("No file selected");
+                        return;
+                    }
+                    
+                    fileNames.forEach((element: any) => {
+                        self.state.outputDir=path.join(path.dirname(element), "tmp");
+                        self.state.inputFiles.push({
+                            path: element,
+                            type: upType,
+                        });
+
+                    });
+
+                    console.log(self.state.inputFiles)
+                    
+                    self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
+            });
+        } else {
+            dialog.showOpenDialog(
+                { properties: ['openDirectory']},
+                
+                (dirName: any) => {
+                    if (dirName === undefined) {
+                        console.log("No file selected");
+                        return;
+                    }
+                
+                //@Rita this will push directory path to the array of inputFiles (also can be seen in card)
+                
+                dirName.forEach((element: any) => {
+                    self.state.outputDir = path.join(element,'tmp')
+                    self.state.inputFiles.push({
+                        path: element,
+                        type: upType,
+                    });
+                });
+                
+                    //@Rita this will push all .fastq files into the array of inputFiles (also can be seen in card)
+                    /*
+                    var fs = require('fs');
+                    dirName.forEach((element: any) => {
+                    fs.readdir(element, (err: any, files:any) => {
+                        files.forEach((file: any) => {
+                        self.state.outputDir=path.join(element, "tmp");
+                        if(file.endsWith(".fastq") || file.endsWith("FQ") || file.endsWith("fq") || file.endsWith("FASTAQ")){
+                            self.state.inputFiles.push({
+                            path: path.join(element, file),
+                            type: "file",
+                            });
+                        }
+                        });*/
+                    
+                self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
+                    //})
+                    //});
+                });
+            }
+    }
+
+    handleSeqPathDelete(element: any) {
+        var index = this.state.inputFiles.indexOf(element)
+            
+        if (index >= 0) {
+            this.state.inputFiles.splice(index, 1)
+        }
+            
+        this.setState({ inputFiles: this.state.inputFiles })
+    }
+
+
+        
+    // ### STEP 2 ###
+    handleRefPath(upType: String) {
+        var self = this;
+        
+        if (upType == "file") {
+                dialog.showOpenDialog(
+                    { filters: [
+                        { 
+                            name: 'Fasta', 
+                            extensions: ['fasta', 'FASTA', 'fa', 'FA']
+                        }
+                    ]},
+
+                    (fileNames: any) => {
+                        if (fileNames === undefined) {
+                            console.log("No file selected");
+                            return;
+                        }
+
+                        fileNames.forEach((element: any) => {
+                            self.state.inputRefs.push({
+                                path: element,
+                                type: upType,
+                            });
+                        });
+
+                        console.log(self.state.inputRefs)
+                        self.setState({ inputRefs: self.state.inputRefs })
+                    }
+                )
+            } else 
+            {
+                // TODO implement CHOOSE PATH
+            }
+    }
+
+
+    handleRefPathDelete(element: any) {    
+        var index = this.state.inputRefs.indexOf(element)
+        if (index >= 0) {
+            this.state.inputRefs.splice(index, 1)
+        }
+        this.setState({ inputRefs: this.state.inputRefs })
+    }
+
+    handleOutputDirChange = (outputDir:any) => (event:any) => {
+        this.setState({outputDir: event.target.value,});
+    };
 
 
 
 
+    // TODO clean up code
 
-  
-  handleOutputDirChange = (outputDir:any) => (event:any) => {
-    this.setState({outputDir: event.target.value,});
-  };
-
-  
-
-
-
-
-
-
-
-
-   // ### STEP 4 ###
+   // ### STEP 3 ###
        startPython() {
         //const { exec } = require('child_process');
         //exec('pwd', (error:any, stdout:any, stderr:any) => {
