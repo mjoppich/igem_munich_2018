@@ -4,7 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import { Card, CardActions, Checkbox } from '@material-ui/core';
+import { Card, CardActions} from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
@@ -14,19 +14,15 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import TextField from '@material-ui/core/TextField';
-
-
-import Switch from '@material-ui/core/Switch';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-//import { element } from 'prop-types';
-
-
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Switch from '@material-ui/core/Switch';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+
 
 
 var app = require('electron').remote;
@@ -39,13 +35,12 @@ class TextMobileStepper extends React.Component<{}, {
 
   activeStep: any,
   inputFiles: Array<any>,
-  saveFiles: Array<any>,
   inputRefs: Array<any>,
   outputDir: String,
   showProgress: boolean,
   contamResult: any,
   contamStrRes: String,
-  resultTable: any,
+  resultTable: any
 }>
 
 
@@ -53,13 +48,12 @@ class TextMobileStepper extends React.Component<{}, {
   state = {
     activeStep: 0,
     inputFiles: new Array(),
-    saveFiles: new Array(),
     outputDir: "",
     inputRefs: new Array(),
     showProgress: false,
     contamResult: JSON.parse("{}"),
     contamStrRes: "",
-    resultTable: <div></div>,
+    resultTable: <div></div>
   };
 
 
@@ -78,19 +72,12 @@ class TextMobileStepper extends React.Component<{}, {
             style={{ marginBottom: "5px" }}>
 
             <CardContent>
-                <div 
-                    style={{ 
-                        display: "block", 
-                        marginLeft: "auto", 
-                        marginRight: "auto", 
-                        width: "50%" }}>
-                            
-                            {tutorialSteps[activeStep].imgPath ? 
-                            <img src={tutorialSteps[activeStep].imgPath} width="400" height="100"/> 
-                            : 
-                            <div></div>}
-                            
-                            <p>{tutorialSteps[activeStep].header}</p> 
+                <div style={{ display: "block", marginLeft: "auto", marginRight: "auto", width: "50%" }}>
+                    {tutorialSteps[activeStep].imgPath ? 
+                        <img src={tutorialSteps[activeStep].imgPath} width="400" height="100"/> 
+                        : 
+                        <div></div>}
+                    <p>{tutorialSteps[activeStep].header}</p> 
                 </div>
 
                 <MobileStepper
@@ -100,16 +87,17 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-                             /**
-                        <Button 
+
+                        /**<Button 
                             size="small" 
                             onClick={this.handleNext} 
                             disabled={activeStep === maxSteps - 1}>
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-                            */ 
-                
+                        */
+
+                        
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -127,7 +115,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
-                           
+                        
                     }
 
                     backButton=
@@ -169,7 +157,7 @@ class TextMobileStepper extends React.Component<{}, {
 
     var self = this;
 
-    
+
     // TODO doppelten upload verhindern -> fastq und fasta
     
     // File List FastQ
@@ -177,25 +165,25 @@ class TextMobileStepper extends React.Component<{}, {
     var inputFileList = <List> {inputListItems} </List>;
 
     this.state.inputFiles.forEach(element => {
-        
+
         var icon = <Icon>insert_drive_file</Icon>;
         if (element.type == "folder") {icon = <Icon>folder_open</Icon>;}
 
         inputListItems.push(
-            <ListItem 
-                key={inputListItems.length}>
-                    <Avatar> {icon} </Avatar>
-                    
-                    <ListItemText 
-                    primary={element.path} secondary={element.type}
-                    />
-                    
-                    <IconButton 
-                        aria-label="Delete" 
-                        color="primary" 
-                        onClick={() => self.handleSeqPathDelete(element)}>
-                        <DeleteIcon/>
-                    </IconButton>
+            <ListItem key={inputListItems.length}>
+                <Avatar> {icon} </Avatar>
+                
+                <ListItemText 
+                primary={element.path} secondary={element.type}
+                />
+                
+                <IconButton 
+                    aria-label="Delete" 
+                    color="primary" 
+                    onClick={() => self.handleSeqPathDelete(element)}>
+                    <DeleteIcon/>
+                </IconButton>
+
             </ListItem>        
         )
     });
@@ -213,90 +201,31 @@ class TextMobileStepper extends React.Component<{}, {
         element.enabled = element.enabled === undefined ? true : element.enabled;
           
         inputRefItems.push(
-            <ListItem 
-                key={inputRefItems.length}>
-                    <Avatar>
-                        {icon}
-                    </Avatar>
+            <ListItem key={inputRefItems.length}>
+                <Avatar>
+                    {icon}
+                </Avatar>
+               
+                <ListItemText 
+                    primary={element.title || element.path} 
+                    secondary={element.type}/>
                 
-                    <ListItemText 
-                        primary={element.title || element.path} 
-                        secondary={element.type}/>
-                    
-                    <Switch 
-                        checked={element.enabled} 
-                        color="primary"
-                        onChange={() => {element.enabled = !element.enabled; 
-                        this.setState({inputRefs: this.state.inputRefs})}}/> 
-                    
-                    <IconButton 
-                        aria-label="Delete" 
-                        color="primary" 
-                        onClick={() => self.handleRefPathDelete(element)}>
-                        <DeleteIcon/>
-                    </IconButton>
+                <Switch 
+                    checked={element.enabled} 
+                    color="primary"
+                    onChange={() => {element.enabled = !element.enabled; 
+                    this.setState({inputRefs: this.state.inputRefs})}}/> 
+                
+                <IconButton 
+                    aria-label="Delete" 
+                    color="primary" 
+                    onClick={() => self.handleRefPathDelete(element)}>
+                     <DeleteIcon/>
+                </IconButton>
             </ListItem>
         )
     })
-
-
-    // File List Saving Fastq
-    var inputSaveItems: any = [];
-    var saveFileList = <List> {inputSaveItems} </List>
-    var innerSaveItems: any = [];
-    var innerSaveList = <List>{innerSaveItems}</List>
-
-    // check aligned
-    // check not aligned
-    // additional card if ref.length > 1 for intersection
-    // keyerror
-    // on change -> python script
-
-    this.state.inputFiles.forEach(element => {
-
-        var icon = <Icon>insert_drive_file</Icon>;
-        if (element.type == "folder") {icon = <Icon>folder_open</Icon>;}
-
-        innerSaveItems.push(
-            <ListItem
-                key={inputSaveItems.length}>
-
-                    <Avatar>
-                        {icon}
-                    </Avatar>
-
-                    <ListItemText 
-                        primary={element.path}
-                        secondary={element.type}/>
-
-                    <Checkbox
-                        value = "true"/>
-                    aligned
-
-                    <Checkbox
-                        value = "true"/>
-                    not aligned
-
-            </ListItem>
-        )})
-
-    this.state.inputRefs.forEach(element => {
-        inputSaveItems.push(
-            <ListItem
-                key={inputRefList.key}>
-                    <Card>
-                        <ListItemText primary={element.path}/>
-                        {innerSaveList}
-                    </Card>
-            </ListItem>
-        )
-   
-   
-   
-    });
     
-
-
 
     return [
     {
@@ -491,45 +420,47 @@ class TextMobileStepper extends React.Component<{}, {
         imgPath: '../sequinfo_logo.jpeg',
 
         content:
+
             <div>
-            
                 {this.state.resultTable}
-                
-                <Card
-                    style={{ marginTop: "25px" }}>
+                <Card>
                         <CardContent>
-                            <p>Inserted .fastq files of sequencing reads:  --> TODO what to safe</p>
-                            {saveFileList}
+                            <p>Inserted .fastq files of sequencing reads:</p>
+                            {inputFileList}
                         </CardContent>
                 </Card>
 
-
-                <div
-                    style={{ 
-                        marginTop: "25px",
-                        marginBottom: "25px",
-                        marginRight: "50px"}}>
-                            <Button
-                                variant="contained" 
-                                onClick={this.handleBack} 
-                                size="large" 
-                                style={{ 
-                                    backgroundColor: 'red', 
-                                    color: "white",
-                                    marginRight: "50px"
-                                     }}>
+                <div>
+                        <Button
+                            variant="contained" 
+                            size="small" >
+                                Save
+                                <Icon>save</Icon>
+                        </Button>                    
+                       
+                        <div 
+                            style={{ 
+                                display: "block", 
+                                marginLeft: "auto", 
+                                marginRight: "auto", 
+                                width: "10%" }}>
+                                
+                                <Button 
+                                    variant="contained" 
+                                    onClick={this.handleBack} 
+                                    size="large" 
+                                    style={{ backgroundColor: 'red', color: "white" }}>
                                         Reset
                                         <Icon>bubble_chart</Icon>
-                            </Button>
+                                </Button>
+                        </div>
+                    </div>
+                
 
-                            <Button 
-                                variant="contained" 
-                                size="small">
-                                    Save
-                                    <Icon>save</Icon>
-                            </Button>                            
-                </div>
+
+
             </div>,
+
       },
     ]; // return
   } // getStepperSteps()
@@ -545,8 +476,8 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
+  // TODO
 
-  
 
   // ### ALL ###
   // set correct next step in stage
@@ -623,19 +554,17 @@ class TextMobileStepper extends React.Component<{}, {
           console.log("No file selected");
           return;
         }
-
-        // TODO folder uploaded as folder
-
         //@Rita this will push directory path to the array of inputFiles (also can be seen in card)
-        //dirName.forEach((element: any) => {
-        //  self.state.outputDir = path.join(element,'tmp')
-        //  self.state.inputFiles.push({
-        //    path: element,
-        //    type: upType,
-        //  });
-        //});
+        dirName.forEach((element: any) => {
+          self.state.outputDir = path.join(element,'tmp')
+          self.state.inputFiles.push({
+            path: element,
+            type: upType,
+          });
+        });
         
         //@Rita this will push all .fastq files into the array of inputFiles (also can be seen in card)
+        /*
         var fs = require('fs');
         dirName.forEach((element: any) => {
           fs.readdir(element, (err: any, files:any) => {
@@ -647,10 +576,10 @@ class TextMobileStepper extends React.Component<{}, {
                   type: "file",
                 });
               }
-            });
+            });*/
             self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
-          })
-        });
+          //})
+        //});
       });
     }
   }
@@ -691,7 +620,6 @@ class TextMobileStepper extends React.Component<{}, {
               path: element,
               type: upType,
             });
-  
           });
   
           console.log(self.state.inputRefs)
@@ -745,31 +673,43 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
-// ### STEP 4 ###
-  startPython() {
-        //const { exec } = require('child_process');
-        //exec('pwd', (error:any, stdout:any, stderr:any) => {
-        //if (error) {
-        //  console.error(`exec error: ${error}`);
-        //  return;
-        //}
-        //console.log(`stdout: ${stdout}`);
-        //console.log(`stderr: ${stderr}`);
-        //}); stdout: /Users/rita/iGEM/electron_boilerplate !!!!!!!!
-        var self = this;
-        var command = "ContamTool.py --reads ";
-        self.state.inputFiles.forEach(element => {command = command + element.path+" "})
-        command = command + "--cont "
-        self.state.inputRefs.forEach(element => {if (element.enabled) {command = command + element.path+" "}})
-        console.log(self.state.inputRefs)
-        command = command + "--o " + self.state.outputDir
-        console.log("THIS IS OUR COMMAND: "+command)
-        var splitted_command = command.split(" "); 
-    
-        const {spawn} = require('child_process');
-        var child = spawn('python3', splitted_command);
+    // ### STEP 4 ###
+    startPython() {
+    //const { exec } = require('child_process');
+    //exec('pwd', (error:any, stdout:any, stderr:any) => {
+    //if (error) {
+    //  console.error(`exec error: ${error}`);
+    //  return;
+    //}
+    //console.log(`stdout: ${stdout}`);
+    //console.log(`stderr: ${stderr}`);
+    //}); stdout: /Users/rita/iGEM/electron_boilerplate !!!!!!!!
+    var self = this;
+    var command = "ContamTool.py --reads ";
+    var fs = require('fs');
+
+    self.state.inputFiles.forEach(element => {
+        var stats = fs.lstatSync(element.path)
+        if (stats.isDirectory()){
+            var allFilesInDir = fs.readdirSync(element.path);
+            allFilesInDir.forEach((myFile:any) => {
+                if(myFile.toUpperCase().endsWith("FASTQ") || myFile.toUpperCase().endsWith("FQ")){
+                    command = command + path.join(element.path, myFile)+" "
+                }
+            });
+        }else{
+            command = command + element.path + " "
+        }
+    });
 
     
+    command = command + "--cont "
+    self.state.inputRefs.forEach(element => {if (element.enabled) {command = command + element.path+" "}})
+    command = command + "--o " + self.state.outputDir
+    var splitted_command = command.split(" "); 
+
+        const {spawn} = require('child_process');
+        var child = spawn('python3', splitted_command);
         child.stdout.on('data', (data:any) => {
           console.log(`stdout: ${data}`);
           let obj = data;
@@ -785,75 +725,75 @@ class TextMobileStepper extends React.Component<{}, {
           console.log(`child process returned ${self.state.contamStrRes}`);
 
           self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
-
-          
-          var resultTable = <div></div>
-          this.state.inputRefs.forEach((element: any) => {
+        });     
+        
+        var resultTable = <div></div>
+        self.state.inputRefs.forEach((element: any) => {
             var tablePart =
             <Table>
-              <TableHead>
-              <TableRow>
-              <TableCell>Number of</TableCell>
-              <TableCell numeric>Absolute value</TableCell>
-              <TableCell numeric>Relative value</TableCell>
+            <TableHead>
+            <TableRow>
+            <TableCell>Number of</TableCell>
+            <TableCell numeric>Absolute value</TableCell>
+            <TableCell numeric>Relative value</TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-          <TableRow>
-              <TableCell component="th" scope="row">    
-              Reads
-              </TableCell>
-              <TableCell numeric>{this.state.contamResult[element.path]["totalReads"]}</TableCell>
-              <TableCell numeric>1.00000</TableCell>
-          </TableRow>
-          <TableRow>
-              <TableCell component="th" scope="row">    
-              Aligned reads
-              </TableCell>
-              <TableCell numeric>{this.state.contamResult[element.path]["alignedReads"]}</TableCell>
-              <TableCell numeric>{(this.state.contamResult[element.path]["alignedReads"]/this.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
-          </TableRow>
-          <TableRow>
-              <TableCell component="th" scope="row">    
-              Unaligned reads
-              </TableCell>
-              <TableCell numeric>{this.state.contamResult[element.path]["totalReads"]-this.state.contamResult[element.path]["alignedReads"]}</TableCell>
-              <TableCell numeric>{((this.state.contamResult[element.path]["totalReads"]-this.state.contamResult[element.path]["alignedReads"])/this.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
-          </TableRow>
-          <TableRow>
-              <TableCell component="th" scope="row">    
-              Bases
-              </TableCell>
-              <TableCell numeric>{this.state.contamResult[element.path]["totalBases"]}</TableCell>
-              <TableCell numeric>1.00000</TableCell>
-          </TableRow>
-          <TableRow>
-              <TableCell component="th" scope="row">    
-              Alignment bases
-              </TableCell>
-              <TableCell numeric>{this.state.contamResult[element.path]["alignmentBases"]}</TableCell>
-              <TableCell numeric>{(this.state.contamResult[element.path]["alignmentBases"]/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-          </TableRow>
-          <TableRow>
-              <TableCell component="th" scope="row">    
-              Aligned bases
-              </TableCell>
-              <TableCell numeric>{this.state.contamResult[element.path]["alignedLength"]}</TableCell>
-              <TableCell numeric>{(this.state.contamResult[element.path]["alignedLength"]/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-          </TableRow>
-          <TableRow>
-              <TableCell component="th" scope="row">    
-              Unaligned bases
-              </TableCell>
-              <TableCell numeric>{this.state.contamResult[element.path]["totalBases"]-this.state.contamResult[element.path]["alignedLength"]}</TableCell>
-              <TableCell numeric>{((this.state.contamResult[element.path]["totalBases"]-this.state.contamResult[element.path]["alignedLength"])/this.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-          </TableRow>
-          </TableBody>
+        </TableHead>
+        <TableBody>
+        <TableRow>
+            <TableCell component="th" scope="row">    
+            Reads
+            </TableCell>
+            <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]}</TableCell>
+            <TableCell numeric>1.00000</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell component="th" scope="row">    
+            Aligned reads
+            </TableCell>
+            <TableCell numeric>{self.state.contamResult[element.path]["alignedReads"]}</TableCell>
+            <TableCell numeric>{(self.state.contamResult[element.path]["alignedReads"]/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell component="th" scope="row">    
+            Unaligned reads
+            </TableCell>
+            <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"]}</TableCell>
+            <TableCell numeric>{((self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"])/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell component="th" scope="row">    
+            Bases
+            </TableCell>
+            <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]}</TableCell>
+            <TableCell numeric>1.00000</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell component="th" scope="row">    
+            Alignment bases
+            </TableCell>
+            <TableCell numeric>{self.state.contamResult[element.path]["alignmentBases"]}</TableCell>
+            <TableCell numeric>{(self.state.contamResult[element.path]["alignmentBases"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell component="th" scope="row">    
+            Aligned bases
+            </TableCell>
+            <TableCell numeric>{self.state.contamResult[element.path]["alignedLength"]}</TableCell>
+            <TableCell numeric>{(self.state.contamResult[element.path]["alignedLength"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell component="th" scope="row">    
+            Unaligned bases
+            </TableCell>
+            <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"]}</TableCell>
+            <TableCell numeric>{((self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"])/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+        </TableRow>
+        </TableBody>
         </Table>
-          
-          resultTable = <div> {resultTable}
-          <Card>
-              <CardContent >
+        
+        resultTable = <div> {resultTable}
+        <Card>
+            <CardContent >
                 <Typography align='center'>
                     Results for contamination file</Typography>
                 <Typography color='secondary' align='center'>{element.path}</Typography>
@@ -861,22 +801,25 @@ class TextMobileStepper extends React.Component<{}, {
                 <React.Fragment>
                     <Grid container>
                         <Grid item xs>
-                            <img src={this.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
+                            <img src={self.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
                         </Grid>
                         <Grid item xs>
-                            <img src={this.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
+                            <img src={self.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
                         </Grid>
                     </Grid>
                 </React.Fragment>
-                <img src={this.state.contamResult[element.path]["readLengthPlot"]}/> 
-              </CardContent>
-          </Card></div>
+                <img src={self.state.contamResult[element.path]["readLengthPlot"]}/> 
+            </CardContent>
+        </Card></div>
         })
-        
         self.setState({resultTable: resultTable})
-          self.handleNext();
-        });
-      }
+        self.handleNext();
+        
+    }
 }
+
+
+
+
 
 export default TextMobileStepper;
