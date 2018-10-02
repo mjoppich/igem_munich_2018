@@ -129,25 +129,25 @@ for file in sam_fasta_map.keys():
     plt.savefig(os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
     plt.close()
 
-    if not extracted_not_aligned and not extracted_aligned:
-        tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases,
-                        alignmentBases=alignmentBases,
-                        alignedLength=alignedLength,
-                        readLengthPlot=os.path.join(output_dir,"reads_length.png"),
-                        readsPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_read_pie.png"),
-                        basesPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
-        fasta_file_to_dict[fasta_file_name] = tmp_dict
-    else:
-        tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases, alignmentBases=alignmentBases,
-                        alignedLength=alignedLength, idAlignedReads=idAlignedReads, idNotAlignedReads=idNotAlignedReads,
-                        readLengthPlot=os.path.join(output_dir, "reads_length.png"),
-                        readsPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_read_pie.png"),
-                        basesPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
-        sam_file_to_dict[file] = tmp_dict
-        fasta_file_to_dict[fasta_file_name]=tmp_dict
+
+    tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases, alignmentBases=alignmentBases,
+                    alignedLength=alignedLength, idAlignedReads=idAlignedReads, idNotAlignedReads=idNotAlignedReads,
+                    readLengthPlot=os.path.join(output_dir, "reads_length.png"),
+                    readsPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_read_pie.png"),
+                    basesPie=os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
+    sam_file_to_dict[file] = tmp_dict
+    fasta_file_to_dict[fasta_file_name]=tmp_dict
 print(json.dumps(fasta_file_to_dict))
 
+
+
+# outpufolder -> subfolder for extracted 
+
+
+
+
 if extracted_not_aligned:
+    output_path = os.path.join(output_dir, "_".join(extracted_not_aligned))
     intersected_reads = []
     for file in extracted_not_aligned:
         sam_file_name = os.path.join(output_dir,os.path.split(file)[1][:-6] + ".sam")
