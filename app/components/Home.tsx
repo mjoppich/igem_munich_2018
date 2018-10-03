@@ -839,6 +839,7 @@ class TextMobileStepper extends React.Component<{}, {
                 try {
                     JSON.parse(self.state.contamStrRes);
                     self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+                    console.log("this is in contamRes "+JSON.stringify(self.state.contamResult))
                 } catch (e) {
                     self.setState({resultTable: <div>
                         <Card>
@@ -852,89 +853,97 @@ class TextMobileStepper extends React.Component<{}, {
                 }
             var resultTable = <div></div>
             self.state.inputRefs.forEach((element: any) => {
-                var tablePart =
-                <Table>
-                <TableHead>
-                <TableRow>
-                <TableCell>Number of</TableCell>
-                <TableCell numeric>Absolute value</TableCell>
-                <TableCell numeric>Relative value</TableCell>
-                </TableRow>
-            </TableHead>
-            <TableBody>
-            <TableRow>
-                <TableCell component="th" scope="row">    
-                Reads
-                </TableCell>
-                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]}</TableCell>
-                <TableCell numeric>1.00000</TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell component="th" scope="row">    
-                Aligned reads
-                </TableCell>
-                <TableCell numeric>{self.state.contamResult[element.path]["alignedReads"]}</TableCell>
-                <TableCell numeric>{(self.state.contamResult[element.path]["alignedReads"]/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell component="th" scope="row">    
-                Unaligned reads
-                </TableCell>
-                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"]}</TableCell>
-                <TableCell numeric>{((self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"])/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell component="th" scope="row">    
-                Bases
-                </TableCell>
-                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]}</TableCell>
-                <TableCell numeric>1.00000</TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell component="th" scope="row">    
-                Alignment bases
-                </TableCell>
-                <TableCell numeric>{self.state.contamResult[element.path]["alignmentBases"]}</TableCell>
-                <TableCell numeric>{(self.state.contamResult[element.path]["alignmentBases"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell component="th" scope="row">    
-                Aligned bases
-                </TableCell>
-                <TableCell numeric>{self.state.contamResult[element.path]["alignedLength"]}</TableCell>
-                <TableCell numeric>{(self.state.contamResult[element.path]["alignedLength"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell component="th" scope="row">    
-                Unaligned bases
-                </TableCell>
-                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"]}</TableCell>
-                <TableCell numeric>{((self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"])/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-            </TableRow>
-            </TableBody>
-            </Table>
+
+                console.log("looking at "+ element.path+ "because "+element.enabled)
+                if (element.enabled){
+                    console.log("looking at "+ element.path+ "because "+element.enabled)
+                    var tablePart =
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Number of</TableCell>
+                                <TableCell numeric>Absolute value</TableCell>
+                                <TableCell numeric>Relative value</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell component="th" scope="row">    
+                                Reads
+                                </TableCell>
+                                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]}</TableCell>
+                                <TableCell numeric>1.00000</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell component="th" scope="row">    
+                                Aligned reads
+                                </TableCell>
+                                <TableCell numeric>{self.state.contamResult[element.path]["alignedReads"]}</TableCell>
+                                <TableCell numeric>{(self.state.contamResult[element.path]["alignedReads"]/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell component="th" scope="row">    
+                                Unaligned reads
+                                </TableCell>
+                                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"]}</TableCell>
+                                <TableCell numeric>{((self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"])/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell component="th" scope="row">    
+                                Bases
+                                </TableCell>
+                                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]}</TableCell>
+                                <TableCell numeric>1.00000</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell component="th" scope="row">    
+                                Alignment bases
+                                </TableCell>
+                                <TableCell numeric>{self.state.contamResult[element.path]["alignmentBases"]}</TableCell>
+                                <TableCell numeric>{(self.state.contamResult[element.path]["alignmentBases"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell component="th" scope="row">    
+                                Aligned bases
+                                </TableCell>
+                                <TableCell numeric>{self.state.contamResult[element.path]["alignedLength"]}</TableCell>
+                                <TableCell numeric>{(self.state.contamResult[element.path]["alignedLength"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell component="th" scope="row">    
+                                Unaligned bases
+                                </TableCell>
+                                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"]}</TableCell>
+                                <TableCell numeric>{((self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"])/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                    resultTable = <div> {resultTable}
+                    <Card>
+                        <CardContent >
+                            <Typography align='center'>
+                                Results for contamination file</Typography>
+                            <Typography color='secondary' align='center'>{element.path}</Typography>
+                            {tablePart}
+                            <React.Fragment>
+                                <Grid container>
+                                    <Grid item xs>
+                                        <img src={self.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
+                                    </Grid>
+                                    <Grid item xs>
+                                        <img src={self.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
+                                    </Grid>
+                                </Grid>
+                            </React.Fragment>
+                            <img src={self.state.contamResult[element.path]["readLengthPlot"]}/> 
+                        </CardContent>
+                    </Card></div>
+                    }
+                    
+                })
+          
+           
             
-            resultTable = <div> {resultTable}
-            <Card>
-                <CardContent >
-                    <Typography align='center'>
-                        Results for contamination file</Typography>
-                    <Typography color='secondary' align='center'>{element.path}</Typography>
-                    {tablePart}
-                    <React.Fragment>
-                        <Grid container>
-                            <Grid item xs>
-                                <img src={self.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
-                            </Grid>
-                            <Grid item xs>
-                                <img src={self.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
-                            </Grid>
-                        </Grid>
-                    </React.Fragment>
-                    <img src={self.state.contamResult[element.path]["readLengthPlot"]}/> 
-                </CardContent>
-            </Card></div>
-            })
             self.setState({resultTable: resultTable})
             self.handleNext();
             });  
