@@ -14,34 +14,39 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import TextField from '@material-ui/core/TextField';
+
+
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+//import { element } from 'prop-types';
+
+
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
-//import * as contaminants from '../contaminants.json';
 
 var app = require('electron').remote;
 var dialog = app.dialog;
 const path = require('path');
-const contaminants = require('../contaminants.json');
+
+
 
 class TextMobileStepper extends React.Component<{}, {
 
-    activeStep: any,
-    inputFiles: Array<any>,
-    saveFiles: any,
-    inputRefs: Array<any>,
-    outputDir: String,
-    showProgress: boolean,
-    showProgress2:boolean,
-    contamResult: any,
-    contamStrRes: String,
-    resultTable: any,
+  activeStep: any,
+  inputFiles: Array<any>,
+  saveFiles: any,
+  inputRefs: Array<any>,
+  outputDir: String,
+  showProgress: boolean,
+  showProgress2:boolean,
+  contamResult: any,
+  contamStrRes: String,
+  resultTable: any,
 }>
 
 
@@ -59,24 +64,7 @@ class TextMobileStepper extends React.Component<{}, {
     resultTable: <div></div>,
   };
 
-  constructor(props: any)
-  {
-    super(props);
 
-    var self=this;
-    Object.keys(contaminants).forEach(function(k){
-        self.state.inputRefs.push({
-            path: contaminants[k]["path"],
-            type: contaminants[k]["type"],
-            protected: contaminants[k]["protected"]
-        });
-    })
-  }
-
-  componentWillMount()
-  {
-
-  }
 
   render() {
 
@@ -114,7 +102,7 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-                        /** 
+                        /**
                         <Button 
                             size="small" 
                             onClick={this.handleNext} 
@@ -122,8 +110,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-                    */
-                        
+                        */
+                    
                         activeStep == maxSteps - 2 ?
                             (<Button
                                 variant="contained"
@@ -141,7 +129,6 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                             </Button>)
-                        
                     }
 
                     backButton=
@@ -218,50 +205,7 @@ class TextMobileStepper extends React.Component<{}, {
     // File List FastA
     var inputRefItems: any = [];
     var inputRefList = <List> {inputRefItems} </List>;
-    var self = this;
-    /*
-    console.log(JSON.stringify(contaminants, undefined, 2))
-    Object.keys(contaminants).forEach(function(k){
-        console.log(k+" "+JSON.stringify(contaminants[k]))
-        var icon = <Icon>insert_drive_file</Icon>;
-        contaminants[k]["enabled"] = contaminants[k]["enabled"] === undefined ? true : contaminants[k]["enabled"];
-        inputRefItems.push(
-            <ListItem 
-                key={inputRefItems.length}>
-                    <Avatar>
-                        {icon}
-                    </Avatar>
-                
-                    <ListItemText 
-                        primary={contaminants[k]["name"]} 
-                        secondary={contaminants[k]["type"]}/>
-                    
-                    <Switch 
-                        checked={contaminants[k]["enabled"]} 
-                        color="primary"
-                        onChange={() => {contaminants[k]["enabled"] = !contaminants[k]["enabled"]; 
-                        self.setState({inputRefs: self.state.inputRefs})}}/> 
-                    {contaminants[k]["protected"] ? <div></div>
-                    : <IconButton 
-                    aria-label="Delete" 
-                    color="primary" 
-                    //onClick={() => delete contaminants[k]}
-                    onClick={() => self.handleRefPathDeleteJSON(k)}
-                    >
-                        <DeleteIcon/>
-                    </IconButton>}
-            </ListItem>
-            )
-
-    });
-
-    */
-
-
-
-    //console.log("JSON HAS "+JSON.stringify(contaminants))
-    //console.log("References "+self.state.inputRefs)
-
+    
     this.state.inputRefs.forEach(element => {
 
         var icon = <Icon>insert_drive_file</Icon>;
@@ -285,20 +229,27 @@ class TextMobileStepper extends React.Component<{}, {
                         color="primary"
                         onChange={() => {element.enabled = !element.enabled; 
                         this.setState({inputRefs: this.state.inputRefs})}}/> 
-
-                    {element["protected"] ? <div></div>
-                    : <IconButton 
-                    aria-label="Delete" 
-                    color="primary" 
-                    //onClick={() => delete contaminants[k]}
-                    onClick={() => self.handleRefPathDelete(element)}>
                     
+                    <IconButton 
+                        aria-label="Delete" 
+                        color="primary" 
+                        onClick={() => self.handleRefPathDelete(element)}>
                         <DeleteIcon/>
-                    </IconButton>}
-                    
+                    </IconButton>
             </ListItem>
         )
     })
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -323,7 +274,11 @@ class TextMobileStepper extends React.Component<{}, {
     // on change -> python script
 
     this.state.inputRefs.forEach((element, idx) => {
+
+
         
+
+
         var innerSaveItems: any = [];
         
         if (this.state.saveFiles[element.path] === undefined)
@@ -333,6 +288,9 @@ class TextMobileStepper extends React.Component<{}, {
 
         this.state.inputFiles.forEach((innerElement, innerIdx) => {
 
+
+    
+        
 
             if (this.state.saveFiles[element.path]['aligned'][innerElement.path] === undefined)
             {
@@ -412,9 +370,6 @@ class TextMobileStepper extends React.Component<{}, {
     });
     
     var saveFileList = <List>{inputSaveItems}</List>
-
-
-
 
 
 
@@ -592,6 +547,8 @@ class TextMobileStepper extends React.Component<{}, {
                         :
                         <div></div>
                     }
+
+
                 </Card>
             </div>,
 
@@ -672,6 +629,10 @@ class TextMobileStepper extends React.Component<{}, {
                         :
                         <div></div>
                     }
+
+
+
+
 
 
 
@@ -758,7 +719,7 @@ class TextMobileStepper extends React.Component<{}, {
 
                     });
 
-                    //console.log(self.state.inputFiles)
+                    console.log(self.state.inputFiles)
                     
                     self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
             });
@@ -841,7 +802,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 type: upType,
                             });
                         });
-
+ 
                         console.log(self.state.inputRefs)
                         self.setState({ inputRefs: self.state.inputRefs })
                     }
@@ -852,40 +813,157 @@ class TextMobileStepper extends React.Component<{}, {
             }
     }
 
-  handleRefPathDeleteJSON(key: any) {
-    var fs = require('fs');
-    delete contaminants[key];
-    console.log(JSON.stringify(contaminants))
-    fs.writeFile("./contaminants.json", JSON.stringify(contaminants), (err:any) => {
-        if (err) {
-            console.error(err);
-            return;
-        };
-        console.log("File has been created");
-    });
-    
-  }
 
-  handleRefPathDelete(element: any) {
-    var index = this.state.inputRefs.indexOf(element)
-    //console.log(index)
-    if (index >= 0) {
-      this.state.inputRefs.splice(index, 1)
+    handleRefPathDelete(element: any) {    
+        var index = this.state.inputRefs.indexOf(element)
+        if (index >= 0) {
+            this.state.inputRefs.splice(index, 1)
+        }
+        this.setState({ inputRefs: this.state.inputRefs })
     }
-    this.setState({ inputRefs: this.state.inputRefs })
 
-    // save inputRefs to json
-    
-  }
-
+    handleOutputDirChange = (outputDir:any) => (event:any) => {
+        this.setState({outputDir: event.target.value,});
+    };
 
 
 
+    startPythonSave() {
 
-  
-  handleOutputDirChange = (outputDir:any) => (event:any) => {
-    this.setState({outputDir: event.target.value,});
-  };
+        var self = this
+
+
+
+
+
+
+
+
+
+
+        /**
+         * 
+         * per ref{{aligned}{unaligend}} -> per aligned/unaligend fastq.path: true/false
+         * 
+         * TODO
+         * write extract script, input is ref (1 oder n), and true/false-dict (aligned, not aligend) -> open as json/dict in python
+         * open new folder in python per ref! with ref names
+         * output safe files in python accordding to correct name
+         * 
+         * typescript aufruf PER REF CARD, PER CARD
+         * 
+         * 
+         * 
+         * NICHT ZWEITES PYTHON SKRIPT SONDENR NOCHMAL AUFRUFEN
+         * 
+         * 
+         * 
+         */
+
+
+
+
+
+
+        var self = this
+
+
+        Object.keys(self.state.contamResult).forEach(function(key){
+
+            //  key -> {"/Users/juliamayer/Desktop/electron/ref1.fasta":
+
+            console.log(self.state.contamResult[key]["idNotAlignedReads"])
+
+
+        })
+
+
+
+
+
+
+
+
+        console.log("#######################    " + JSON.stringify(this.state.contamResult))
+
+
+
+        // TODO set true again
+        this.state.showProgress2 = false;
+        this.setState({ showProgress: this.state.showProgress })
+        this.render()
+
+
+        // window.setTimeout(myFunction, 3000);
+
+        console.log(JSON.stringify(this.state.saveFiles, undefined, 2))
+
+
+
+
+
+
+
+
+
+        //var command = "ContamTool.py --reads ";
+        //var fs = require('fs');
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // TODO stop progressbar when files are saved -> not a new step
+        /**
+        this.state.showProgress2 = true;
+        this.setState({ showProgress: this.state.showProgress })
+        this.render()
+         */
+
+
+
+
+    }
+
+
+
+
+
+
 
 
 
@@ -893,9 +971,7 @@ class TextMobileStepper extends React.Component<{}, {
 
     // TODO clean up code
 
-
-
-   // ### STEP 4 ###
+   // ### STEP 3 ###
        startPython() {
         //const { exec } = require('child_process');
         //exec('pwd', (error:any, stdout:any, stderr:any) => {
@@ -906,12 +982,17 @@ class TextMobileStepper extends React.Component<{}, {
         //console.log(`stdout: ${stdout}`);
         //console.log(`stderr: ${stderr}`);
         //}); stdout: /Users/rita/iGEM/electron_boilerplate !!!!!!!!
-        var self = this;
+     
+    
+    var self = this;
         var command = "ContamTool.py --reads ";
         var fs = require('fs');
     
         self.state.inputFiles.forEach(element => {
+            
             var stats = fs.lstatSync(element.path)
+            
+            
             if (stats.isDirectory()){
                 var allFilesInDir = fs.readdirSync(element.path);
                 allFilesInDir.forEach((myFile:any) => {
@@ -946,222 +1027,103 @@ class TextMobileStepper extends React.Component<{}, {
             child.on('close', (code:any) => {
                 console.log(`child process exited with code ${code}`);
                 console.log(`child process returned ${self.state.contamStrRes}`);
-                //self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
-                try {
-                    JSON.parse(self.state.contamStrRes);
-                    self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
-                    console.log("this is in contamRes "+JSON.stringify(self.state.contamResult))
-                } catch (e) {
-                    self.setState({resultTable: <div>
-                        <Card>
-                            <CardContent>
-                                <Typography color='secondary'>{self.state.contamStrRes}</Typography>
-                            </CardContent>
-                        </Card>
-                        </div>})
-                    self.handleNext();
-                    return;
-                }
+                self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+                //try {
+                //    JSON.parse(self.state.contamStrRes);
+                //    self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+                //} catch (e) {
+                //    self.setState({resultTable: <div{self.state.contamStrRes}</div>})
+                //    self.handleNext();
+                //}
             var resultTable = <div></div>
             self.state.inputRefs.forEach((element: any) => {
-
-                console.log("looking at "+ element.path+ "because "+element.enabled)
-                if (element.enabled){
-                    console.log("looking at "+ element.path+ "because "+element.enabled)
-                    var tablePart =
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Number of</TableCell>
-                                <TableCell numeric>Absolute value</TableCell>
-                                <TableCell numeric>Relative value</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            <TableRow>
-                                <TableCell component="th" scope="row">    
-                                Reads
-                                </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]}</TableCell>
-                                <TableCell numeric>1.00000</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell component="th" scope="row">    
-                                Aligned reads
-                                </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignedReads"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignedReads"]/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell component="th" scope="row">    
-                                Unaligned reads
-                                </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"]}</TableCell>
-                                <TableCell numeric>{((self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"])/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell component="th" scope="row">    
-                                Bases
-                                </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]}</TableCell>
-                                <TableCell numeric>1.00000</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell component="th" scope="row">    
-                                Alignment bases
-                                </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignmentBases"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignmentBases"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell component="th" scope="row">    
-                                Aligned bases
-                                </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignedLength"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignedLength"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell component="th" scope="row">    
-                                Unaligned bases
-                                </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"]}</TableCell>
-                                <TableCell numeric>{((self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"])/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                    resultTable = <div> {resultTable}
-                    <Card>
-                        <CardContent >
-                            <Typography align='center'>
-                                Results for contamination file</Typography>
-                            <Typography color='secondary' align='center'>{element.path}</Typography>
-                            {tablePart}
-                            <React.Fragment>
-                                <Grid container>
-                                    <Grid item xs>
-                                        <img src={self.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
-                                    </Grid>
-                                    <Grid item xs>
-                                        <img src={self.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
-                                    </Grid>
-                                </Grid>
-                            </React.Fragment>
-                            <img src={self.state.contamResult[element.path]["readLengthPlot"]}/> 
-                        </CardContent>
-                    </Card></div>
-                    }
-                    
-                })
-          
-           
+                var tablePart =
+                <Table>
+                <TableHead>
+                <TableRow>
+                <TableCell>Number of</TableCell>
+                <TableCell numeric>Absolute value</TableCell>
+                <TableCell numeric>Relative value</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+            <TableRow>
+                <TableCell component="th" scope="row">    
+                Reads
+                </TableCell>
+                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]}</TableCell>
+                <TableCell numeric>1.00000</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell component="th" scope="row">    
+                Aligned reads
+                </TableCell>
+                <TableCell numeric>{self.state.contamResult[element.path]["alignedReads"]}</TableCell>
+                <TableCell numeric>{(self.state.contamResult[element.path]["alignedReads"]/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell component="th" scope="row">    
+                Unaligned reads
+                </TableCell>
+                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"]}</TableCell>
+                <TableCell numeric>{((self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"])/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell component="th" scope="row">    
+                Bases
+                </TableCell>
+                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]}</TableCell>
+                <TableCell numeric>1.00000</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell component="th" scope="row">    
+                Alignment bases
+                </TableCell>
+                <TableCell numeric>{self.state.contamResult[element.path]["alignmentBases"]}</TableCell>
+                <TableCell numeric>{(self.state.contamResult[element.path]["alignmentBases"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell component="th" scope="row">    
+                Aligned bases
+                </TableCell>
+                <TableCell numeric>{self.state.contamResult[element.path]["alignedLength"]}</TableCell>
+                <TableCell numeric>{(self.state.contamResult[element.path]["alignedLength"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell component="th" scope="row">    
+                Unaligned bases
+                </TableCell>
+                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"]}</TableCell>
+                <TableCell numeric>{((self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"])/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+            </TableRow>
+            </TableBody>
+            </Table>
             
+            resultTable = <div> {resultTable}
+            <Card>
+                <CardContent >
+                    <Typography align='center'>
+                        Results for contamination file</Typography>
+                    <Typography color='secondary' align='center'>{element.path}</Typography>
+                    {tablePart}
+                    <React.Fragment>
+                        <Grid container>
+                            <Grid item xs>
+                                <img src={self.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
+                            </Grid>
+                            <Grid item xs>
+                                <img src={self.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
+                            </Grid>
+                        </Grid>
+                    </React.Fragment>
+                    <img src={self.state.contamResult[element.path]["readLengthPlot"]}/> 
+                </CardContent>
+            </Card></div>
+            })
             self.setState({resultTable: resultTable})
             self.handleNext();
             });  
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        startPythonSave() {
-
-            var self = this
-       
-    
-            /**
-             * 
-             * per ref{{aligned}{unaligend}} -> per aligned/unaligend fastq.path: true/false
-             * 
-             * TODO
-             * write extract script, input is ref (1 oder n), and true/false-dict (aligned, not aligend) -> open as json/dict in python
-             * open new folder in python per ref! with ref names
-             * output safe files in python accordding to correct name
-             * 
-             * typescript aufruf PER REF CARD, PER CARD
-             * 
-             * 
-             * 
-             * NICHT ZWEITES PYTHON SKRIPT SONDENR NOCHMAL AUFRUFEN
-             * 
-             * 
-             * 
-             */
-
-
-
-
-             // TODO dont use ecoli if not checked
-
-
-
-    
-            Object.keys(self.state.contamResult).forEach(function(key){
-    
-                //  key -> {"/Users/juliamayer/Desktop/electron/ref1.fasta":
-    
-                console.log("#######################    " + self.state.contamResult[key]["idNotAlignedReads"])
-    
-    
-            })
-    
-    
-    
-    
-    
-            console.log("#######################    " + JSON.stringify(this.state.contamResult))
-    
-    
-    
-            // TODO set true again
-            this.state.showProgress2 = false;
-            this.setState({ showProgress: this.state.showProgress })
-            this.render()
-    
-    
-            // window.setTimeout(myFunction, 3000);
-    
-            console.log("#######################    " + JSON.stringify(this.state.saveFiles, undefined, 2))
-    
-    
-    
-    
-            //var command = "ContamTool.py --reads ";
-            //var fs = require('fs');
-    
-    
-
-    
-            
-            // TODO stop progressbar when files are saved -> not a new step
-            /**
-            this.state.showProgress2 = true;
-            this.setState({ showProgress: this.state.showProgress })
-            this.render()
-             */
-    
-    
-    
-    
-        }
-
-
-
-
-
-    
 }
 
 export default TextMobileStepper;
