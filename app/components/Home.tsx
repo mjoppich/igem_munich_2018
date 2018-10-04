@@ -304,49 +304,37 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
-
-
-
-
-
-
-
-
-
     // File List Saving Fastq
-    var inputSaveItems: any = [];
 
-    // check aligned
-    // check not aligned
+    // TODO
     // additional card if ref.length > 1 for intersection
-    // keyerror
+    // dont use ecoli if not checked
     // on change -> python script
 
+    var inputSaveItems: any = [];
+    // saveFiles = JSON
+
+    // element refering to References, idx Reference_Index
     this.state.inputRefs.forEach((element, idx) => {
         
         var innerSaveItems: any = [];
-        
-        if (this.state.saveFiles[element.path] === undefined)
-        {
+
+        if (this.state.saveFiles[element.path] === undefined) {
+            console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&   Setting this.state.saveFiles[element.path] = {aligned: {}, unaligned: {}}; " + element.path)
             this.state.saveFiles[element.path] = {aligned: {}, unaligned: {}};
         }
 
+        // inner element referring to Files, inneridx File_index
         this.state.inputFiles.forEach((innerElement, innerIdx) => {
-
-
-            if (this.state.saveFiles[element.path]['aligned'][innerElement.path] === undefined)
-            {
-                console.log("Setting aligned inner element" + element.path);
+            if (this.state.saveFiles[element.path]['aligned'][innerElement.path] === undefined) {
+                console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&   Setting aligned inner element" + innerElement.path);
                 this.state.saveFiles[element.path]['aligned'][innerElement.path] = false;
             }
 
-            if (this.state.saveFiles[element.path]['unaligned'][innerElement.path] === undefined)
-            {
-                console.log("Setting unaligned inner element" + element.path);
-
+            if (this.state.saveFiles[element.path]['unaligned'][innerElement.path] === undefined) {
+                console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&   Setting unaligned inner element" + innerElement.path);
                 this.state.saveFiles[element.path]['unaligned'][innerElement.path] = false;
             }
-
 
             var icon = <Icon>insert_drive_file</Icon>;
             if (innerElement.type == "folder") {icon = <Icon>folder_open</Icon>;}
@@ -722,7 +710,10 @@ class TextMobileStepper extends React.Component<{}, {
                 showProgress: false,
                 contamResult: JSON.parse("{}"),
                 contamStrRes: "",
-                resultTable: <div></div>
+                resultTable: <div></div>,
+                // TODO is this correct?
+                saveFiles: JSON.parse("{}")
+
             }));
     };
 
@@ -842,7 +833,7 @@ class TextMobileStepper extends React.Component<{}, {
                             });
                         });
 
-                        console.log(self.state.inputRefs)
+                        //console.log(self.state.inputRefs)
                         self.setState({ inputRefs: self.state.inputRefs })
                     }
                 )
@@ -855,7 +846,7 @@ class TextMobileStepper extends React.Component<{}, {
   handleRefPathDeleteJSON(key: any) {
     var fs = require('fs');
     delete contaminants[key];
-    console.log(JSON.stringify(contaminants))
+    //console.log(JSON.stringify(contaminants))
     fs.writeFile("./contaminants.json", JSON.stringify(contaminants), (err:any) => {
         if (err) {
             console.error(err);
@@ -929,7 +920,7 @@ class TextMobileStepper extends React.Component<{}, {
         self.state.inputRefs.forEach(element => {if (element.enabled) {command = command + element.path+" "}})
         command = command + "--o " + self.state.outputDir
         var splitted_command = command.split(" "); 
-        console.log(command+" command")
+        //console.log(command+" command")
     
             const {spawn} = require('child_process');
             var child = spawn('python3', splitted_command);
@@ -944,13 +935,13 @@ class TextMobileStepper extends React.Component<{}, {
             });
             
             child.on('close', (code:any) => {
-                console.log(`child process exited with code ${code}`);
-                console.log(`child process returned ${self.state.contamStrRes}`);
+                //console.log(`child process exited with code ${code}`);
+                //console.log(`child process returned ${self.state.contamStrRes}`);
                 //self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
                 try {
                     JSON.parse(self.state.contamStrRes);
                     self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
-                    console.log("this is in contamRes "+JSON.stringify(self.state.contamResult))
+                    //console.log("this is in contamRes "+JSON.stringify(self.state.contamResult))
                 } catch (e) {
                     self.setState({resultTable: <div>
                         <Card>
@@ -965,9 +956,9 @@ class TextMobileStepper extends React.Component<{}, {
             var resultTable = <div></div>
             self.state.inputRefs.forEach((element: any) => {
 
-                console.log("looking at "+ element.path+ "because "+element.enabled)
+                //console.log("looking at "+ element.path+ "because "+element.enabled)
                 if (element.enabled){
-                    console.log("looking at "+ element.path+ "because "+element.enabled)
+                    //console.log("looking at "+ element.path+ "because "+element.enabled)
                     var tablePart =
                     <Table>
                         <TableHead>
@@ -1079,6 +1070,8 @@ class TextMobileStepper extends React.Component<{}, {
         startPythonSave() {
 
             var self = this
+
+            // TODO solve saving issues with ecoli REF
        
     
             /**
@@ -1091,12 +1084,8 @@ class TextMobileStepper extends React.Component<{}, {
              * output safe files in python accordding to correct name
              * 
              * typescript aufruf PER REF CARD, PER CARD
-             * 
-             * 
-             * 
+             *
              * NICHT ZWEITES PYTHON SKRIPT SONDENR NOCHMAL AUFRUFEN
-             * 
-             * 
              * 
              */
 
@@ -1112,7 +1101,7 @@ class TextMobileStepper extends React.Component<{}, {
     
                 //  key -> {"/Users/juliamayer/Desktop/electron/ref1.fasta":
     
-                console.log("#######################    " + self.state.contamResult[key]["idNotAlignedReads"])
+                //console.log("#######################    " + self.state.contamResult[key]["idNotAlignedReads"])
     
     
             })
@@ -1121,7 +1110,7 @@ class TextMobileStepper extends React.Component<{}, {
     
     
     
-            console.log("#######################    " + JSON.stringify(this.state.contamResult))
+            //console.log("#######################    " + JSON.stringify(this.state.contamResult))
     
     
     
