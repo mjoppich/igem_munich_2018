@@ -75,7 +75,7 @@ class TextMobileStepper extends React.Component<{}, {
 
   componentWillMount()
   {
-
+      // TODO
   }
 
   render() {
@@ -219,43 +219,7 @@ class TextMobileStepper extends React.Component<{}, {
     var inputRefItems: any = [];
     var inputRefList = <List> {inputRefItems} </List>;
     var self = this;
-    /*
-    console.log(JSON.stringify(contaminants, undefined, 2))
-    Object.keys(contaminants).forEach(function(k){
-        console.log(k+" "+JSON.stringify(contaminants[k]))
-        var icon = <Icon>insert_drive_file</Icon>;
-        contaminants[k]["enabled"] = contaminants[k]["enabled"] === undefined ? true : contaminants[k]["enabled"];
-        inputRefItems.push(
-            <ListItem 
-                key={inputRefItems.length}>
-                    <Avatar>
-                        {icon}
-                    </Avatar>
-                
-                    <ListItemText 
-                        primary={contaminants[k]["name"]} 
-                        secondary={contaminants[k]["type"]}/>
-                    
-                    <Switch 
-                        checked={contaminants[k]["enabled"]} 
-                        color="primary"
-                        onChange={() => {contaminants[k]["enabled"] = !contaminants[k]["enabled"]; 
-                        self.setState({inputRefs: self.state.inputRefs})}}/> 
-                    {contaminants[k]["protected"] ? <div></div>
-                    : <IconButton 
-                    aria-label="Delete" 
-                    color="primary" 
-                    //onClick={() => delete contaminants[k]}
-                    onClick={() => self.handleRefPathDeleteJSON(k)}
-                    >
-                        <DeleteIcon/>
-                    </IconButton>}
-            </ListItem>
-            )
 
-    });
-
-    */
 
 
 
@@ -314,9 +278,51 @@ class TextMobileStepper extends React.Component<{}, {
     var inputSaveItems: any = [];
     // saveFiles = JSON
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if(this.state.inputRefs.length > 1){
+
+        this.state.inputRefs.push()
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // element refering to References, idx Reference_Index
     this.state.inputRefs.forEach((element, idx) => {
-        
+
         var innerSaveItems: any = [];
 
         if (this.state.saveFiles[element.path] === undefined) {
@@ -342,8 +348,8 @@ class TextMobileStepper extends React.Component<{}, {
 
 
             innerSaveItems.push(
-            <ListItem
-                key={idx + innerIdx}>
+                <ListItem
+                    key={idx + innerIdx}>
 
                     <Avatar>
                         {icon}
@@ -353,31 +359,24 @@ class TextMobileStepper extends React.Component<{}, {
                         primary={path.basename(innerElement.path)}
                         secondary={innerElement.type}/>
 
-                          <Switch 
-                        value={String(this.state.saveFiles[element.path]['aligned'][innerElement.path])} 
-                        color="primary"
-                        onChange={() => {
-                            this.state.saveFiles[element.path]['aligned'][innerElement.path] = !this.state.saveFiles[element.path]['aligned'][innerElement.path];
-                            this.forceUpdate();
-                            
-                        }}/> 
-                    aligned
+                            <Switch 
+                                value={String(this.state.saveFiles[element.path]['aligned'][innerElement.path])} 
+                                color="primary"
+                                onChange={() => {
+                                    this.state.saveFiles[element.path]['aligned'][innerElement.path] = !this.state.saveFiles[element.path]['aligned'][innerElement.path];
+                                    this.forceUpdate();}}/> 
+                                    aligned
 
 
-                          <Switch 
-                        value={String(this.state.saveFiles[element.path]['unaligned'][innerElement.path])} 
-                        color="primary"
-                        onChange={() => {
-
-                            this.state.saveFiles[element.path]['unaligned'][innerElement.path] = !this.state.saveFiles[element.path]['unaligned'][innerElement.path];
-                            this.forceUpdate();
-                            
-                        }}/> 
-                    not aligned
-
-            </ListItem>
-        )
-
+                            <Switch 
+                                value={String(this.state.saveFiles[element.path]['unaligned'][innerElement.path])}
+                                color="primary"
+                                onChange={() => {
+                                    this.state.saveFiles[element.path]['unaligned'][innerElement.path] = !this.state.saveFiles[element.path]['unaligned'][innerElement.path];
+                                    this.forceUpdate();}}/> 
+                                    not aligned
+                    </ListItem>
+            )
         });
 
 
@@ -385,45 +384,51 @@ class TextMobileStepper extends React.Component<{}, {
             <ListItem
                 key={idx*this.state.inputFiles.length}>
                     <Card>
-
                         <CardHeader
                             title={path.basename(element.path)}
                             subheader={"subheader"}/>
-                        
-                        <List>{innerSaveItems}</List>
+                                <List>{innerSaveItems}</List>
                     </Card>
             </ListItem>
         )
-  
-  
-  
     });
-    
+
+
+    // TODO 
+    // after for each ref. ref length > 1
+    // additional Card for All Refs at once -> make smart for python start
+
+    // List item with switches 
+    // push to ### input ### save items as own card
+
+
+
+    /**
+    if (this.state.inputRefs.length > 1) {
+        inputSaveItems.push(
+            <ListItem
+                key={-99999999}>
+                    <Card>
+                        <CardHeader
+                                title={"all references"}
+                                subheader={"subheader"}/>
+                                
+                                    <Switch 
+                                        value={String(this.state.saveFiles['all']['aligned'][innerElement.path])} 
+                                        color="primary"
+                                        onChange={() => {
+                                            this.state.saveFiles[element.path]['aligned'][innerElement.path] = !this.state.saveFiles[element.path]['aligned'][innerElement.path];
+                                            this.forceUpdate();}}/> 
+                                            aligned
+
+                    </Card>
+            </ListItem>
+
+    }
+    */
+
+
     var saveFileList = <List>{inputSaveItems}</List>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -627,9 +632,8 @@ class TextMobileStepper extends React.Component<{}, {
         content:
             <div>
             
-            {this.state.resultTable}
+                {this.state.resultTable}
             
-                
                 <Card
                     style={{ marginTop: "25px" }}>
                         <CardContent>
@@ -638,35 +642,25 @@ class TextMobileStepper extends React.Component<{}, {
                         </CardContent>
 
                         <Button 
-                                variant="contained" 
-                                size="small"
-                                onClick={() => {this.startPythonSave()}}
-                                style={{
-                                    marginBottom: "25px",
-                                    marginRight: "50px",
-                                    marginLeft: "50px"}}>
-                                
-                                    Save Files&nbsp;
-                                    <Icon>save</Icon>
-                            </Button> 
+                            variant="contained" 
+                            size="small"
+                            onClick={() => {this.startPythonSave()}}
+                            style={{
+                                marginBottom: "25px",
+                                marginRight: "50px",
+                                marginLeft: "50px"}}>
+                            
+                            Save Files&nbsp;
+                            <Icon>save</Icon>        
+                        </Button> 
 
 
-
-
-                            {this.state.showProgress2 ? 
-                        <div>
-                            <LinearProgress color="secondary"/>
-                        </div>
+                        {this.state.showProgress2 ? 
+                        <div> <LinearProgress color="secondary"/> </div>
                         :
                         <div></div>
-                    }
-
-
-
-
-
+                        }
                 </Card>
-
 
                 <div
                     style={{ 
@@ -1096,6 +1090,10 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
+
+
+             // TODO
+             // if there is an element.path 'all' -> intersection
     
             Object.keys(self.state.contamResult).forEach(function(key){
     
