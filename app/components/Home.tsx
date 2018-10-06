@@ -327,7 +327,6 @@ class TextMobileStepper extends React.Component<{}, {
                                     not aligned
                     </ListItem>
             )    
-        
         });
 
 
@@ -362,7 +361,9 @@ class TextMobileStepper extends React.Component<{}, {
             var innerSaveItems: any = [];
 
             this.state.inputFiles.forEach((innerElement, innerIdx) => {
+
                 var icon = <Icon>insert_drive_file</Icon>;
+                if (innerElement.type == "folder") {icon = <Icon>folder_open</Icon>;}
 
                 if (this.state.saveFiles['all']['aligned'][innerElement.path] === undefined) {
                     this.state.saveFiles['all']['aligned'][innerElement.path] = false;
@@ -408,7 +409,7 @@ class TextMobileStepper extends React.Component<{}, {
 
             inputSaveItems.push(
                 <ListItem
-                    key={idx*this.state.inputFiles.length + 99999}>
+                    key={idx * this.state.inputFiles.length + 99999}>
                         <Card>
                             <CardHeader
                                 titleTypographyProps={{color: "primary"}}
