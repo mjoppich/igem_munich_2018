@@ -122,7 +122,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 Next
                                 <KeyboardArrowRight/>
                         </Button>
-                    */
+                        */
                         
                         activeStep == maxSteps - 2 ?
                             (<Button
@@ -221,8 +221,6 @@ class TextMobileStepper extends React.Component<{}, {
     var self = this;
 
 
-
-
     //console.log("JSON HAS "+JSON.stringify(contaminants))
     //console.log("References "+self.state.inputRefs)
 
@@ -232,7 +230,7 @@ class TextMobileStepper extends React.Component<{}, {
         if (element.type == "folder") {icon = <Icon>folder_open</Icon>;}
 
         element.enabled = element.enabled === undefined ? true : element.enabled;
-          
+
         inputRefItems.push(
             <ListItem 
                 key={inputRefItems.length}>
@@ -250,13 +248,14 @@ class TextMobileStepper extends React.Component<{}, {
                         onChange={() => {element.enabled = !element.enabled; 
                         this.setState({inputRefs: this.state.inputRefs})}}/> 
 
-                    {element["protected"] ? <div></div>
-                    : <IconButton 
-                    aria-label="Delete" 
-                    color="primary" 
-                    //onClick={() => delete contaminants[k]}
-                    onClick={() => self.handleRefPathDelete(element)}>
-                    
+                    {element["protected"] ? 
+                        <div></div>
+                        : 
+                        <IconButton 
+                            aria-label="Delete" 
+                            color="primary" 
+                            //onClick={() => delete contaminants[k]}
+                            onClick={() => self.handleRefPathDelete(element)}>
                         <DeleteIcon/>
                     </IconButton>}
                     
@@ -269,83 +268,34 @@ class TextMobileStepper extends React.Component<{}, {
 
 
     // File List Saving Fastq
-
-    // TODO
-    // additional card if ref.length > 1 for intersection
-    // dont use ecoli if not checked
-    // on change -> python script
-
     var inputSaveItems: any = [];
-    // saveFiles = JSON
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    if(this.state.inputRefs.length > 1){
-
-        this.state.inputRefs.push()
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // element refering to References, idx Reference_Index
+    // element refering to References, idx Reference_Index, saveFiles = JSON
     this.state.inputRefs.forEach((element, idx) => {
+
+        if (element.enabled){
 
         var innerSaveItems: any = [];
 
         if (this.state.saveFiles[element.path] === undefined) {
-            console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&   Setting this.state.saveFiles[element.path] = {aligned: {}, unaligned: {}}; " + element.path)
             this.state.saveFiles[element.path] = {aligned: {}, unaligned: {}};
         }
 
+
         // inner element referring to Files, inneridx File_index
         this.state.inputFiles.forEach((innerElement, innerIdx) => {
-            if (this.state.saveFiles[element.path]['aligned'][innerElement.path] === undefined) {
-                console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&   Setting aligned inner element" + innerElement.path);
-                this.state.saveFiles[element.path]['aligned'][innerElement.path] = false;
-            }
-
-            if (this.state.saveFiles[element.path]['unaligned'][innerElement.path] === undefined) {
-                console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&   Setting unaligned inner element" + innerElement.path);
-                this.state.saveFiles[element.path]['unaligned'][innerElement.path] = false;
-            }
 
             var icon = <Icon>insert_drive_file</Icon>;
             if (innerElement.type == "folder") {icon = <Icon>folder_open</Icon>;}
 
 
+            if (this.state.saveFiles[element.path]['aligned'][innerElement.path] === undefined) {
+                this.state.saveFiles[element.path]['aligned'][innerElement.path] = false;
+            }
+
+            if (this.state.saveFiles[element.path]['unaligned'][innerElement.path] === undefined) {
+                this.state.saveFiles[element.path]['unaligned'][innerElement.path] = false;
+            }
 
             innerSaveItems.push(
                 <ListItem
@@ -376,7 +326,8 @@ class TextMobileStepper extends React.Component<{}, {
                                     this.forceUpdate();}}/> 
                                     not aligned
                     </ListItem>
-            )
+            )    
+        
         });
 
 
@@ -386,55 +337,92 @@ class TextMobileStepper extends React.Component<{}, {
                     <Card>
                         <CardHeader
                             title={path.basename(element.path)}
-                            subheader={"subheader"}/>
+                            subheader={"Extract the reads that either aligned or did not align to " + path.basename(element.path) + ""}/>
                                 <List>{innerSaveItems}</List>
                     </Card>
             </ListItem>
         )
-    });
-
-
-    // TODO 
-    // after for each ref. ref length > 1
-    // additional Card for All Refs at once -> make smart for python start
-
-    // List item with switches 
-    // push to ### input ### save items as own card
 
 
 
-    /**
-    if (this.state.inputRefs.length > 1) {
-        inputSaveItems.push(
-            <ListItem
-                key={-99999999}>
-                    <Card>
-                        <CardHeader
-                                title={"all references"}
-                                subheader={"subheader"}/>
-                                
-                                    <Switch 
-                                        value={String(this.state.saveFiles['all']['aligned'][innerElement.path])} 
-                                        color="primary"
-                                        onChange={() => {
-                                            this.state.saveFiles[element.path]['aligned'][innerElement.path] = !this.state.saveFiles[element.path]['aligned'][innerElement.path];
-                                            this.forceUpdate();}}/> 
-                                            aligned
 
-                    </Card>
-            </ListItem>
 
-    }
-    */
 
+
+
+        // TODO 
+        // @markus help please :'o  (julia)
+        // switch is not working on addiotnal card?!
+        // do not use deleted references -> should be solved in line 857
+
+        // last reference, more than one input ref in total -> make additional card with all input files
+        if(this.state.inputRefs.length > 1 && (this.state.inputRefs.length - 1) == idx){
+
+            this.state.saveFiles['all'] = {aligned: {}, unaligned: {}};
+            var innerSaveItems: any = [];
+
+            this.state.inputFiles.forEach((innerElement, innerIdx) => {
+                var icon = <Icon>insert_drive_file</Icon>;
+
+                if (this.state.saveFiles['all']['aligned'][innerElement.path] === undefined) {
+                    this.state.saveFiles['all']['aligned'][innerElement.path] = false;
+                }
+    
+                if (this.state.saveFiles['all']['unaligned'][innerElement.path] === undefined) {
+                    this.state.saveFiles['all']['unaligned'][innerElement.path] = false;
+                }
+
+
+                innerSaveItems.push(
+                    <ListItem
+                        key={idx + innerIdx + 99999}>
+    
+                        <Avatar>
+                            {icon}
+                        </Avatar>
+    
+                        <ListItemText
+                            primary={path.basename(innerElement.path)}
+                            secondary={innerElement.type}/>
+    
+                                <Switch 
+                                    value={String(this.state.saveFiles['all']['aligned'][innerElement.path])} 
+                                    color="primary"
+                                    onChange={() => {
+                                        this.state.saveFiles['all']['aligned'][innerElement.path] = !this.state.saveFiles['all']['aligned'][innerElement.path];
+                                        this.forceUpdate();}}/> 
+                                        aligned
+    
+    
+                                <Switch 
+                                    value={String(this.state.saveFiles['all']['unaligned'][innerElement.path])}
+                                    color="primary"
+                                    onChange={() => {
+                                        this.state.saveFiles['all']['unaligned'][innerElement.path] = !this.state.saveFiles['all']['unaligned'][innerElement.path];
+                                        this.forceUpdate();}}/> 
+                                        not aligned
+                        </ListItem>
+                )
+            });
+
+
+            inputSaveItems.push(
+                <ListItem
+                    key={idx*this.state.inputFiles.length + 99999}>
+                        <Card>
+                            <CardHeader
+                                titleTypographyProps={{color: "primary"}}
+                                title={"All references"}
+                                subheader={"Extract the reads that either aligned or did not align to all references from above."}/>
+                                    <List>{innerSaveItems}</List>
+                        </Card>
+                </ListItem>
+            )
+
+        }
+    }});
 
     var saveFileList = <List>{inputSaveItems}</List>
-
-
-
-
-
-
 
 
     return [
@@ -837,6 +825,8 @@ class TextMobileStepper extends React.Component<{}, {
             }
     }
 
+
+
   handleRefPathDeleteJSON(key: any) {
     var fs = require('fs');
     delete contaminants[key];
@@ -864,13 +854,11 @@ class TextMobileStepper extends React.Component<{}, {
   }
 
 
-
-
-
   
   handleOutputDirChange = (outputDir:any) => (event:any) => {
     this.setState({outputDir: event.target.value,});
   };
+
 
 
 
@@ -911,8 +899,12 @@ class TextMobileStepper extends React.Component<{}, {
     
         
         command = command + "--cont "
+
+
         self.state.inputRefs.forEach(element => {if (element.enabled) {command = command + element.path+" "}})
-        command = command + "--o " + self.state.outputDir
+    
+    
+        command = command + "--o " + self.state.outputDir
         var splitted_command = command.split(" "); 
         //console.log(command+" command")
     
@@ -1044,6 +1036,18 @@ class TextMobileStepper extends React.Component<{}, {
             self.handleNext();
             });  
         }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
