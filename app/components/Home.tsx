@@ -1159,25 +1159,69 @@ class TextMobileStepper extends React.Component<{}, {
                 var command = "ContamTool.py ";
 
                 if (refElement.enabled) {
-            
-                    //aligned                    
+
+                    /*
+                    if (element.appfile === true)
+                    {
+                        refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
+                    } else {
+                        refElementPath = refElement.path;
+                    }
+                    */
+                    
                     Object.keys(self.state.saveFiles[refElement.path]['aligned']).forEach((fileElement:any) => {
 
-                        if(self.state.saveFiles[refElement.path]['aligned'][fileElement]){
+                        var doAligned = self.state.saveFiles[refElement.path]['aligned'][fileElement];
+                        var doUnaligned = self.state.saveFiles[refElement.path]['unaligned'][fileElement];
 
-                            command += "--cont " + refElement.path + " "
+                        if( doAligned || doUnaligned){
+
+                            var refElementPath = "";
+                            if (refElement.appfile === true)
+                            {
+                                refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
+                            } else {
+                                refElementPath = refElement.path;
+                            }
+
+                            command += "--cont " + refElementPath + " "
                             // TODO DIR > rita
-                            command += "--reads " + fileElement + " "
-                            command += "--o " + self.state.outputDir + "/extractedFiles" + " "
-                            command += "--extract_aligned " + refElement.path
+                            command += "--reads " + self.normalizePath(fileElement) + " "
+                            command += "--o " + self.normalizePath(self.state.outputDir) + "/extractedFiles" + " "
+
+                            if (doAligned)
+                            {
+                                command += "--extract_aligned " + refElementPath + " "
+                            }
+
+                            if (doUnaligned)
+                            {
+                                command += "--extract_not_aligned " + refElementPath + " "
+                            }
 
                             console.log("+++ +++ +++ Command SaveFiles: " + command)
 
-
                             // python
-                            var splitted_command = command.split(" ");
                             const {spawn} = require('child_process');
-                            var child = spawn('python3', splitted_command);
+                            var child = null;
+
+                            if (os.platform() == "win32")
+                            {
+                                var splitCmd = ["-i", "-c", "python3 " + command];
+                                child = spawn("bash", splitCmd);
+                
+                                console.log("Windows Version")
+                                console.log(splitCmd);
+                
+                            } else {
+                                
+                                var splitted_command = command.split(" "); 
+                                child = spawn("python3", splitted_command);
+                
+                                console.log("Unix Version")
+                                console.log(splitted_command);
+                            }
+
                             child.stdout.on('data', (data:any) => {
                                 console.log(`stdout SAVE: ${data}`);
                             })
@@ -1186,10 +1230,6 @@ class TextMobileStepper extends React.Component<{}, {
 
                         }
                     })
-                
-
-                    //unaligned
-                    // TODO
 
                 }
 
