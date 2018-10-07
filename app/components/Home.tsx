@@ -28,7 +28,7 @@ import TableRow from '@material-ui/core/TableRow';
 
 var remote = require('electron').remote;
 var os = require("os");
-var app = remote.app;
+
 
 var dialog = remote.dialog;
 const path = require('path');
@@ -939,10 +939,13 @@ class TextMobileStepper extends React.Component<{}, {
         
         command = command + "--cont "
 
+        /*
+        var app = remote.app;
         console.log(app.getAppPath());
         console.log(path.resolve("../contaminants"));
         console.log(path.resolve(""))
         console.log(path.resolve("ecoli_k12_mg1655.fasta"))
+        */
 
         self.state.inputRefs.forEach(element => {if (element.enabled)
                 {
@@ -951,7 +954,7 @@ class TextMobileStepper extends React.Component<{}, {
                     {
                         command = command + self.normalizePath(path.join(path.resolve(""), element.path))+" "
                     } else {
-                        command = command + element.path+" "
+                        command = command + self.normalizePath(element.path)+" "
                     }
                 }
         })
@@ -1165,7 +1168,7 @@ class TextMobileStepper extends React.Component<{}, {
                             {
                                 refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
                             } else {
-                                refElementPath = refElement.path;
+                                refElementPath = self.normalizePath(refElement.path);
                             }
 
                             command += "--cont " + refElementPath + " "
@@ -1186,30 +1189,38 @@ class TextMobileStepper extends React.Component<{}, {
                             console.log("+++ +++ +++ Command SaveFiles: " + command)
 
                             // python
-                            const {spawn} = require('child_process');
+                            const {spawnSync} = require('child_process');
                             var child = null;
+                            var program = "";
+                            var programArgs = null;
 
                             if (os.platform() == "win32")
                             {
-                                var splitCmd = ["-i", "-c", "python3 " + command];
-                                child = spawn("bash", splitCmd);
+                                program = "bash";
+                                programArgs = ["-i", "-c", "python3 " + command];
                 
                                 console.log("Windows Version")
-                                console.log(splitCmd);
+                                console.log(programArgs);
                 
                             } else {
-                                
+
+                                program = "python3";
                                 var splitted_command = command.split(" "); 
-                                child = spawn("python3", splitted_command);
+                                programArgs = splitted_command;
                 
                                 console.log("Unix Version")
-                                console.log(splitted_command);
+                                console.log(programArgs);
                             }
 
-                            child.stdout.on('data', (data:any) => {
-                                console.log(`stdout SAVE: ${data}` + splitted_command);
+                            child = spawnSync(program, programArgs,{
+                                cwd: process.cwd(),
+                                env: process.env,
+                                stdio: 'pipe',
+                                encoding: 'utf-8'
                             })
-                        }
+
+                            console.log(`stdout:`);
+                            console.log(child);                        }
                     })
 
                 }
@@ -1251,7 +1262,7 @@ class TextMobileStepper extends React.Component<{}, {
                     {
                         refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
                     } else {
-                        refElementPath = refElement.path;
+                        refElementPath = self.normalizePath(refElement.path);
                     }
 
                     cont += refElementPath + " "
@@ -1290,31 +1301,38 @@ class TextMobileStepper extends React.Component<{}, {
                         }
                         
                         // python
-                        var splitted_command = command.split(" ");
-                        const {spawn} = require('child_process');
-    
+                        const {spawnSync} = require('child_process');
                         var child = null;
-    
+                        var program = "";
+                        var programArgs = null;
+
                         if (os.platform() == "win32")
                         {
-                            var splitCmd = ["-i", "-c", "python3 " + command];
-                            child = spawn("bash", splitCmd);
+                            program = "bash";
+                            programArgs = ["-i", "-c", "python3 " + command];
             
                             console.log("Windows Version")
-                            console.log(splitCmd);
+                            console.log(programArgs);
             
                         } else {
-                            
+
+                            program = "python3";
                             var splitted_command = command.split(" "); 
-                            child = spawn("python3", splitted_command);
+                            programArgs = splitted_command;
             
                             console.log("Unix Version")
-                            console.log(splitted_command);
+                            console.log(programArgs);
                         }
-    
-                        child.stdout.on('data', (data:any) => {
-                            console.log(`stdout SAVE: ${data}` + splitted_command);
+
+                        child = spawnSync(program, programArgs,{
+                            cwd: process.cwd(),
+                            env: process.env,
+                            stdio: 'pipe',
+                            encoding: 'utf-8'
                         })
+                        
+                        console.log(`stdout:`);
+                        console.log(child);
                     }
                 });
             }
