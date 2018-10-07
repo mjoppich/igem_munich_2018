@@ -6,13 +6,15 @@ import HTSeq
 import matplotlib.pyplot as plt
 
 ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
-#ap.add_argument("--reads", required=True, help="path to the read file")
-ap.add_argument("--reads", nargs='+', required=True, help="path to the read file")
 
+ap.add_argument("--reads", nargs='+', required=True, help="path to the read file")
 ap.add_argument('--cont', nargs='+', help="path to the fasta file(s)", required=True)
+
 ap.add_argument('--o', help="path to the output directory", required=True)
+
 ap.add_argument('--extract_not_aligned',  nargs='+', help="path to all fasta files to witch reads did not match", required=False)
 ap.add_argument('--extract_aligned',  nargs='+', help="path to all fasta files to witch reads match", required=False)
+
 args = vars(ap.parse_args())
 read_file = args["reads"]
 cont_file = args["cont"]
@@ -20,12 +22,6 @@ output_dir = args["o"]
 extracted_not_aligned = args["extract_not_aligned"]
 extracted_aligned = args["extract_aligned"]
 
-#if not read_file.endswith(".fastq"):
-#    print('Please enter read file in fastq format')
-#file = Path(args["reads"])
-#if not file.is_file():
-#    print('Read file does not exist')
-#    exit()
 
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)

@@ -1046,172 +1046,136 @@ class TextMobileStepper extends React.Component<{}, {
         startPythonSave() {
 
             var self = this
-            //var fs = require('fs');
+
+            //console.log("##########    " + JSON.stringify(self.state.saveFiles, undefined, 2))
 
 
             self.state.inputRefs.forEach(refElement => {
-                var command = "ContamTool.py ";
-
                 if (refElement.enabled) {
             
                     //aligned                    
                     Object.keys(self.state.saveFiles[refElement.path]['aligned']).forEach((fileElement:any) => {
+                        var command = "ContamTool.py ";
+
 
                         if(self.state.saveFiles[refElement.path]['aligned'][fileElement]){
 
                             command += "--cont " + refElement.path + " "
-                            // TODO DIR > rita
+                            // TODO DIR > vgl. rita
                             command += "--reads " + fileElement + " "
                             command += "--o " + self.state.outputDir + "/extractedFiles" + " "
                             command += "--extract_aligned " + refElement.path
-
-                            console.log("+++ +++ +++ Command SaveFiles: " + command)
-
 
                             // python
                             var splitted_command = command.split(" ");
                             const {spawn} = require('child_process');
                             var child = spawn('python3', splitted_command);
                             child.stdout.on('data', (data:any) => {
-                                console.log(`stdout SAVE: ${data}`);
+                                console.log(`stdout SAVE: ${data}` + splitted_command);
                             })
-
-                            console.log("DONE SAVING: " + refElement.path + " aligned " + fileElement)
-
                         }
                     })
                 
 
                     //unaligned
-                    // TODO
+                    Object.keys(self.state.saveFiles[refElement.path]['unaligned']).forEach((fileElement:any) => {
+                        var command = "ContamTool.py ";
 
+
+                        if(self.state.saveFiles[refElement.path]['unaligned'][fileElement]){
+
+                            command += "--cont " + refElement.path + " "
+                            // TODO DIR > vgl. rita
+                            command += "--reads " + fileElement + " "
+                            command += "--o " + self.state.outputDir + "/extractedFiles" + " "
+                            command += "--extract_not_aligned " + refElement.path
+
+                            // python
+                            var splitted_command = command.split(" ");
+                            const {spawn} = require('child_process');
+                            var child = spawn('python3', splitted_command);
+                            child.stdout.on('data', (data:any) => {
+                                console.log(`stdout SAVE: ${data}` + splitted_command);
+                            })
+                        }
+                    })
                 }
-
-                // TODO if 'all' refpath
             })
 
-        
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+            // Intersection all references            
+            var cont = "--cont "
+            var alig = "--extract_aligned "
+            var notal = "--extract_not_aligned "
+            
+            
+            self.state.inputRefs.forEach(refElement => {
+                if (refElement.enabled) {
+                    cont += refElement.path + " "
+                    alig += refElement.path + " "
+                    notal += refElement.path + " "
+                }
+            })
             
 
+            //aligned                    
+            Object.keys(self.state.saveFiles['all']['aligned']).forEach((fileElement:any) => {
+                var command = "ContamTool.py "
+                
+                if(self.state.saveFiles['all']['aligned'][fileElement]){
+                    
+                    // TODO DIR > vgl. rita
+                    command += "--reads " + fileElement + " "
+                    command += "--o " + self.state.outputDir + "/extractedFiles" + " "
+                    
+                    command = command + cont + alig
+                    
+                    // python
+                    var splitted_command = command.split(" ");
+                    const {spawn} = require('child_process');
+                    var child = spawn('python3', splitted_command);
+                    child.stdout.on('data', (data:any) => {
+                        console.log(`stdout SAVE: ${data}` + splitted_command);
+                    })
+                }
+            })
+
+            //unaligned
+            Object.keys(self.state.saveFiles['all']['unaligned']).forEach((fileElement:any) => {
+                var command = "ContamTool.py "
+                
+                if(self.state.saveFiles['all']['unaligned'][fileElement]){
+                    
+                    // TODO DIR > vgl. rita
+                    command += "--reads " + fileElement + " "
+                    command += "--o " + self.state.outputDir + "/extractedFiles" + " "
+                    
+                    command = command + cont + notal
+                    
+                    // python
+                    var splitted_command = command.split(" ");
+                    const {spawn} = require('child_process');
+                    var child = spawn('python3', splitted_command);
+                    child.stdout.on('data', (data:any) => {
+                        console.log(`stdout SAVE: ${data}` + splitted_command);
+                    })
+                }
+            })
 
 
-
-
-           console.log("#######################    " + JSON.stringify(self.state.saveFiles, undefined, 2))
-
-
-
-
-
-            // TODO REMOVE STUFF FROM  self.state.outputDir + " /extractedFiles"
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
-
-            // TODO solve saving issues with ecoli REF
+            // TODO 
+            // REMOVE STUFF FROM  self.state.outputDir + " /extractedFiles"
+            // deletet refs?
+            // python script: change names and saving style
        
     
-            /**
-             * 
-             * per ref{{aligned}{unaligend}} -> per aligned/unaligend fastq.path: true/false
-             * 
-             * TODO
-             * write extract script, input is ref (1 oder n), and true/false-dict (aligned, not aligend) -> open as json/dict in python
-             * open new folder in python per ref! with ref names
-             * output safe files in python accordding to correct name
-             * 
-             * typescript aufruf PER REF CARD, PER CARD
-             *
-             * NICHT ZWEITES PYTHON SKRIPT SONDENR NOCHMAL AUFRUFEN
-             * 
-             */
-
-
-
-
-             // TODO dont use ecoli if not checked
-
-
-
-
-
-             // TODO
-             // if there is an element.path 'all' -> intersection
-    
-            //Object.keys(self.state.contamResult).forEach(function(key){}
-    
-                //  key -> {"/Users/juliamayer/Desktop/electron/ref1.fasta":
-    
-                //console.log("#######################    " + self.state.contamResult[key]["idNotAlignedReads"])
-    
-    
-
-    
-            //console.log("#######################    " + JSON.stringify(this.state.contamResult))
-    
-    
-    
-            // TODO set true again
             /*
-            this.state.showProgress2 = false;
-            this.setState({ showProgress: this.state.showProgress })
-            this.render()
+            self.state.showProgress2 = false;
+            self.setState({ showProgress: self.state.showProgress })
+            self.render()
             */
-    
-    
-            // window.setTimeout(myFunction, 3000);
 
-    
-    
-    
-    
-            //var command = "ContamTool.py --reads ";
-            //var fs = require('fs');
-    
-    
-
-    
-            
-            // TODO stop progressbar when files are saved -> not a new step
-            /**
-            this.state.showProgress2 = true;
-            this.setState({ showProgress: this.state.showProgress })
-            this.render()
-             */
-    
-    
-    
-    
         }
-
-
-
-    
 }
 
 export default TextMobileStepper;
