@@ -1043,25 +1043,6 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         startPythonSave() {
 
             var self = this
