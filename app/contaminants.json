@@ -4,6 +4,7 @@
     "path": "ecoli_k12_mg1655.fasta",
     "type": "file",
     "enabled": true,
-    "protected": true
+    "protected": true,
+    "appfile": true
   }
 }

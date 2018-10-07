@@ -26,8 +26,11 @@ import TableRow from '@material-ui/core/TableRow';
 //import { element } from 'prop-types';
 //import * as contaminants from '../contaminants.json';
 
-var app = require('electron').remote;
-var dialog = app.dialog;
+var remote = require('electron').remote;
+var os = require("os");
+var app = remote.app;
+
+var dialog = remote.dialog;
 const path = require('path');
 const contaminants = require('../contaminants.json');
 
@@ -64,15 +67,21 @@ class TextMobileStepper extends React.Component<{}, {
   {
     super(props);
 
+    console.log(contaminants);
+
     var self=this;
     Object.keys(contaminants).forEach(function(k){
-        self.state.inputRefs.push({
+        self.state.inputRefs.push(contaminants[k]);
+    })
+  }
+
+  /*
+  {
             path: contaminants[k]["path"],
             type: contaminants[k]["type"],
             protected: contaminants[k]["protected"]
-        });
-    })
-  }
+        }
+  */
 
   componentWillMount()
   {
@@ -827,7 +836,7 @@ class TextMobileStepper extends React.Component<{}, {
     var fs = require('fs');
     delete contaminants[key];
     //console.log(JSON.stringify(contaminants))
-    fs.writeFile("./contaminants.json", JSON.stringify(contaminants), (err:any) => {
+    fs.writeFile("../contaminants.json", JSON.stringify(contaminants), (err:any) => {
         if (err) {
             console.error(err);
             return;
@@ -858,11 +867,41 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
-
+    transformedPaths: any = {};
 
     // TODO clean up code
 
+    normalizePath( inpath: string )
+    {
 
+        var outPath = inpath;
+
+        if (os.platform() == "win32")
+        {
+            outPath = inpath.replace(/\\/g, "/");
+            outPath = outPath.replace("C:/", "/mnt/c/")
+
+            this.transformedPaths[outPath] = inpath;
+        }
+
+        return outPath;
+    }
+
+    convertUnix2Win(inpath: string)
+    {
+
+        // /mnt/c/test/file.ext
+        var outpath = inpath.replace(/\//g, "\\");
+        // \mnt\c\text\file.ext
+        outpath = outpath.replace(/\\mnt\\/, "");
+        // c\text\file.ext
+        outpath = outpath.charAt(0) + ":" + outpath.substr(1, outpath.length)
+
+        console.log(inpath);
+        console.log(outpath);
+
+        return outpath;
+    }
 
    // ### STEP 4 ###
        startPython() {
@@ -886,27 +925,62 @@ class TextMobileStepper extends React.Component<{}, {
                 var allFilesInDir = fs.readdirSync(element.path);
                 allFilesInDir.forEach((myFile:any) => {
                     if(myFile.toUpperCase().endsWith("FASTQ") || myFile.toUpperCase().endsWith("FQ")){
-                        command = command + path.join(element.path, myFile)+" "
+
+                        var pathToFile = self.normalizePath(path.join(element.path, myFile));
+
+                        command = command + pathToFile + " ";
                     }
                 });
             }else{
-                command = command + element.path + " "
+                command = command + self.normalizePath(element.path) + " "
             }
         });
     
         
         command = command + "--cont "
 
+        console.log(app.getAppPath());
+        console.log(path.resolve("../contaminants"));
+        console.log(path.resolve(""))
+        console.log(path.resolve("ecoli_k12_mg1655.fasta"))
 
-        self.state.inputRefs.forEach(element => {if (element.enabled) {command = command + element.path+" "}})
+        self.state.inputRefs.forEach(element => {if (element.enabled)
+                {
+                    console.log(element);
+                    if (element.appfile === true)
+                    {
+                        command = command + self.normalizePath(path.join(path.resolve(""), element.path))+" "
+                    } else {
+                        command = command + element.path+" "
+                    }
+                }
+        })
     
     
-        command = command + "--o " + self.state.outputDir
+        command = command + "--o " + self.normalizePath(self.state.outputDir)
         var splitted_command = command.split(" "); 
         //console.log(command+" command")
     
             const {spawn} = require('child_process');
-            var child = spawn('python3', splitted_command);
+            var child = null;
+
+            if (os.platform() == "win32")
+            {
+                var splitCmd = ["-i", "-c", "python3 " + command];
+                child = spawn("bash", splitCmd);
+
+                console.log("Windows Version")
+                console.log(splitCmd);
+
+            } else {
+                
+                var splitted_command = command.split(" "); 
+                child = spawn("python3", splitted_command);
+
+                console.log("Unix Version")
+                console.log(splitted_command);
+            }
+
             child.stdout.on('data', (data:any) => {
               console.log(`stdout: ${data}`);
               let obj = data;
@@ -923,7 +997,9 @@ class TextMobileStepper extends React.Component<{}, {
                 //self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
                 try {
                     JSON.parse(self.state.contamStrRes);
-                    self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+                    var newContamRes = JSON.parse(self.state.contamStrRes);
+                    console.log(newContamRes)
+                    self.setState({contamResult: newContamRes})
                     //console.log("this is in contamRes "+JSON.stringify(self.state.contamResult))
                 } catch (e) {
                     self.setState({resultTable: <div>
@@ -937,10 +1013,21 @@ class TextMobileStepper extends React.Component<{}, {
                     return;
                 }
             var resultTable = <div></div>
-            self.state.inputRefs.forEach((element: any) => {
+            Object.keys(self.state.contamResult).forEach((elemKey: any) => {
+                //SPONGEBOB this was inputRefs, but shouldn't it be contamResult?
+
+                var element = self.state.contamResult[elemKey];
+                console.log(element);
+
+                if (os.platform() == "win32")
+                {
+                    element.basesPie = self.convertUnix2Win(element.basesPie);
+                    element.readLengthPlot = self.convertUnix2Win(element.readLengthPlot);
+                    element.readsPie = self.convertUnix2Win(element.readsPie);
+                }
 
                 //console.log("looking at "+ element.path+ "because "+element.enabled)
-                if (element.enabled){
+                if (true){
                     //console.log("looking at "+ element.path+ "because "+element.enabled)
                     var tablePart =
                     <Table>
@@ -956,50 +1043,50 @@ class TextMobileStepper extends React.Component<{}, {
                                 <TableCell component="th" scope="row">    
                                 Reads
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]}</TableCell>
+                                <TableCell numeric>{element["totalReads"]}</TableCell>
                                 <TableCell numeric>1.00000</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Aligned reads
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignedReads"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignedReads"]/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["alignedReads"]}</TableCell>
+                                <TableCell numeric>{(element["alignedReads"]/element["totalReads"]).toFixed(5)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Unaligned reads
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"]}</TableCell>
-                                <TableCell numeric>{((self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"])/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["totalReads"]-element["alignedReads"]}</TableCell>
+                                <TableCell numeric>{((element["totalReads"]-element["alignedReads"])/element["totalReads"]).toFixed(5)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Bases
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]}</TableCell>
+                                <TableCell numeric>{element["totalBases"]}</TableCell>
                                 <TableCell numeric>1.00000</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Alignment bases
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignmentBases"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignmentBases"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["alignmentBases"]}</TableCell>
+                                <TableCell numeric>{(element["alignmentBases"]/element["totalBases"]).toFixed(5)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Aligned bases
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignedLength"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignedLength"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["alignedLength"]}</TableCell>
+                                <TableCell numeric>{(element["alignedLength"]/element["totalBases"]).toFixed(5)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Unaligned bases
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"]}</TableCell>
-                                <TableCell numeric>{((self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"])/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["totalBases"]-element["alignedLength"]}</TableCell>
+                                <TableCell numeric>{((element["totalBases"]-element["alignedLength"])/element["totalBases"]).toFixed(5)}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
@@ -1008,19 +1095,19 @@ class TextMobileStepper extends React.Component<{}, {
                         <CardContent >
                             <Typography align='center'>
                                 Results for contamination file</Typography>
-                            <Typography color='secondary' align='center'>{element.path}</Typography>
+                            <Typography color='secondary' align='center'>{element.path in self.transformedPaths ? self.transformedPaths[element.path] : element.path }</Typography>
                             {tablePart}
                             <React.Fragment>
                                 <Grid container>
                                     <Grid item xs>
-                                        <img src={self.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
+                                        <img src={element["readsPie"]} width="480" height="360"/> 
                                     </Grid>
                                     <Grid item xs>
-                                        <img src={self.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
+                                        <img src={element["basesPie"]} width="480" height="360"/>
                                     </Grid>
                                 </Grid>
                             </React.Fragment>
-                            <img src={self.state.contamResult[element.path]["readLengthPlot"]}/> 
+                            <img src={element["readLengthPlot"]}/> 
                         </CardContent>
                     </Card></div>
                     }

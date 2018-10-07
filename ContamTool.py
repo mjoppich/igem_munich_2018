@@ -3,6 +3,9 @@ from pathlib import Path
 import json
 import os
 import HTSeq
+
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
