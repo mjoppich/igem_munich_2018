@@ -1168,13 +1168,10 @@ class TextMobileStepper extends React.Component<{}, {
             // deletet refs?
             // python script: change names and saving style
        
-    
-            /*
+
             self.state.showProgress2 = false;
             self.setState({ showProgress: self.state.showProgress })
             self.render()
-            */
-
         }
 }
 
