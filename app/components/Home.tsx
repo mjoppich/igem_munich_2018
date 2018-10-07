@@ -1171,10 +1171,15 @@ class TextMobileStepper extends React.Component<{}, {
                                 refElementPath = self.normalizePath(refElement.path);
                             }
 
+                            var readsPath = self.normalizePath(fileElement)
+
                             command += "--cont " + refElementPath + " "
                             // TODO DIR > rita
-                            command += "--reads " + self.normalizePath(fileElement) + " "
+                            command += "--reads " + readsPath + " "
                             command += "--o " + self.normalizePath(self.state.outputDir) + "/extractedFiles" + " "
+
+                            command += "--extract_prefix " + self.makeExportPath(readsPath)
+                                    + "_"  + self.makeExportPath(refElementPath)  + " ";
 
                             if (doAligned)
                             {
@@ -1285,9 +1290,10 @@ class TextMobileStepper extends React.Component<{}, {
     
                     if( doAligned || doUnaligned){                    
                         // TODO DIR > vgl. rita
-                        command += "--reads " + self.normalizePath(fileElement) + " "
+                        var readsPath = self.normalizePath(fileElement);
+                        command += "--reads " + readsPath + " "
                         command += "--o " + self.normalizePath(path.join(self.state.outputDir, "/extractedFiles")) + " "
-                        
+                        command += "--extract_prefix " + self.makeExportPath(readsPath) + "_all" + " "
                         command = command + cont
     
                         if (doAligned)
@@ -1330,7 +1336,7 @@ class TextMobileStepper extends React.Component<{}, {
                             stdio: 'pipe',
                             encoding: 'utf-8'
                         })
-                        
+
                         console.log(`stdout:`);
                         console.log(child);
                     }
@@ -1349,6 +1355,16 @@ class TextMobileStepper extends React.Component<{}, {
             self.setState({ showProgress: self.state.showProgress })
             self.render()
         }
+
+    makeExportPath(inpath: string)
+    {
+
+        var outpath = path.basename(inpath, path.extname(inpath));
+        var outpath = outpath.replace(/[^a-zA-Z0-9]/g, "_").replace(/__/g, "_")
+
+        return outpath;
+
+    }
 }
 
 export default TextMobileStepper;
