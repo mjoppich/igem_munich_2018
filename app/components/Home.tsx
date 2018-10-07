@@ -23,6 +23,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
+//import { element } from 'prop-types';
 //import * as contaminants from '../contaminants.json';
 
 var app = require('electron').remote;
@@ -345,19 +346,13 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
-
-
-
-
-        // TODO 
-        // @markus help please :'o  (julia)
-        // switch is not working on addiotnal card?!
+        // TODO
         // do not use deleted references -> should be solved in line 857
-
-        // last reference, more than one input ref in total -> make additional card with all input files
         if(this.state.inputRefs.length > 1 && (this.state.inputRefs.length - 1) == idx){
 
-            this.state.saveFiles['all'] = {aligned: {}, unaligned: {}};
+            if (this.state.saveFiles['all'] === undefined) {
+                this.state.saveFiles['all'] = {aligned: {}, unaligned: {}};
+            }
             var innerSaveItems: any = [];
 
             this.state.inputFiles.forEach((innerElement, innerIdx) => {
@@ -885,6 +880,7 @@ class TextMobileStepper extends React.Component<{}, {
         var fs = require('fs');
     
         self.state.inputFiles.forEach(element => {
+
             var stats = fs.lstatSync(element.path)
             if (stats.isDirectory()){
                 var allFilesInDir = fs.readdirSync(element.path);
@@ -1069,6 +1065,92 @@ class TextMobileStepper extends React.Component<{}, {
         startPythonSave() {
 
             var self = this
+            //var fs = require('fs');
+
+
+            self.state.inputRefs.forEach(refElement => {
+                var command = "ContamTool.py ";
+
+                if (refElement.enabled) {
+            
+                    //aligned                    
+                    Object.keys(self.state.saveFiles[refElement.path]['aligned']).forEach((fileElement:any) => {
+
+                        if(self.state.saveFiles[refElement.path]['aligned'][fileElement]){
+
+                            command += "--cont " + refElement.path + " "
+                            // TODO DIR > rita
+                            command += "--reads " + fileElement + " "
+                            command += "--o " + self.state.outputDir + "/extractedFiles" + " "
+                            command += "--extract_aligned " + refElement.path
+
+                            console.log("+++ +++ +++ Command SaveFiles: " + command)
+
+
+                            // python
+                            var splitted_command = command.split(" ");
+                            const {spawn} = require('child_process');
+                            var child = spawn('python3', splitted_command);
+                            child.stdout.on('data', (data:any) => {
+                                console.log(`stdout SAVE: ${data}`);
+                            })
+
+                            console.log("DONE SAVING: " + refElement.path + " aligned " + fileElement)
+
+                        }
+                    })
+                
+
+                    //unaligned
+                    // TODO
+
+                }
+
+                // TODO if 'all' refpath
+            })
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+           console.log("#######################    " + JSON.stringify(self.state.saveFiles, undefined, 2))
+
+
+
+
+
+            // TODO REMOVE STUFF FROM  self.state.outputDir + " /extractedFiles"
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
 
             // TODO solve saving issues with ecoli REF
        
@@ -1100,32 +1182,29 @@ class TextMobileStepper extends React.Component<{}, {
              // TODO
              // if there is an element.path 'all' -> intersection
     
-            Object.keys(self.state.contamResult).forEach(function(key){
+            //Object.keys(self.state.contamResult).forEach(function(key){}
     
                 //  key -> {"/Users/juliamayer/Desktop/electron/ref1.fasta":
     
                 //console.log("#######################    " + self.state.contamResult[key]["idNotAlignedReads"])
     
     
-            })
-    
-    
-    
-    
+
     
             //console.log("#######################    " + JSON.stringify(this.state.contamResult))
     
     
     
             // TODO set true again
+            /*
             this.state.showProgress2 = false;
             this.setState({ showProgress: this.state.showProgress })
             this.render()
+            */
     
     
             // window.setTimeout(myFunction, 3000);
-    
-            console.log("#######################    " + JSON.stringify(this.state.saveFiles, undefined, 2))
+
     
     
     
@@ -1148,8 +1227,6 @@ class TextMobileStepper extends React.Component<{}, {
     
     
         }
-
-
 
 
 
