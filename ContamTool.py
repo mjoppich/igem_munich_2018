@@ -146,7 +146,7 @@ print(json.dumps(fasta_file_to_dict))
 
 
 
-# outpufolder -> subfolder for extracted 
+# outpufolder -> subfolder for extracted
 
 
 
