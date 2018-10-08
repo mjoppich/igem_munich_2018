@@ -19,6 +19,8 @@ ap.add_argument('--extract_prefix', type=str, required=False)
 ap.add_argument('--extract_not_aligned',  nargs='+', help="path to all fasta files to witch reads did not match", required=False)
 ap.add_argument('--extract_aligned',  nargs='+', help="path to all fasta files to witch reads match", required=False)
 
+ap.add_argument("--no_images", default=False, action="store_true", required=False)
+
 args = vars(ap.parse_args())
 read_file = args["reads"]
 cont_file = args["cont"]
@@ -26,6 +28,14 @@ output_dir = args["o"]
 extracted_not_aligned = args["extract_not_aligned"]
 extracted_aligned = args["extract_aligned"]
 extract_prefix = args["extract_prefix"]
+makeImages = not args['no_images']
+
+def deleteFileSilently(filepath):
+
+    try:
+        os.remove(filepath)
+    except OSError:
+        pass
 
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
@@ -55,19 +65,21 @@ reads = HTSeq.FastqReader(read_file)
 n_reads = 0
 len_reads=[]
 
-try:
-    for read in reads:
-        len_reads.append(len(read.seq))
-        n_reads= n_reads + 1
-    plt.ylabel('Frequency', fontsize=10)
-    plt.xlabel('Length of reads', fontsize=10)
-    plt.title('Length frequencies of all reads', fontsize=12)
-    plt.hist(len_reads, bins=100, color='green')
-    plt.savefig(os.path.join(output_dir,"reads_length.png"))
-    plt.close()
-except ValueError:
-    print('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
-    exit()
+
+if makeImages:
+    try:
+        for read in reads:
+            len_reads.append(len(read.seq))
+            n_reads= n_reads + 1
+        plt.ylabel('Frequency', fontsize=10)
+        plt.xlabel('Length of reads', fontsize=10)
+        plt.title('Length frequencies of all reads', fontsize=12)
+        plt.hist(len_reads, bins=100, color='green')
+        plt.savefig(os.path.join(output_dir,"reads_length.png"))
+        plt.close()
+    except ValueError:
+        print('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
+        exit()
 
 
 sam_fasta_map = {}
@@ -76,6 +88,7 @@ for file in cont_file:
     sam_file_name = os.path.split(file)[1][:-6]+".sam"
     os.system("graphmap align -r "+file+" -d "+read_file+" -o "+os.path.join(output_dir,sam_file_name))
     sam_fasta_map[os.path.join(output_dir,sam_file_name)]=file
+
 import pysam
 sam_file_to_dict = dict()
 fasta_file_to_dict = dict()
@@ -119,20 +132,21 @@ for file in sam_fasta_map.keys():
     #print("unaligned bases", totalBases - alignedLength, "{:.5}".format((totalBases - alignedLength) / totalBases),
     #      sep=sep)
 
-    labels = 'Aligned \n Reads', 'Unaligned \n Reads'
-    plt.pie([alignedReads, (totalReads-alignedReads)], explode=(0,0), labels=labels, colors=['gold', 'yellowgreen'],
-            autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
-    plt.axis('equal')
+    if makeImages:
+        labels = 'Aligned \n Reads', 'Unaligned \n Reads'
+        plt.pie([alignedReads, (totalReads-alignedReads)], explode=(0,0), labels=labels, colors=['gold', 'yellowgreen'],
+                autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
+        plt.axis('equal')
 
-    plt.savefig(os.path.join(output_dir,os.path.split(file)[1][:-4]+"_read_pie.png"))
-    plt.close()
+        plt.savefig(os.path.join(output_dir,os.path.split(file)[1][:-4]+"_read_pie.png"))
+        plt.close()
 
-    labels = 'Aligned \n Bases', 'Unaligned \n Bases'
-    plt.pie([alignedLength, (totalBases - alignedLength)], explode=(0, 0), labels=labels, colors=['lightcoral', 'lightskyblue'],
-            autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
-    plt.axis('equal')
-    plt.savefig(os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
-    plt.close()
+        labels = 'Aligned \n Bases', 'Unaligned \n Bases'
+        plt.pie([alignedLength, (totalBases - alignedLength)], explode=(0, 0), labels=labels, colors=['lightcoral', 'lightskyblue'],
+                autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
+        plt.axis('equal')
+        plt.savefig(os.path.join(output_dir,os.path.split(file)[1][:-4]+"_bases_pie.png"))
+        plt.close()
 
 
     tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases, alignmentBases=alignmentBases,
@@ -184,3 +198,8 @@ if extracted_aligned:
             myread = HTSeq.SequenceWithQualities(read.seq, read.name, read.qualstr)
             myread.write_to_fastq_file(my_fastq_file)
     my_fastq_file.close()
+
+
+deleteFileSilently(read_file)
+for x in sam_fasta_map:
+    deleteFileSilently(x)
