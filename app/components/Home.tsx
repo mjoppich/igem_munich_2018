@@ -1177,6 +1177,7 @@ class TextMobileStepper extends React.Component<{}, {
                             // TODO DIR > rita
                             command += "--reads " + readsPath + " "
                             command += "--o " + self.normalizePath(self.state.outputDir) + "/extractedFiles" + " "
+                            command += "--no_images "
 
                             command += "--extract_prefix " + self.makeExportPath(readsPath)
                                     + "_"  + self.makeExportPath(refElementPath)  + " ";
@@ -1294,6 +1295,7 @@ class TextMobileStepper extends React.Component<{}, {
                         command += "--reads " + readsPath + " "
                         command += "--o " + self.normalizePath(path.join(self.state.outputDir, "/extractedFiles")) + " "
                         command += "--extract_prefix " + self.makeExportPath(readsPath) + "_all" + " "
+                        command += "--no_images "
                         command = command + cont
     
                         if (doAligned)
