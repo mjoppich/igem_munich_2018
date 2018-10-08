@@ -26,8 +26,11 @@ import TableRow from '@material-ui/core/TableRow';
 //import { element } from 'prop-types';
 //import * as contaminants from '../contaminants.json';
 
-var app = require('electron').remote;
-var dialog = app.dialog;
+var remote = require('electron').remote;
+var os = require("os");
+
+
+var dialog = remote.dialog;
 const path = require('path');
 const contaminants = require('../contaminants.json');
 
@@ -64,15 +67,21 @@ class TextMobileStepper extends React.Component<{}, {
   {
     super(props);
 
+    console.log(contaminants);
+
     var self=this;
     Object.keys(contaminants).forEach(function(k){
-        self.state.inputRefs.push({
+        self.state.inputRefs.push(contaminants[k]);
+    })
+  }
+
+  /*
+  {
             path: contaminants[k]["path"],
             type: contaminants[k]["type"],
             protected: contaminants[k]["protected"]
-        });
-    })
-  }
+        }
+  */
 
   componentWillMount()
   {
@@ -827,7 +836,7 @@ class TextMobileStepper extends React.Component<{}, {
     var fs = require('fs');
     delete contaminants[key];
     //console.log(JSON.stringify(contaminants))
-    fs.writeFile("./contaminants.json", JSON.stringify(contaminants), (err:any) => {
+    fs.writeFile("../contaminants.json", JSON.stringify(contaminants), (err:any) => {
         if (err) {
             console.error(err);
             return;
@@ -858,11 +867,41 @@ class TextMobileStepper extends React.Component<{}, {
 
 
 
-
+    transformedPaths: any = {};
 
     // TODO clean up code
 
+    normalizePath( inpath: string )
+    {
 
+        var outPath = inpath;
+
+        if (os.platform() == "win32")
+        {
+            outPath = inpath.replace(/\\/g, "/");
+            outPath = outPath.replace("C:/", "/mnt/c/")
+
+            this.transformedPaths[outPath] = inpath;
+        }
+
+        return outPath;
+    }
+
+    convertUnix2Win(inpath: string)
+    {
+
+        // /mnt/c/test/file.ext
+        var outpath = inpath.replace(/\//g, "\\");
+        // \mnt\c\text\file.ext
+        outpath = outpath.replace(/\\mnt\\/, "");
+        // c\text\file.ext
+        outpath = outpath.charAt(0) + ":" + outpath.substr(1, outpath.length)
+
+        console.log(inpath);
+        console.log(outpath);
+
+        return outpath;
+    }
 
    // ### STEP 4 ###
        startPython() {
@@ -886,27 +925,65 @@ class TextMobileStepper extends React.Component<{}, {
                 var allFilesInDir = fs.readdirSync(element.path);
                 allFilesInDir.forEach((myFile:any) => {
                     if(myFile.toUpperCase().endsWith("FASTQ") || myFile.toUpperCase().endsWith("FQ")){
-                        command = command + path.join(element.path, myFile)+" "
+
+                        var pathToFile = self.normalizePath(path.join(element.path, myFile));
+
+                        command = command + pathToFile + " ";
                     }
                 });
             }else{
-                command = command + element.path + " "
+                command = command + self.normalizePath(element.path) + " "
             }
         });
     
         
         command = command + "--cont "
 
+        /*
+        var app = remote.app;
+        console.log(app.getAppPath());
+        console.log(path.resolve("../contaminants"));
+        console.log(path.resolve(""))
+        console.log(path.resolve("ecoli_k12_mg1655.fasta"))
+        */
 
-        self.state.inputRefs.forEach(element => {if (element.enabled) {command = command + element.path+" "}})
+        self.state.inputRefs.forEach(element => {if (element.enabled)
+                {
+                    console.log(element);
+                    if (element.appfile === true)
+                    {
+                        command = command + self.normalizePath(path.join(path.resolve(""), element.path))+" "
+                    } else {
+                        command = command + self.normalizePath(element.path)+" "
+                    }
+                }
+        })
     
     
-        command = command + "--o " + self.state.outputDir
+        command = command + "--o " + self.normalizePath(self.state.outputDir)
         var splitted_command = command.split(" "); 
         //console.log(command+" command")
     
             const {spawn} = require('child_process');
-            var child = spawn('python3', splitted_command);
+            var child = null;
+
+            if (os.platform() == "win32")
+            {
+                var splitCmd = ["-i", "-c", "python3 " + command];
+                child = spawn("bash", splitCmd);
+
+                console.log("Windows Version")
+                console.log(splitCmd);
+
+            } else {
+                
+                var splitted_command = command.split(" "); 
+                child = spawn("python3", splitted_command);
+
+                console.log("Unix Version")
+                console.log(splitted_command);
+            }
+
             child.stdout.on('data', (data:any) => {
               console.log(`stdout: ${data}`);
               let obj = data;
@@ -923,7 +1000,9 @@ class TextMobileStepper extends React.Component<{}, {
                 //self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
                 try {
                     JSON.parse(self.state.contamStrRes);
-                    self.setState({contamResult: JSON.parse(self.state.contamStrRes)})
+                    var newContamRes = JSON.parse(self.state.contamStrRes);
+                    console.log(newContamRes)
+                    self.setState({contamResult: newContamRes})
                     //console.log("this is in contamRes "+JSON.stringify(self.state.contamResult))
                 } catch (e) {
                     self.setState({resultTable: <div>
@@ -937,10 +1016,21 @@ class TextMobileStepper extends React.Component<{}, {
                     return;
                 }
             var resultTable = <div></div>
-            self.state.inputRefs.forEach((element: any) => {
+            Object.keys(self.state.contamResult).forEach((elemKey: any) => {
+                //SPONGEBOB this was inputRefs, but shouldn't it be contamResult?
+
+                var element = self.state.contamResult[elemKey];
+                console.log(element);
+
+                if (os.platform() == "win32")
+                {
+                    element.basesPie = self.convertUnix2Win(element.basesPie);
+                    element.readLengthPlot = self.convertUnix2Win(element.readLengthPlot);
+                    element.readsPie = self.convertUnix2Win(element.readsPie);
+                }
 
                 //console.log("looking at "+ element.path+ "because "+element.enabled)
-                if (element.enabled){
+                if (true){
                     //console.log("looking at "+ element.path+ "because "+element.enabled)
                     var tablePart =
                     <Table>
@@ -956,50 +1046,50 @@ class TextMobileStepper extends React.Component<{}, {
                                 <TableCell component="th" scope="row">    
                                 Reads
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]}</TableCell>
+                                <TableCell numeric>{element["totalReads"]}</TableCell>
                                 <TableCell numeric>1.00000</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Aligned reads
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignedReads"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignedReads"]/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["alignedReads"]}</TableCell>
+                                <TableCell numeric>{(element["alignedReads"]/element["totalReads"]).toFixed(5)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Unaligned reads
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"]}</TableCell>
-                                <TableCell numeric>{((self.state.contamResult[element.path]["totalReads"]-self.state.contamResult[element.path]["alignedReads"])/self.state.contamResult[element.path]["totalReads"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["totalReads"]-element["alignedReads"]}</TableCell>
+                                <TableCell numeric>{((element["totalReads"]-element["alignedReads"])/element["totalReads"]).toFixed(5)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Bases
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]}</TableCell>
+                                <TableCell numeric>{element["totalBases"]}</TableCell>
                                 <TableCell numeric>1.00000</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Alignment bases
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignmentBases"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignmentBases"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["alignmentBases"]}</TableCell>
+                                <TableCell numeric>{(element["alignmentBases"]/element["totalBases"]).toFixed(5)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Aligned bases
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["alignedLength"]}</TableCell>
-                                <TableCell numeric>{(self.state.contamResult[element.path]["alignedLength"]/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["alignedLength"]}</TableCell>
+                                <TableCell numeric>{(element["alignedLength"]/element["totalBases"]).toFixed(5)}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">    
                                 Unaligned bases
                                 </TableCell>
-                                <TableCell numeric>{self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"]}</TableCell>
-                                <TableCell numeric>{((self.state.contamResult[element.path]["totalBases"]-self.state.contamResult[element.path]["alignedLength"])/self.state.contamResult[element.path]["totalBases"]).toFixed(5)}</TableCell>
+                                <TableCell numeric>{element["totalBases"]-element["alignedLength"]}</TableCell>
+                                <TableCell numeric>{((element["totalBases"]-element["alignedLength"])/element["totalBases"]).toFixed(5)}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
@@ -1008,19 +1098,19 @@ class TextMobileStepper extends React.Component<{}, {
                         <CardContent >
                             <Typography align='center'>
                                 Results for contamination file</Typography>
-                            <Typography color='secondary' align='center'>{element.path}</Typography>
+                            <Typography color='secondary' align='center'>{element.path in self.transformedPaths ? self.transformedPaths[element.path] : element.path }</Typography>
                             {tablePart}
                             <React.Fragment>
                                 <Grid container>
                                     <Grid item xs>
-                                        <img src={self.state.contamResult[element.path]["readsPie"]} width="480" height="360"/> 
+                                        <img src={element["readsPie"]} width="480" height="360"/> 
                                     </Grid>
                                     <Grid item xs>
-                                        <img src={self.state.contamResult[element.path]["basesPie"]} width="480" height="360"/>
+                                        <img src={element["basesPie"]} width="480" height="360"/>
                                     </Grid>
                                 </Grid>
                             </React.Fragment>
-                            <img src={self.state.contamResult[element.path]["readLengthPlot"]}/> 
+                            <img src={element["readLengthPlot"]}/> 
                         </CardContent>
                     </Card></div>
                     }
@@ -1051,38 +1141,99 @@ class TextMobileStepper extends React.Component<{}, {
 
 
             self.state.inputRefs.forEach(refElement => {
-                if (refElement.enabled) {
-            
-                    //aligned                    
+
+
+                if ((refElement != "all") && (refElement.enabled)) {
+
+                    /*
+                    if (element.appfile === true)
+                    {
+                        refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
+                    } else {
+                        refElementPath = refElement.path;
+                    }
+                    */
+                    
                     Object.keys(self.state.saveFiles[refElement.path]['aligned']).forEach((fileElement:any) => {
                         var command = "ContamTool.py ";
 
 
-                        if(self.state.saveFiles[refElement.path]['aligned'][fileElement]){
+                        var doAligned = self.state.saveFiles[refElement.path]['aligned'][fileElement];
+                        var doUnaligned = self.state.saveFiles[refElement.path]['unaligned'][fileElement];
 
-                            command += "--cont " + refElement.path + " "
-                            // TODO DIR > vgl. rita
-                            command += "--reads " + fileElement + " "
-                            command += "--o " + self.state.outputDir + "/extractedFiles" + " "
-                            command += "--extract_aligned " + refElement.path
+                        if( doAligned || doUnaligned){
+
+                            var refElementPath = "";
+                            if (refElement.appfile === true)
+                            {
+                                refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
+                            } else {
+                                refElementPath = self.normalizePath(refElement.path);
+                            }
+
+                            var readsPath = self.normalizePath(fileElement)
+
+                            command += "--cont " + refElementPath + " "
+                            // TODO DIR > rita
+                            command += "--reads " + readsPath + " "
+                            command += "--o " + self.normalizePath(self.state.outputDir) + "/extractedFiles" + " "
+
+                            command += "--extract_prefix " + self.makeExportPath(readsPath)
+                                    + "_"  + self.makeExportPath(refElementPath)  + " ";
+
+                            if (doAligned)
+                            {
+                                command += "--extract_aligned " + refElementPath + " "
+                            }
+
+                            if (doUnaligned)
+                            {
+                                command += "--extract_not_aligned " + refElementPath + " "
+                            }
+
+                            console.log("+++ +++ +++ Command SaveFiles: " + command)
 
                             // python
-                            var splitted_command = command.split(" ");
-                            const {spawn} = require('child_process');
-                            var child = spawn('python3', splitted_command);
-                            child.stdout.on('data', (data:any) => {
-                                console.log(`stdout SAVE: ${data}` + splitted_command);
-                            })
-                        }
-                    })
+                            const {spawnSync} = require('child_process');
+                            var child = null;
+                            var program = "";
+                            var programArgs = null;
+
+                            if (os.platform() == "win32")
+                            {
+                                program = "bash";
+                                programArgs = ["-i", "-c", "python3 " + command];
                 
+                                console.log("Windows Version")
+                                console.log(programArgs);
+                
+                            } else {
 
-                    //unaligned
-                    Object.keys(self.state.saveFiles[refElement.path]['unaligned']).forEach((fileElement:any) => {
-                        var command = "ContamTool.py ";
+                                program = "python3";
+                                var splitted_command = command.split(" "); 
+                                programArgs = splitted_command;
+                
+                                console.log("Unix Version")
+                                console.log(programArgs);
+                            }
 
+                            child = spawnSync(program, programArgs,{
+                                cwd: process.cwd(),
+                                env: process.env,
+                                stdio: 'pipe',
+                                encoding: 'utf-8'
+                            })
 
-                        if(self.state.saveFiles[refElement.path]['unaligned'][fileElement]){
+                            console.log(`stdout:`);
+                            console.log(child);                        }
+                    })
+
+                }
+
+                // TODO if 'all' refpath
+            })
+
+            /*                        if(self.state.saveFiles[refElement.path]['unaligned'][fileElement]){
 
                             command += "--cont " + refElement.path + " "
                             // TODO DIR > vgl. rita
@@ -1099,8 +1250,7 @@ class TextMobileStepper extends React.Component<{}, {
                             })
                         }
                     })
-                }
-            })
+                    */
 
 
             // Intersection all references            
@@ -1111,57 +1261,89 @@ class TextMobileStepper extends React.Component<{}, {
             
             self.state.inputRefs.forEach(refElement => {
                 if (refElement.enabled) {
-                    cont += refElement.path + " "
-                    alig += refElement.path + " "
-                    notal += refElement.path + " "
+
+                    var refElementPath = "";
+                    if (refElement.appfile === true)
+                    {
+                        refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
+                    } else {
+                        refElementPath = self.normalizePath(refElement.path);
+                    }
+
+                    cont += refElementPath + " "
+                    alig += refElementPath + " "
+                    notal += refElementPath + " "
                 }
             })
             
 
-            //aligned                    
-            Object.keys(self.state.saveFiles['all']['aligned']).forEach((fileElement:any) => {
-                var command = "ContamTool.py "
-                
-                if(self.state.saveFiles['all']['aligned'][fileElement]){
+            //aligned  
+            
+            if ('all' in self.state.saveFiles)
+            {
+                Object.keys(self.state.saveFiles['all']['aligned']).forEach((fileElement:any) => {
+                    var command = "ContamTool.py "
                     
-                    // TODO DIR > vgl. rita
-                    command += "--reads " + fileElement + " "
-                    command += "--o " + self.state.outputDir + "/extractedFiles" + " "
-                    
-                    command = command + cont + alig
-                    
-                    // python
-                    var splitted_command = command.split(" ");
-                    const {spawn} = require('child_process');
-                    var child = spawn('python3', splitted_command);
-                    child.stdout.on('data', (data:any) => {
-                        console.log(`stdout SAVE: ${data}` + splitted_command);
-                    })
-                }
-            })
+    
+                    var doAligned = self.state.saveFiles["all"]['aligned'][fileElement];
+                    var doUnaligned = self.state.saveFiles["all"]['unaligned'][fileElement];
+    
+                    if( doAligned || doUnaligned){                    
+                        // TODO DIR > vgl. rita
+                        var readsPath = self.normalizePath(fileElement);
+                        command += "--reads " + readsPath + " "
+                        command += "--o " + self.normalizePath(path.join(self.state.outputDir, "/extractedFiles")) + " "
+                        command += "--extract_prefix " + self.makeExportPath(readsPath) + "_all" + " "
+                        command = command + cont
+    
+                        if (doAligned)
+                        {
+                            command += alig
+                        }
+    
+                        if (doUnaligned)
+                        {
+                            command += notal
+                        }
+                        
+                        // python
+                        const {spawnSync} = require('child_process');
+                        var child = null;
+                        var program = "";
+                        var programArgs = null;
 
-            //unaligned
-            Object.keys(self.state.saveFiles['all']['unaligned']).forEach((fileElement:any) => {
-                var command = "ContamTool.py "
-                
-                if(self.state.saveFiles['all']['unaligned'][fileElement]){
-                    
-                    // TODO DIR > vgl. rita
-                    command += "--reads " + fileElement + " "
-                    command += "--o " + self.state.outputDir + "/extractedFiles" + " "
-                    
-                    command = command + cont + notal
-                    
-                    // python
-                    var splitted_command = command.split(" ");
-                    const {spawn} = require('child_process');
-                    var child = spawn('python3', splitted_command);
-                    child.stdout.on('data', (data:any) => {
-                        console.log(`stdout SAVE: ${data}` + splitted_command);
-                    })
-                }
-            })
+                        if (os.platform() == "win32")
+                        {
+                            program = "bash";
+                            programArgs = ["-i", "-c", "python3 " + command];
+            
+                            console.log("Windows Version")
+                            console.log(programArgs);
+            
+                        } else {
 
+                            program = "python3";
+                            var splitted_command = command.split(" "); 
+                            programArgs = splitted_command;
+            
+                            console.log("Unix Version")
+                            console.log(programArgs);
+                        }
+
+                        child = spawnSync(program, programArgs,{
+                            cwd: process.cwd(),
+                            env: process.env,
+                            stdio: 'pipe',
+                            encoding: 'utf-8'
+                        })
+
+                        console.log(`stdout:`);
+                        console.log(child);
+                    }
+                });
+            }
+            
+           
 
             // TODO 
             // REMOVE STUFF FROM  self.state.outputDir + " /extractedFiles"
@@ -1178,6 +1360,16 @@ class TextMobileStepper extends React.Component<{}, {
             self.render()
             */
         }
+
+    makeExportPath(inpath: string)
+    {
+
+        var outpath = path.basename(inpath, path.extname(inpath));
+        var outpath = outpath.replace(/[^a-zA-Z0-9]/g, "_").replace(/__/g, "_")
+
+        return outpath;
+
+    }
 }
 
 export default TextMobileStepper;

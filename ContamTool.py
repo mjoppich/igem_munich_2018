@@ -3,6 +3,9 @@ from pathlib import Path
 import json
 import os
 import HTSeq
+
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
@@ -12,6 +15,7 @@ ap.add_argument('--cont', nargs='+', help="path to the fasta file(s)", required=
 
 ap.add_argument('--o', help="path to the output directory", required=True)
 
+ap.add_argument('--extract_prefix', type=str, required=False)
 ap.add_argument('--extract_not_aligned',  nargs='+', help="path to all fasta files to witch reads did not match", required=False)
 ap.add_argument('--extract_aligned',  nargs='+', help="path to all fasta files to witch reads match", required=False)
 
@@ -21,7 +25,7 @@ cont_file = args["cont"]
 output_dir = args["o"]
 extracted_not_aligned = args["extract_not_aligned"]
 extracted_aligned = args["extract_aligned"]
-
+extract_prefix = args["extract_prefix"]
 
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
@@ -157,7 +161,7 @@ if extracted_not_aligned:
         intersected_reads = list(set(intersected_reads).intersection(sam_file_to_dict[sam_file_name]["idNotAlignedReads"]))
         import HTSeq
         fastq_file = HTSeq.FastqReader(read_file)
-        my_fastq_file = open(os.path.join(output_dir, "extracted_not_aligned_reads.fastq"), "w")
+        my_fastq_file = open(os.path.join(output_dir, extract_prefix+ "_not_aligned_reads.fastq"), "w")
         for read in fastq_file:
             if any(read.name.split(" ")[0] in s for s in intersected_reads):
                 myread = HTSeq.SequenceWithQualities(read.seq, read.name, read.qualstr)
@@ -173,7 +177,8 @@ if extracted_aligned:
         intersected_reads = list(set(intersected_reads).intersection(sam_file_to_dict[sam_file_name]["idAlignedReads"]))
     import HTSeq
     fastq_file = HTSeq.FastqReader(read_file)
-    my_fastq_file = open(os.path.join(output_dir, "extracted_aligned_reads.fastq"), "w")
+
+    my_fastq_file = open(os.path.join(output_dir, extract_prefix+ "_aligned_reads.fastq"), "w")
     for read in fastq_file:
         if any(read.name.split(" ")[0] in s for s in intersected_reads):
             myread = HTSeq.SequenceWithQualities(read.seq, read.name, read.qualstr)
