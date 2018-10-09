@@ -432,12 +432,20 @@ class TextMobileStepper extends React.Component<{}, {
 
     return [
     {
-        header: "header 1",
+        header: "Read files",
         
         label:
             <div>
-                label
+                <Typography variant="body1" gutterBottom>
+                    Sequ-into ("Seek Into") provides an easy and quick overview on what your sequenced reads actually consist of.&#13;&#10;
+                    Each upload will be handled separately. This is also true if you upload the same file twice. If you wish to examine certain reads together, e.g. because they stem from 
+                    the same experiment, make sure to save them in a folder and upload that folder via CHOOSE DIRECTORY. In order to analyse a single file, upload it via CHOOSE FILE.&#13;&#10; 
+                    As soon as you have uploaded your files an output directory will be generated. At the bottom of the page you have the option to change that directory simply by clicking on the text.&#13;&#10;
+                    Click NEXT to proceed.&#13;&#10;
+                </Typography>
+
                 <div></div>
+                
                 <div 
                     style={{ 
                         display: "inline-flex", 
@@ -450,7 +458,7 @@ class TextMobileStepper extends React.Component<{}, {
                         viewBox="0 0 24 24">
                         <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
                     </svg>
-                    unter svg
+                    Upload your FASTQ or FAST5 format files.
                 </div>
             </div>,
         
@@ -463,6 +471,7 @@ class TextMobileStepper extends React.Component<{}, {
                     display: "block", 
                     marginLeft: "auto", 
                     marginRight: "auto", 
+                    marginBottom: "10px",
                     width: "100%" }}>
                 
                 <Card
@@ -474,7 +483,7 @@ class TextMobileStepper extends React.Component<{}, {
                             component="label"
                             onClick={() => this.handleSeqPath("file")}
                             style={{ marginTop: "10px" }}>
-                                Upload File
+                                Choose File
                                 <Icon>attach_file</Icon>
                         </Button>
                         
@@ -501,8 +510,8 @@ class TextMobileStepper extends React.Component<{}, {
                         <div>
                             <TextField
                                 id="standard-full-name"
-                                label="Current output directory:"
-                                helperText="Directory will be genereated when you choose files. Alterations are possible directly in the Textfield."
+                                label="Output directory:"
+                                helperText="Change the default output directory or enter your own by clicking on the textfield."
                                 value={this.state.outputDir}
                                 fullWidth
                                 onChange={this.handleOutputDirChange('outputDir')}
@@ -512,6 +521,7 @@ class TextMobileStepper extends React.Component<{}, {
                 </Card>
 
 
+                {/*
                 <div 
                     style={{ 
                         marginTop: "25px",
@@ -525,14 +535,28 @@ class TextMobileStepper extends React.Component<{}, {
                             <Icon>bubble_chart</Icon>
                         </Button>
                 </div>
+                */}
+
         </div>
       },
 
 
       {
-        header: 'header 2',
+        header: 'Reference files',
        
-        label: 
+        label:
+            <div>
+                <Typography variant="body1" gutterBottom>
+                    To check what your reads might consist of you need a reference against which the reads will be mapped. The reference might be a possible contamination, 
+                    such as E. Coli, or a known genome that your reads should be representing. You can use RNA as well as DNA sequences, as long as they are in the FASTA Format. You can find sequences for example on NCBI***(hyperlink).&#13;&#10;
+                    If you click on CHOOSE REFERENCE you can upload as many files as you wish to compare your reads to. If you click on SAVE, Sequ-into will remember them the next 
+                    time you start the app. Since running the program with large files will consume some time, consider using the switches behind each reference to turn them off if you don't need them for your current run. They will still be available after a RESET.&#13;&#10;
+                    Click START to run the calculations.&#13;&#10;
+                </Typography>
+
+                <div></div>
+
+
             <div 
                 style={{ 
                     display: "inline-flex", 
@@ -545,15 +569,22 @@ class TextMobileStepper extends React.Component<{}, {
                     viewBox="0 0 24 24">
                     <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
                 </svg>
-                Please enter each contamination file only in .fasta format!
-            </div>,
+                    Upload your fasta format files.
+                </div>
+                </div>
+            ,
         
         topimgPath: '../sequinfo_neg.jpg',
 
         imgPath: '../sequinfo_logo.jpeg',
         
         content:    
-            <div>
+            <div
+                style={{ 
+                    display: "block", 
+                    marginLeft: "auto", 
+                    marginRight: "auto", 
+                    marginBottom: "10px"}}>
                 <Card>
                     <CardActions>
                         <Button 
@@ -562,7 +593,7 @@ class TextMobileStepper extends React.Component<{}, {
                             component="label"
                             style={{ marginTop: "10px" }}
                             onClick={() => this.handleRefPath("file")}>
-                                Upload
+                                Choose Reference
                                 <Icon>attach_file</Icon>
                         </Button>
                     </CardActions>
@@ -599,9 +630,19 @@ class TextMobileStepper extends React.Component<{}, {
 
 
     {
-        header: 'header 3',
+        header: 'Results',
         
         label: 
+        <div>
+
+             <Typography variant="body1" gutterBottom>
+                On this page you will find two things: the statistical overview on how your reads mapped to the reference(s) 
+                and the possibility to extract and save only those filtered reads you need for your downstream analysis.&#13;&#10;
+                Results and saving options are categorized by reference.&#13;&#10;
+            </Typography>
+
+                <div></div>
+        
             <div 
                 style={{ 
                     display: "inline-flex", 
@@ -615,7 +656,8 @@ class TextMobileStepper extends React.Component<{}, {
                     viewBox="0 0 24 24">
                     <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
                 </svg>
-                Please check the correctness carefully!
+                You will find all figures and saved files in your chosen output directory.
+            </div>
             </div>,
 
         topimgPath: '../sequinfo_neg.jpg',
