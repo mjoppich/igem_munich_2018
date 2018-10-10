@@ -463,7 +463,8 @@ class TextMobileStepper extends React.Component<{}, {
         
         topimgPath: '../sequinfo_neg.jpg',
         
-        imgPath: '../sequinfo_logo.jpeg',
+        // TODO dont squece?!
+        imgPath: '../step1.jpg',
         
         content: 
             <div style={{ 
@@ -575,7 +576,7 @@ class TextMobileStepper extends React.Component<{}, {
         
         topimgPath: '../sequinfo_neg.jpg',
 
-        imgPath: '../sequinfo_logo.jpeg',
+        imgPath: '../step2.jpg',
         
         content:    
             <div
@@ -670,7 +671,7 @@ class TextMobileStepper extends React.Component<{}, {
 
         topimgPath: '../sequinfo_neg.jpg',
 
-        imgPath: '../sequinfo_logo.jpeg',
+        imgPath: '../step3.jpg',
 
         content:
             <div>
