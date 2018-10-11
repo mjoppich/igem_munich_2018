@@ -965,9 +965,18 @@ class TextMobileStepper extends React.Component<{}, {
         var totalProcessRuns:any = processFileKeys.length;
         var finishedFileKeys:any = [];
 
+        console.log(processFilesForElement)
+
         processFileKeys.forEach( (elemPath: any) => {
 
             var useInputFiles = processFilesForElement[elemPath].join(" ");
+
+            var allFiles: any = [];
+            processFilesForElement[elemPath].forEach((x:any) => {
+                allFiles.push(x)
+            })
+
+            console.log(allFiles);
 
             var command = "ContamTool.py --reads " + useInputFiles + " ";
             command = command + "--cont ";
@@ -980,20 +989,35 @@ class TextMobileStepper extends React.Component<{}, {
             console.log(path.resolve("ecoli_k12_mg1655.fasta"))
             */
 
+            var refFiles: any = [];
+
             self.state.inputRefs.forEach(element => {if (element.enabled)
                     {
                         console.log(element);
                         if (element.appfile === true)
                         {
-                            command = command + self.normalizePath(path.join(path.resolve(""), element.path))+" "
+                            var inref = self.normalizePath(path.join(path.resolve(""), element.path));
+                            command = command + inref +" "
+                            allFiles.push(inref);
+                            refFiles.push(inref);
+
                         } else {
-                            command = command + self.normalizePath(element.path)+" "
+
+                            var inref = self.normalizePath(element.path);
+                            command = command + inref +" "
+                            allFiles.push(inref);
+                            refFiles.push(inref);
+
                         }
                     }
             })
 
+            let elem_prefix = allFiles.map((x:any) => self.makeExportPath(x)).join("_");
+            console.log(elem_prefix);
 
-            command = command + "--o " + self.normalizePath(self.state.outputDir)
+            command = command + "--o " + self.normalizePath(self.state.outputDir) + " "
+            command = command + "--prefix " + elem_prefix
+
             var splitted_command = command.split(" "); 
         //console.log(command+" command")
 
@@ -1059,7 +1083,11 @@ class TextMobileStepper extends React.Component<{}, {
                 console.log(newContamRes)
 
                 Object.keys(newContamRes).forEach( rkey => {
-                    self.state.contamResult[rkey] = newContamRes[rkey];
+                    var singleContamRes = newContamRes[rkey];
+                    singleContamRes['fastq'] = processFilesForElement[elemPath];
+                    singleContamRes['refs'] = refFiles;
+
+                    self.state.contamResult[elem_prefix] = singleContamRes;
                 });
 
                 console.log("set contamResult")
@@ -1361,14 +1389,19 @@ class TextMobileStepper extends React.Component<{}, {
 
             var element = self.state.contamResult[elemKey];
             console.log(element);
-            console.log(element.basesPie);
+
+            var basesPieUrl = element.basesPie;
+            var readLengthPlotUrl = element.readLengthPlot;
+            var readsPieUrl = element.readsPie;
 
             if (os.platform() == "win32")
             {
-                element.basesPie = self.convertUnix2Win(element.basesPie);
-                element.readLengthPlot = self.convertUnix2Win(element.readLengthPlot);
-                element.readsPie = self.convertUnix2Win(element.readsPie);
+                basesPieUrl = self.convertUnix2Win(element.basesPie);
+                readLengthPlotUrl = self.convertUnix2Win(element.readLengthPlot);
+                readsPieUrl = self.convertUnix2Win(element.readsPie);
             }
+
+
 
             //console.log("looking at "+ element.path+ "because "+element.enabled)
             if (true){
@@ -1379,6 +1412,17 @@ class TextMobileStepper extends React.Component<{}, {
                 console.log(elemKey)
                 console.log(self.transformedPaths)
                 console.log(elemKey in self.transformedPaths ? self.transformedPaths[sContamName] : sContamName)
+
+                console.log(element["fastq"])
+                console.log(element["fastq"].map((x:any) => {path.basename(x)}))
+
+                console.log(element["fastq"].map((x:any) => {
+                    console.log(x)
+                    console.log(path.basename(x))
+                    console.log(path.extname(x))
+                }))
+
+                console.log(element["fastq"].map((x:any) => {path.basename(x)}).join(", "))
 
 
                 if (sContamName in self.transformedPaths)
@@ -1454,21 +1498,23 @@ class TextMobileStepper extends React.Component<{}, {
                 resultCards.push(
                 <Card key={resultCards.length}>
                     <CardContent >
-                        <Typography align='center'>
-                            Results for contamination file</Typography>
-                        <Typography color='secondary' align='center'>{sContamName}</Typography>
+                        <Typography align='center'>Results for contamination file</Typography>
+                            <Typography color='secondary' align='center'>{element["refs"].map((x:any) => {return path.basename(x)}).join(", ")}</Typography>
+                        <Typography align='center'>for reads</Typography>
+                        <Typography color='secondary' align='center'>{element["fastq"].map((x:any) => {return path.basename(x)}).join(", ")}</Typography>
+                        
                         {tablePart}
                         <React.Fragment>
                             <Grid container>
                                 <Grid item xs>
-                                    <img src={element["readsPie"]} width="480" height="360"/> 
+                                    <img src={readsPieUrl} width="480" height="360"/> 
                                 </Grid>
                                 <Grid item xs>
-                                    <img src={element["basesPie"]} width="480" height="360"/>
+                                    <img src={basesPieUrl} width="480" height="360"/>
                                 </Grid>
                             </Grid>
                         </React.Fragment>
-                        <img src={element["readLengthPlot"]}/> 
+                        <img src={readLengthPlotUrl}/> 
                     </CardContent>
                 </Card>);
                 }
