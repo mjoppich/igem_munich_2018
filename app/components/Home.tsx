@@ -70,10 +70,15 @@ class TextMobileStepper extends React.Component<{}, {
 
     console.log(contaminants);
 
+    /*
     var self=this;
     contaminants.forEach((contaminant:any) => {
         self.state.inputRefs.push(contaminant);
     });
+
+    */
+
+    this.loadContaminants();    
   }
 
   /*
@@ -881,14 +886,39 @@ class TextMobileStepper extends React.Component<{}, {
             }
     }
 
-    saveContaminants()
-    {
-        fs.writeFile("../contaminants.json", JSON.stringify(this.state.inputRefs), (err:any) => {
+    loadContaminants(){
+
+        var self=this;
+        console.log(process.cwd())
+        fs.readFile("./app/contaminants.json", 'utf8', (err:any, data:any) => {
             if (err) {
                 console.error(err);
                 return;
             };
-            console.log("File has been created");
+            console.log("File has been loaded " + "../contaminants");
+            console.log(data);
+
+            var jsonData = JSON.parse(data);
+            console.log(jsonData);
+
+            self.setState({inputRefs: jsonData});
+        });
+    }
+
+    saveContaminants()
+    {
+
+        console.log(process.cwd())
+
+        var textJSON =  JSON.stringify(this.state.inputRefs);
+        
+        fs.writeFile("./app/contaminants.json", textJSON, 'utf8', (err:any) => {
+            if (err) {
+                console.error(err);
+                return;
+            };
+            console.log("File has been written " + "../contaminants");
+            console.log(this.state.inputRefs);
         });
     }
 
@@ -975,7 +1005,6 @@ class TextMobileStepper extends React.Component<{}, {
         //console.log(`stderr: ${stderr}`);
         //}); stdout: /Users/rita/iGEM/electron_boilerplate !!!!!!!!
         var self = this;
-        var fs = require('fs');
 
         self.state.contamResult = {};
 
