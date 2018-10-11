@@ -94,20 +94,20 @@ if makeImages:
         exit()
 
 
-sam_fasta_map = {}
+sam_fasta_pairs = []
 
 for file in cont_file:
     sam_file_name = os.path.split(file)[1][:-6]+".sam"
     samFile = os.path.join(output_dir,prefix + sam_file_name)
 
     os.system("graphmap align -r "+file+" -d "+read_file+" -o "+samFile)
-    sam_fasta_map[samFile]=file
+    sam_fasta_pairs.append( (file, samFile) )
 
 import pysam
 sam_file_to_dict = dict()
 fasta_file_to_dict = dict()
 
-for file in sam_fasta_map.keys():
+for fastaFile, samFilePath in sam_fasta_pairs:
 
     alignedLength = 0
     alignmentBases = 0
@@ -119,8 +119,8 @@ for file in sam_fasta_map.keys():
 
 
 
-    fasta_file_name = sam_fasta_map[file]
-    samFile = pysam.AlignmentFile(file, "r")
+    fasta_file_name = fastaFile
+    samFile = pysam.AlignmentFile(samFilePath, "r")
 
     for aln in samFile:
         totalBases += len(aln.seq)
@@ -173,9 +173,10 @@ for file in sam_fasta_map.keys():
         tmp_dict["readLengthPlot"] = readsLengthPlot
         tmp_dict["readsPie"] = readPiePlot
         tmp_dict["basesPie"] = basesPiePlot
+        tmp_dict["refs"] = [fasta_file_name]
 
 
-    sam_file_to_dict[file] = tmp_dict
+    sam_file_to_dict[samFilePath] = tmp_dict
     fasta_file_to_dict[fasta_file_name]=tmp_dict
 print(json.dumps(fasta_file_to_dict))
 
@@ -222,5 +223,5 @@ if extracted_aligned:
 
 
 deleteFileSilently(read_file)
-for x in sam_fasta_map:
-    deleteFileSilently(x)
+for fastaFile, samFilePath in sam_fasta_pairs:
+    deleteFileSilently(samFilePath)

@@ -1128,9 +1128,8 @@ class TextMobileStepper extends React.Component<{}, {
                 Object.keys(newContamRes).forEach( rkey => {
                     var singleContamRes = newContamRes[rkey];
                     singleContamRes['fastq'] = processFilesForElement[elemPath];
-                    singleContamRes['refs'] = refFiles;
 
-                    self.state.contamResult[elem_prefix] = singleContamRes;
+                    self.state.contamResult[elem_prefix+"_"+rkey] = singleContamRes;
                 });
 
                 console.log("set contamResult")
@@ -1138,8 +1137,7 @@ class TextMobileStepper extends React.Component<{}, {
 
                 self.setState({contamResult:  self.state.contamResult})
 
-                self.makeContamResultTable()
-                self.forceUpdate()
+
                 //console.log("this is in contamRes "+JSON.stringify(self.state.contamResult))
             } catch (e) {
                 console.log("python error")
@@ -1167,8 +1165,8 @@ class TextMobileStepper extends React.Component<{}, {
 
         //self.makeContamResultTable()
         //self.forceUpdate()
+        self.makeContamResultTable()
         self.handleNext();
-
         
         }
 
