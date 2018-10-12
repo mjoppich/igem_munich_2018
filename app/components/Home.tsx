@@ -27,13 +27,17 @@ import TableRow from '@material-ui/core/TableRow';
 //import * as contaminants from '../contaminants.json';
 
 var remote = require('electron').remote;
+var app = remote.app;
+
 var os = require("os");
 var fs = require('fs');
 
 
 var dialog = remote.dialog;
+
+
 const path = require('path');
-const contaminants = require('../contaminants.json');
+const contaminants = require('data/contaminants.json');
 
 class TextMobileStepper extends React.Component<{}, {
 
@@ -78,7 +82,15 @@ class TextMobileStepper extends React.Component<{}, {
 
     */
 
-    this.loadContaminants();    
+    this.loadContaminants(); 
+    
+    if (this.state.inputRefs.length == 0)
+    {
+        var self=this;
+        contaminants.forEach((contaminant:any) => {
+            self.state.inputRefs.push(contaminant);
+        });
+    }
   }
 
   /*
@@ -88,6 +100,22 @@ class TextMobileStepper extends React.Component<{}, {
             protected: contaminants[k]["protected"]
         }
   */
+
+
+  getDataPath()
+  {
+
+    var eprocess = remote.getGlobal('process');
+
+    if (process.env.NODE_ENV == 'production')
+    {
+        return path.resolve(`${eprocess.resourcesPath}/../data/`);
+    } else {
+        return path.join(path.resolve(""), "app", "data");
+    }  
+
+  }
+
 
   componentWillMount()
   {
@@ -466,10 +494,10 @@ class TextMobileStepper extends React.Component<{}, {
                 </div>
             </div>,
         
-        topimgPath: '../sequinfo_neg.jpg',
+        topimgPath: 'sequinfo_neg.jpg',
         
         // TODO dont squece?!
-        imgPath: '../step1.jpg',
+        imgPath: 'step1.jpg',
         
         content: 
             <div style={{ 
@@ -522,6 +550,21 @@ class TextMobileStepper extends React.Component<{}, {
                                 onChange={this.handleOutputDirChange('outputDir')}
                                 margin="normal"/>
                         </div>
+                    </CardContent>
+                </Card>
+
+                <Card 
+                    style={{ marginTop: "5px" }}>
+                    <CardContent>
+                        <Typography>CWD: {process.cwd()}</Typography><br/>
+                        <Typography>App Path: {app.getAppPath()}</Typography><br/>
+                        <Typography>dirname: {__dirname}</Typography><br/>
+                        <Typography>filename: {__filename}</Typography><br/>
+                        <Typography>resolve: {path.resolve("")}</Typography><br/>
+                        <Typography>App Path: {app.getPath("userData")}</Typography><br/>
+                        <Typography>Resources Path: {remote.getGlobal('process').resourcesPath}</Typography><br/>
+                        <Typography>Data Path: {this.getDataPath()}</Typography><br/>
+
                     </CardContent>
                 </Card>
 
@@ -579,9 +622,9 @@ class TextMobileStepper extends React.Component<{}, {
                 </div>
             ,
         
-        topimgPath: '../sequinfo_neg.jpg',
+        topimgPath: 'sequinfo_neg.jpg',
 
-        imgPath: '../step2.jpg',
+        imgPath: 'step2.jpg',
         
         content:    
             <div
@@ -674,9 +717,9 @@ class TextMobileStepper extends React.Component<{}, {
             </div>
             </div>,
 
-        topimgPath: '../sequinfo_neg.jpg',
+        topimgPath: 'sequinfo_neg.jpg',
 
-        imgPath: '../step3.jpg',
+        imgPath: 'step3.jpg',
 
         content:
             <div>
@@ -737,9 +780,16 @@ class TextMobileStepper extends React.Component<{}, {
 
     // set correct next step in stage
     handleNext = () => {
+
+        var newstep = this.state.activeStep + 1;
+        if (newstep >= 2)
+        {
+            newstep=2;
+        }
+
         this.setState(
             prevState => ({
-                activeStep: prevState.activeStep + 1,
+                activeStep: newstep,
             }));
     };
 
@@ -890,7 +940,7 @@ class TextMobileStepper extends React.Component<{}, {
 
         var self=this;
         console.log(process.cwd())
-        fs.readFile("./app/contaminants.json", 'utf8', (err:any, data:any) => {
+        fs.readFile(path.join(self.getDataPath(), "contaminants.json"), 'utf8', (err:any, data:any) => {
             if (err) {
                 console.error(err);
                 return;
@@ -908,11 +958,12 @@ class TextMobileStepper extends React.Component<{}, {
     saveContaminants()
     {
 
+        var self=this;
         console.log(process.cwd())
 
         var textJSON =  JSON.stringify(this.state.inputRefs);
         
-        fs.writeFile("./app/contaminants.json", textJSON, 'utf8', (err:any) => {
+        fs.writeFile(path.join(self.getDataPath(), "contaminants.json"), textJSON, 'utf8', (err:any) => {
             if (err) {
                 console.error(err);
                 return;
@@ -925,8 +976,9 @@ class TextMobileStepper extends React.Component<{}, {
 
   handleRefPathDeleteJSON(key: any) {
     delete contaminants[key];
+    var self=this;
     //console.log(JSON.stringify(contaminants))
-    fs.writeFile("../contaminants.json", JSON.stringify(contaminants), (err:any) => {
+    fs.writeFile(path.join(self.getDataPath(), "contaminants.json"), JSON.stringify(contaminants), (err:any) => {
         if (err) {
             console.error(err);
             return;
@@ -975,6 +1027,18 @@ class TextMobileStepper extends React.Component<{}, {
         }
 
         return outPath;
+    }
+
+    getContamToolPath()
+    {
+        var sysPath = path.join(this.getDataPath(), "ContamTool.py");
+
+        if (os.platform() == "win32")
+        {
+            sysPath = this.normalizePath(sysPath);
+        }
+
+        return sysPath;
     }
 
     convertUnix2Win(inpath: string)
@@ -1036,10 +1100,16 @@ class TextMobileStepper extends React.Component<{}, {
         var processFileKeys = Object.keys(processFilesForElement);
         var totalProcessRuns:any = processFileKeys.length;
         var finishedFileKeys:any = [];
+        var processError = false;
 
         console.log(processFilesForElement)
 
         processFileKeys.forEach( (elemPath: any) => {
+
+            if (processError)
+            {
+                return;
+            }
 
             var useInputFiles = processFilesForElement[elemPath].join(" ");
 
@@ -1050,7 +1120,7 @@ class TextMobileStepper extends React.Component<{}, {
 
             console.log(allFiles);
 
-            var command = "ContamTool.py --reads " + useInputFiles + " ";
+            var command = self.getContamToolPath() + " --reads " + useInputFiles + " ";
             command = command + "--cont ";
 
             /*
@@ -1068,7 +1138,7 @@ class TextMobileStepper extends React.Component<{}, {
                         console.log(element);
                         if (element.appfile === true)
                         {
-                            var inref = self.normalizePath(path.join(path.resolve(""), element.path));
+                            var inref = self.normalizePath(path.join(self.getDataPath(), element.path));
                             command = command + inref +" "
                             allFiles.push(inref);
                             refFiles.push(inref);
@@ -1090,7 +1160,7 @@ class TextMobileStepper extends React.Component<{}, {
             command = command + "--o " + self.normalizePath(self.state.outputDir) + " "
             command = command + "--prefix " + elem_prefix
 
-            var splitted_command = command.split(" "); 
+            var splitted_command = command.split(" ");
         //console.log(command+" command")
 
             const {spawnSync} = require('child_process');
@@ -1135,15 +1205,17 @@ class TextMobileStepper extends React.Component<{}, {
 
             if (child.status != 0)
             {
-                self.setState({resultTable: <div>
-                    <Card>
-                        <CardContent>
-                            <Typography color='secondary'>{processOutput}</Typography>
-                            <Typography color='secondary'>{child.stderr}</Typography>
-                        </CardContent>
-                    </Card>
-                    </div>})
-                    self.handleNext();
+                self.setState({resultTable: 
+                <Card>
+                    <CardContent>
+                        <Typography color='secondary'>{processOutput}</Typography>
+                        <Typography color='secondary'>{child.output[2]}</Typography>
+                    </CardContent>
+                </Card>
+                })
+
+                processError=true;
+                self.handleNext();
 
                 return;
             }
@@ -1186,6 +1258,11 @@ class TextMobileStepper extends React.Component<{}, {
             }
                 
         })
+
+        if (processError)
+        {
+            return;
+        }
 
         if (totalProcessRuns == finishedFileKeys.length)
         {
@@ -1230,7 +1307,7 @@ class TextMobileStepper extends React.Component<{}, {
                     */
                     
                     Object.keys(self.state.saveFiles[refElement.path]['aligned']).forEach((fileElement:any) => {
-                        var command = "ContamTool.py ";
+                        var command = self.getContamToolPath() + " ";
 
 
                         var doAligned = self.state.saveFiles[refElement.path]['aligned'][fileElement];
@@ -1358,7 +1435,7 @@ class TextMobileStepper extends React.Component<{}, {
             if ('all' in self.state.saveFiles)
             {
                 Object.keys(self.state.saveFiles['all']['aligned']).forEach((fileElement:any) => {
-                    var command = "ContamTool.py "
+                    var command = self.getContamToolPath() + " ";
                     
     
                     var doAligned = self.state.saveFiles["all"]['aligned'][fileElement];

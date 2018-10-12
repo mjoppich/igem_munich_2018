@@ -1,7 +1,7 @@
 {
-  "name": "electron-react-typescript-boilerplate",
-  "productName": "ElectronReactTypescript",
-  "version": "0.10.0",
+  "name": "sequ-into",
+  "productName": "SequInto",
+  "version": "1.0.0",
   "description": "Electron application boilerplate based on TypeScript, React, React Router, Webpack, React Hot Loader for rapid application development",
   "main": "main.js",
   "scripts": {
@@ -25,7 +25,7 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|fasta|json|py)$": "<rootDir>/internals/mocks/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy"
     },
     "moduleFileExtensions": [
@@ -45,8 +45,8 @@
     ]
   },
   "build": {
-    "productName": "ElectronReactTypescript",
-    "appId": "io.github.irath96.ElectronReactTypescript",
+    "productName": "SequInto",
+    "appId": "io.github.mjoppich.SequInto",
     "dmg": {
       "contents": [
         {
@@ -62,20 +62,27 @@
         }
       ]
     },
+    "extraFiles": [
+      { "from": "./app/data", "to": "./data", "filter":["**/*"]}
+    ],
+    "extraResources": [],
     "files": [
       "dist/",
       "node_modules/",
       "app.html",
       "main.js",
       "main.js.map",
-      "package.json"
+      "package.json",
+      "step1.jpg",
+      "step2.jpg",
+      "step3.jpg"
     ],
     "directories": {
-      "buildResources": "resources",
-      "output": "release"
+      "output": "release",
+      "app": "./app"
     },
     "win": {
-      "target": "nsis"
+      "target": "dir"
     },
     "linux": {
       "target": [
@@ -94,27 +101,20 @@
   "author": {
     "name": "Alexander Rath",
     "email": "irath96@gmail.com",
-    "url": "https://github.com/irath96"
+    "url": "https://github.com/mjoppich"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/irath96/electron-react-typescript-boilerplate/issues"
+    "url": "https://github.com/issues"
   },
-  "keywords": [
-    "electron",
-    "boilerplate",
-    "react",
-    "react-router",
-    "flux",
-    "webpack",
-    "react-hot"
-  ],
-  "homepage": "https://github.com/irath96/electron-react-typescript-boilerplate#readme",
+  "keywords": [],
+  "homepage": "https://github.com/",
   "devDependencies": {
     "@types/enzyme": "^3.1.1",
     "@types/history": "^4.5.2",
     "@types/jest": "^22.0.0",
     "@types/node": "^8.0.2",
+    "@types/prop-types": "^15.5.5",
     "@types/react": "^16.0.5",
     "@types/react-dom": "16.0.3",
     "@types/react-hot-loader": "^3.0.4",
@@ -124,19 +124,19 @@
     "@types/react-router-redux": "^5.0.2",
     "@types/redux-logger": "^3.0.0",
     "@types/sinon": "^4.0.0",
-    "@types/prop-types": "^15.5.5",
-    "asar": "^0.14.0",
+    "asar": "^0.14.5",
     "boiler-room-custodian": "^0.6.2",
     "concurrently": "^3.1.0",
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.4",
     "css-modules-require-hook": "^4.0.6",
     "devtron": "^1.4.0",
-    "electron": "1.8.4",
-    "electron-builder": "^19.8.0",
-    "electron-builder-http": "^19.15.0",
+    "electron": "^3.0.4",
+    "electron-builder": "^20.28.4",
+    "electron-builder-http": "^19.27.5",
     "electron-devtools-installer": "^2.0.1",
     "enzyme": "^3.0.0",
+    "enzyme-adapter-react-16": "^1.0.0",
     "express": "^4.14.0",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^1.1.5",
@@ -147,7 +147,6 @@
     "node-sass": "^4.1.1",
     "react-hot-loader": "^3.0.0-beta.6",
     "react-test-renderer": "^16.0.0",
-    "enzyme-adapter-react-16": "^1.0.0",
     "redux-logger": "^3.0.6",
     "sass-loader": "^6.0.6",
     "sinon": "^4.0.0",
