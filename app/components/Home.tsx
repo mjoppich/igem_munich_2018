@@ -1169,6 +1169,7 @@ class TextMobileStepper extends React.Component<{}, {
 
             var program = "";
             var programArgs = null;
+            var useShell = true;
 
             if (os.platform() == "win32")
             {
@@ -1176,6 +1177,7 @@ class TextMobileStepper extends React.Component<{}, {
 
                 program = "bash";
                 programArgs = splitCmd;
+                useShell = false;
 
                 console.log("Windows Version")
                 console.log(splitCmd);
@@ -1184,8 +1186,9 @@ class TextMobileStepper extends React.Component<{}, {
                 
                 var splitted_command = command.split(" "); 
 
-                program = "bash";
-                programArgs = splitCmd;
+                program = "python3";
+                programArgs = splitted_command;
+                useShell = true;
 
                 console.log("Unix Version")
                 console.log(splitted_command);
@@ -1195,7 +1198,8 @@ class TextMobileStepper extends React.Component<{}, {
                 cwd: process.cwd(),
                 env: process.env,
                 stdio: 'pipe',
-                encoding: 'utf-8'
+                encoding: 'utf-8',
+                shell: useShell
             })
 
             console.log(child)
