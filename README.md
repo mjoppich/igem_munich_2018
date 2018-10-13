@@ -1,11 +1,10 @@
-# sequ-into
+# sequ-into - A straightforward desktop app for third generation sequencing read contamination analysis
 
 [![Build Status](https://travis-ci.org/mjoppich/igem_munich_2018.svg?branch=master)](https://travis-ci.org/mjoppich/igem_munich_2018)
 [![Documentation Status](https://readthedocs.org/projects/sequ-into/badge/?version=latest)](https://sequ-into.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/148335824.svg)](https://zenodo.org/badge/latestdoi/148335824)
 ![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)
-
-# sequ-into - A straightforward desktop app for third generation sequencing read analysis
+[![Maintainability](https://api.codeclimate.com/v1/badges/ffad1b8d8c74ed402a38/maintainability)](https://codeclimate.com/github/mjoppich/igem_munich_2018/maintainability)
 
 #### Description
 Third generation sequencing techniques rapidly evolved as a common practice in molecular biology. Great advances have been made in terms of feasibility, cost, throughput, and read-length. However, sample contamination still poses a big issue: it complicates correct, high-quality downstream analysis of sequencing data and usage in medical applications. Furthermore, it might be unclear weather the sequenced reads represent the intended target. To address these issues we developed a cross-platform desktop application: Sequ-Into. Reads originating from unwanted sources are detected and summarized by a comprehensive statistical overview, but can also be filtered and exported in standardized FASTQ-format to facilitate custom evaluation of experimental findings. This holds also true for an evaluation weather the reads consist of the intended source, and allows for a positive selection of those reads who do. Sequ-Into creates a straightforward user experience by fusing an intuitive graphical-user-interface with state-of-the-art long-read alignment software.
