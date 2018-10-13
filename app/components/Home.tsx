@@ -22,6 +22,10 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Collapse from '@material-ui/core/Collapse';
+import CardMedia from '@material-ui/core/CardMedia';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 
 //import { element } from 'prop-types';
 //import * as contaminants from '../contaminants.json';
@@ -51,6 +55,7 @@ class TextMobileStepper extends React.Component<{}, {
     contamResult: any,
     contamStrRes: String,
     resultTable: any,
+    helpExpanded: boolean
 }>
 
 
@@ -66,6 +71,7 @@ class TextMobileStepper extends React.Component<{}, {
     contamResult: JSON.parse("{}"),
     contamStrRes: "",
     resultTable: <div></div>,
+    helpExpanded: false
   };
 
   constructor(props: any)
@@ -122,6 +128,10 @@ class TextMobileStepper extends React.Component<{}, {
       // TODO
   }
 
+  sequintoLogo = "sequinfo_logo.jpeg"
+  largeMargin = "20px"
+  smallMargin = "10px"
+
   render() {
 
     var tutorialSteps: any = this.getStepperSteps();
@@ -141,14 +151,11 @@ class TextMobileStepper extends React.Component<{}, {
                         display: "block", 
                         marginLeft: "auto", 
                         marginRight: "auto", 
-                        width: "50%" }}>
+                        width: "100%" }}>
                             
-                            {tutorialSteps[activeStep].imgPath ? 
-                            <img src={tutorialSteps[activeStep].imgPath} width="400" height="100"/> 
-                            : 
-                            <div></div>}
-                            
-                            <p>{tutorialSteps[activeStep].header}</p> 
+                            <img style={{verticalAlign: "middle", maxHeight: "50px", width: "auto", height: "auto"}} src={this.sequintoLogo}/> 
+
+                            <span><p style={{display: "inline"}}>{tutorialSteps[activeStep].header}</p></span> 
                 </div>
 
                 <MobileStepper
@@ -169,6 +176,7 @@ class TextMobileStepper extends React.Component<{}, {
                         */
                         
                         activeStep == maxSteps - 2 ?
+                        
                             (<Button
                                 variant="contained"
                                 color="secondary"
@@ -184,26 +192,65 @@ class TextMobileStepper extends React.Component<{}, {
                                 disabled={activeStep === maxSteps - 1}>
                                 Next
                                 <KeyboardArrowRight/>
-                            </Button>)
+                            </Button>
+                            )
                         
                     }
 
                     backButton=
                     {
-                        <Button 
-                            size="small" 
-                            onClick={this.handleBack} 
-                            disabled={activeStep === 0}>
-                            Reset
-                            <Icon>youtube_searched_for</Icon>
-                        </Button>
+                        <div>
+                                <Button 
+                                size="small" 
+                                onClick={() => {this.handleBack(true)}} 
+                                disabled={activeStep === 0}>
+                                Reset
+                                <Icon>youtube_searched_for</Icon>
+                            </Button>
+                            <Button 
+                                size="small" 
+                                onClick={() => {this.handleBack(false)}} 
+                                disabled={activeStep === 0}>
+                                Back
+                                <KeyboardArrowRight/>
+                            </Button>
+                        </div>
                     }/>
             </CardContent>
         </Card>
         
+        <Card 
+            style={{ marginTop: this.largeMargin }}>
+       <CardHeader
+          title={"Step " + (activeStep+1) + ": " + tutorialSteps[activeStep].header }
+          subheader="September 14, 2016"
+        />
+        <CardMedia
+          image={"./"+tutorialSteps[activeStep].imgPath}
+          title="Step Image"
+          style={{width: "auto", height: "200px"}}
+        />
+        <CardActions disableActionSpacing>
+
+          <IconButton
+            
+            onClick={() => this.setState({helpExpanded: !this.state.helpExpanded})}
+            aria-expanded={this.state.helpExpanded}
+            aria-label="Show more"
+          >
+            <ExpandMoreIcon />
+          </IconButton>
+        </CardActions>
+        <Collapse in={this.state.helpExpanded} timeout="auto" unmountOnExit>
+          <CardContent>
+            {tutorialSteps[activeStep].label}
+          </CardContent>
+        </Collapse>
+            
+        </Card>
 
         <Card 
-            style={{ marginBottom: "25px" }}>
+            style={{ marginTop: this.smallMargin }}>
             <CardContent>
                 <Paper 
                     square elevation={0}>
@@ -227,8 +274,6 @@ class TextMobileStepper extends React.Component<{}, {
 
     var self = this;
 
-    
-    // TODO doppelten upload verhindern -> fastq und fasta?
     
     // File List FastQ
     var inputListItems: any = [];
@@ -465,10 +510,9 @@ class TextMobileStepper extends React.Component<{}, {
     return [
     {
         header: "Read files",
-        
         label:
             <div>
-                <Typography variant="body1" gutterBottom>
+                <Typography gutterBottom>
                     Sequ-into ("Seek Into") provides an easy and quick overview on what your sequenced reads actually consist of.&#13;&#10;
                     Each upload will be handled separately. This is also true if you upload the same file twice. If you wish to examine certain reads together, e.g. because they stem from 
                     the same experiment, make sure to save them in a folder and upload that folder via CHOOSE DIRECTORY. In order to analyse a single file, upload it via CHOOSE FILE.&#13;&#10; 
@@ -490,13 +534,12 @@ class TextMobileStepper extends React.Component<{}, {
                         viewBox="0 0 24 24">
                         <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
                     </svg>
-                    Upload your FASTQ or FAST5 format files.
+                    Upload your FASTQ files/directories or FAST5 directories.
                 </div>
             </div>,
         
         topimgPath: 'sequinfo_neg.jpg',
         
-        // TODO dont squece?!
         imgPath: 'step1.jpg',
         
         content: 
@@ -729,7 +772,7 @@ class TextMobileStepper extends React.Component<{}, {
                 <Card
                     style={{ marginTop: "25px" }}>
                         <CardContent>
-                            <p>Inserted .fastq files of sequencing reads:  --> TODO what to safe</p>
+                            <p>Extract Reads:</p>
                             {saveFileList}
                         </CardContent>
 
@@ -761,7 +804,7 @@ class TextMobileStepper extends React.Component<{}, {
                         marginRight: "50px"}}>
                             <Button
                                 variant="contained" 
-                                onClick={this.handleBack} 
+                                onClick={() => {this.handleBack(true)}} 
                                 size="large" 
                                 style={{ 
                                     backgroundColor: 'red', 
@@ -794,20 +837,20 @@ class TextMobileStepper extends React.Component<{}, {
     };
 
     // correct backwards step
-    handleBack = () => {
-        this.setState(
-            prevState => ({
-                activeStep: 0,
-                outputDir: "",
-                inputFiles: new Array(),
-                showProgress: false,
-                contamResult: JSON.parse("{}"),
-                contamStrRes: "",
-                resultTable: <div></div>,
-                // TODO is this correct?
-                saveFiles: JSON.parse("{}")
+    handleBack(reset:boolean) {
 
-            }));
+        var newStep = this.state.activeStep-1;
+
+
+        if ((reset) || (newStep <0))
+        {
+            newStep = 0;
+        }
+
+        this.setState(
+            {
+                activeStep: newStep,
+            });
     };
 
     
@@ -817,7 +860,6 @@ class TextMobileStepper extends React.Component<{}, {
         if (upType == "file") {
             
             dialog.showOpenDialog(
-                // TODO remember selection for future use?
                 // TODO update for .fast5
                 {filters: [
                     {
@@ -932,7 +974,6 @@ class TextMobileStepper extends React.Component<{}, {
                 )
             } else 
             {
-                // TODO implement CHOOSE PATH
             }
     }
 
@@ -984,6 +1025,7 @@ class TextMobileStepper extends React.Component<{}, {
             return;
         };
         console.log("File has been created");
+        self.loadContaminants();
     });
     
   }
@@ -1010,8 +1052,6 @@ class TextMobileStepper extends React.Component<{}, {
 
 
     transformedPaths: any = {};
-
-    // TODO clean up code
 
     normalizePath( inpath: string )
     {
@@ -1330,7 +1370,6 @@ class TextMobileStepper extends React.Component<{}, {
                             var readsPath = self.normalizePath(fileElement)
 
                             command += "--cont " + refElementPath + " "
-                            // TODO DIR > rita
                             command += "--reads " + readsPath + " "
                             command += "--o " + self.normalizePath(self.state.outputDir) + "/extractedFiles" + " "
                             command += "--no_images "
@@ -1387,27 +1426,7 @@ class TextMobileStepper extends React.Component<{}, {
 
                 }
 
-                // TODO if 'all' refpath
             })
-
-            /*                        if(self.state.saveFiles[refElement.path]['unaligned'][fileElement]){
-
-                            command += "--cont " + refElement.path + " "
-                            // TODO DIR > vgl. rita
-                            command += "--reads " + fileElement + " "
-                            command += "--o " + self.state.outputDir + "/extractedFiles" + " "
-                            command += "--extract_not_aligned " + refElement.path
-
-                            // python
-                            var splitted_command = command.split(" ");
-                            const {spawn} = require('child_process');
-                            var child = spawn('python3', splitted_command);
-                            child.stdout.on('data', (data:any) => {
-                                console.log(`stdout SAVE: ${data}` + splitted_command);
-                            })
-                        }
-                    })
-                    */
 
 
             // Intersection all references            
@@ -1446,7 +1465,7 @@ class TextMobileStepper extends React.Component<{}, {
                     var doUnaligned = self.state.saveFiles["all"]['unaligned'][fileElement];
     
                     if( doAligned || doUnaligned){                    
-                        // TODO DIR > vgl. rita
+
                         var readsPath = self.normalizePath(fileElement);
                         command += "--reads " + readsPath + " "
                         command += "--o " + self.normalizePath(path.join(self.state.outputDir, "/extractedFiles")) + " "
@@ -1502,16 +1521,9 @@ class TextMobileStepper extends React.Component<{}, {
             }
             
            
-
-            // TODO 
-            // REMOVE STUFF FROM  self.state.outputDir + " /extractedFiles"
-            // deletet refs?
-            // python script: change names and saving style
-
       
             self.state.showProgress2 = false;
             self.setState({ showProgress: self.state.showProgress })
-            //self.render()
     }
 
     getBasename(inpath:string)
@@ -1552,7 +1564,7 @@ class TextMobileStepper extends React.Component<{}, {
                 readLengthPlotUrl = self.convertUnix2Win(element.readLengthPlot);
                 readsPieUrl = self.convertUnix2Win(element.readsPie);
             }
-
+ 
 
 
             //console.log("looking at "+ element.path+ "because "+element.enabled)
