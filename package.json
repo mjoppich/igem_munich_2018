@@ -63,7 +63,13 @@
       ]
     },
     "extraFiles": [
-      { "from": "./app/data", "to": "./data", "filter":["**/*"]}
+      {
+        "from": "./app/data",
+        "to": "./data",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "extraResources": [],
     "files": [
@@ -127,7 +133,7 @@
     "asar": "^0.14.5",
     "boiler-room-custodian": "^0.6.2",
     "concurrently": "^3.1.0",
-    "cross-env": "^5.0.1",
+    "cross-env": "^5.2.0",
     "css-loader": "^0.28.4",
     "css-modules-require-hook": "^4.0.6",
     "devtron": "^1.4.0",
