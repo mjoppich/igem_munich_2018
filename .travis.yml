@@ -1,4 +1,7 @@
 language: node_js
+node_js:
+ - node
+ - "9"
 
 dist: trusty
 sudo: required
@@ -12,7 +15,7 @@ before_install:
  - cd /home/travis/build/mjoppich/igem_munich_2018
 
 
-before_script:
+install:
  - npm install
 
 script: npm run build
