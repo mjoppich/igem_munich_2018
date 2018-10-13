@@ -1,8 +1,8 @@
 # sequ-into
 
-[![Build Status][travis-image]][travis-url]
-[![Zenodo]()]()
-[![readthedocs]()]()
+[![Build Status](https://travis-ci.org/mjoppich/igem_munich_2018.svg?branch=master)](https://travis-ci.org/mjoppich/igem_munich_2018)
+[![Documentation Status](https://readthedocs.org/projects/sequ-into/badge/?version=latest)](https://sequ-into.readthedocs.io/en/latest/?badge=latest)
+[![DOI](https://zenodo.org/badge/148335824.svg)](https://zenodo.org/badge/latestdoi/148335824)
 
 
 # Install sequ-into
