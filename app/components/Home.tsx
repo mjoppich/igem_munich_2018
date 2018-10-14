@@ -1,9 +1,10 @@
 import * as React from 'react';
 import MobileStepper from '@material-ui/core/MobileStepper';
-import Paper from '@material-ui/core/Paper';
+//import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import { Card, CardActions, CardHeader } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
@@ -128,7 +129,7 @@ class TextMobileStepper extends React.Component<{}, {
       // TODO
   }
 
-  sequintoLogo = "sequinfo_logo.jpeg"
+  sequintoLogo = "sequinto_logo_text.png"
   largeMargin = "20px"
   smallMargin = "10px"
 
@@ -153,7 +154,16 @@ class TextMobileStepper extends React.Component<{}, {
                         marginRight: "auto", 
                         width: "100%" }}>
                             
-                            <img style={{verticalAlign: "middle", maxHeight: "50px", width: "auto", height: "auto"}} src={this.sequintoLogo}/> 
+                            <img 
+                                style={{
+                                    verticalAlign: "middle",
+                                    //TODO horizontalAlign: "middle",
+                                    maxHeight: "100px", 
+                                    width: "auto", 
+                                    height: "auto",
+                                    marginBottom: "15px",
+                            }} 
+                                src={this.sequintoLogo}/> 
 
                             <span><p style={{display: "inline"}}>{tutorialSteps[activeStep].header}</p></span> 
                 </div>
@@ -165,16 +175,6 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     nextButton=
                     {
-                        /** 
-                        <Button 
-                            size="small" 
-                            onClick={this.handleNext} 
-                            disabled={activeStep === maxSteps - 1}>
-                                Next
-                                <KeyboardArrowRight/>
-                        </Button>
-                        */
-                        
                         activeStep == maxSteps - 2 ?
                         
                             (<Button
@@ -212,7 +212,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 onClick={() => {this.handleBack(false)}} 
                                 disabled={activeStep === 0}>
                                 Back
-                                <KeyboardArrowRight/>
+                                <KeyboardArrowLeft/>
                             </Button>
                         </div>
                     }/>
@@ -220,16 +220,24 @@ class TextMobileStepper extends React.Component<{}, {
         </Card>
         
         <Card 
-            style={{ marginTop: this.largeMargin }}>
+            style={{ 
+                marginTop: "5px",
+                marginBottom: "20px"}}>
+       
+       
        <CardHeader
-          title={"Step " + (activeStep+1) + ": " + tutorialSteps[activeStep].header }
-          subheader="September 14, 2016"
+          title={"Step " + (activeStep+1) + ": " + tutorialSteps[activeStep].headerName }
         />
+
+
         <CardMedia
+        // TODO squeeze
           image={"./"+tutorialSteps[activeStep].imgPath}
-          title="Step Image"
           style={{width: "auto", height: "200px"}}
         />
+
+
+
         <CardActions disableActionSpacing>
 
           <IconButton
@@ -237,29 +245,25 @@ class TextMobileStepper extends React.Component<{}, {
             onClick={() => this.setState({helpExpanded: !this.state.helpExpanded})}
             aria-expanded={this.state.helpExpanded}
             aria-label="Show more"
+            // TODO LABEL "show more" doesnt show up
           >
             <ExpandMoreIcon />
           </IconButton>
+
+
         </CardActions>
         <Collapse in={this.state.helpExpanded} timeout="auto" unmountOnExit>
+          
+          
           <CardContent>
             {tutorialSteps[activeStep].label}
           </CardContent>
         </Collapse>
             
+
+            
         </Card>
 
-        <Card 
-            style={{ marginTop: this.smallMargin }}>
-            <CardContent>
-                <Paper 
-                    square elevation={0}>
-                    <div>
-                        {tutorialSteps[activeStep].label}
-                    </div>
-                </Paper>
-            </CardContent>
-        </Card>
         
 
         {tutorialSteps[activeStep].content}
@@ -331,11 +335,7 @@ class TextMobileStepper extends React.Component<{}, {
                         primary={element.title || element.path} 
                         secondary={element.type}/>
                     
-                    <Switch 
-                        checked={element.enabled} 
-                        color="primary"
-                        onChange={() => {element.enabled = !element.enabled; 
-                        this.setState({inputRefs: this.state.inputRefs})}}/> 
+                    
 
                     {element["protected"] ? 
                         <div></div>
@@ -347,6 +347,12 @@ class TextMobileStepper extends React.Component<{}, {
                             onClick={() => self.handleRefPathDelete(element)}>
                         <DeleteIcon/>
                     </IconButton>}
+
+                    <Switch 
+                        checked={element.enabled} 
+                        color="primary"
+                        onChange={() => {element.enabled = !element.enabled; 
+                        this.setState({inputRefs: this.state.inputRefs})}}/> 
                     
             </ListItem>
         )
@@ -509,11 +515,14 @@ class TextMobileStepper extends React.Component<{}, {
 
     return [
     {
-        header: "Read files",
+        header: "",
+        headerName: "Read Files",
         label:
             <div>
+                {// TODO new line??? :(
+                }
                 <Typography gutterBottom>
-                    Sequ-into ("Seek Into") provides an easy and quick overview on what your sequenced reads actually consist of.&#13;&#10;
+                    sequ-into provides an easy and quick overview on what your sequenced reads actually consist of.&#13;&#10;
                     Each upload will be handled separately. This is also true if you upload the same file twice. If you wish to examine certain reads together, e.g. because they stem from 
                     the same experiment, make sure to save them in a folder and upload that folder via CHOOSE DIRECTORY. In order to analyse a single file, upload it via CHOOSE FILE.&#13;&#10; 
                     As soon as you have uploaded your files an output directory will be generated. At the bottom of the page you have the option to change that directory simply by clicking on the text.&#13;&#10;
@@ -540,7 +549,7 @@ class TextMobileStepper extends React.Component<{}, {
         
         topimgPath: 'sequinfo_neg.jpg',
         
-        imgPath: 'step1.jpg',
+        imgPath: 'step1.png',
         
         content: 
             <div style={{ 
@@ -581,7 +590,9 @@ class TextMobileStepper extends React.Component<{}, {
 
 
                 <Card 
-                    style={{ marginTop: "5px" }}>
+                    style={{ 
+                        marginTop: "5px",
+                        marginBottom: "20px" }}>
                     <CardContent>
                         <div>
                             <TextField
@@ -633,15 +644,19 @@ class TextMobileStepper extends React.Component<{}, {
 
 
       {
-        header: 'Reference files',
+        header: "",
+        headerName: "References",
        
         label:
             <div>
                 <Typography variant="body1" gutterBottom>
-                    To check what your reads might consist of you need a reference against which the reads will be mapped. The reference might be a possible contamination, 
-                    such as E. Coli, or a known genome that your reads should be representing. You can use RNA as well as DNA sequences, as long as they are in the FASTA Format. You can find sequences for example on NCBI***(hyperlink).&#13;&#10;
-                    If you click on CHOOSE REFERENCE you can upload as many files as you wish to compare your reads to. If you click on SAVE, Sequ-into will remember them the next 
-                    time you start the app. Since running the program with large files will consume some time, consider using the switches behind each reference to turn them off if you don't need them for your current run. They will still be available after a RESET.&#13;&#10;
+                    To check what your reads truly consist of you need a reference against which the reads will be mapped. The reference might be a possible contamination, 
+                    such as E. Coli, or a known genome that your reads should be representing. You can use RNA as well as DNA sequences, as long as they are in the FASTA Format. You can find sequences for example on NCBI.&#13;&#10;
+    
+                    Click on CHOOSE REFERENCE to choose your reference files. You can selected as many files as you wish. These files will still be present after you used RESET, but are deleted when you close the application.
+                    If you work with certain references repeatedly they can also be saved in the app so that they are available every time even after you closed sequ-into. For this, choose the reference via SAVE CONTAMINANTS. Your own references can always be deleted from sequ-into later on, just click the trash can to do so.
+                    Keep in mind that calculation time increases with file size and file quantity! Consider using the switches behind each reference to turn them off if you don't need them for your current run. They will still be available after you used RESET.&#13;&#10;
+                                    
                     Click START to run the calculations.&#13;&#10;
                 </Typography>
 
@@ -667,7 +682,7 @@ class TextMobileStepper extends React.Component<{}, {
         
         topimgPath: 'sequinfo_neg.jpg',
 
-        imgPath: 'step2.jpg',
+        imgPath: 'step2.png',
         
         content:    
             <div
@@ -675,7 +690,7 @@ class TextMobileStepper extends React.Component<{}, {
                     display: "block", 
                     marginLeft: "auto", 
                     marginRight: "auto", 
-                    marginBottom: "10px"}}>
+                    marginBottom: "20px"}}>
                 <Card>
                     <CardActions>
                         <Button 
@@ -701,6 +716,10 @@ class TextMobileStepper extends React.Component<{}, {
                     <CardContent>
                         {inputRefList}
                     </CardContent>
+
+                    {
+                        //TODO runs before start?
+                    }
 
                     {this.state.showProgress ? 
                         <div>
@@ -730,7 +749,8 @@ class TextMobileStepper extends React.Component<{}, {
 
 
     {
-        header: 'Results',
+        header: "",
+        headerName: "Results",
         
         label: 
         <div>
@@ -762,12 +782,14 @@ class TextMobileStepper extends React.Component<{}, {
 
         topimgPath: 'sequinfo_neg.jpg',
 
-        imgPath: 'step3.jpg',
+        imgPath: 'step3.png',
 
         content:
             <div>
-            
-                {this.state.resultTable}
+
+                <Card>
+                        {this.state.resultTable}
+                </Card>
             
                 <Card
                     style={{ marginTop: "25px" }}>
