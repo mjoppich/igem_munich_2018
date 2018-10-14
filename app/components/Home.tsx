@@ -147,25 +147,6 @@ class TextMobileStepper extends React.Component<{}, {
             style={{ marginBottom: "5px" }}>
 
             <CardContent>
-<<<<<<< HEAD
-                <div
-                    style={{
-                        display: "block",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        width: "100%" }}>
-
-                            <img
-                                style={{
-                                    verticalAlign: "middle",
-                                    //TODO horizontalAlign: "middle",
-                                    maxHeight: "100px",
-                                    width: "auto",
-                                    height: "auto",
-                                    marginBottom: "15px",
-                            }}
-                                src={this.sequintoLogo}/>
-=======
                 <div 
                     style={{ 
                         display: "block", 
@@ -185,7 +166,6 @@ class TextMobileStepper extends React.Component<{}, {
                                     marginLeft: "auto",
                                     marginRight: "auto"}} 
                                 src={this.sequintoLogo}/> 
->>>>>>> 49fce22f60d446f2fdc89f8119c851a83bba21dc
 
                             <span><p style={{display: "inline"}}>{tutorialSteps[activeStep].header}</p></span>
                 </div>
@@ -228,18 +208,11 @@ class TextMobileStepper extends React.Component<{}, {
                                 disabled={activeStep === 0}>
                                 Reset
                                 <Icon>youtube_searched_for</Icon>
-                            </Button>
-<<<<<<< HEAD
-                            <Button
-                                size="small"
-                                onClick={() => {this.handleBack(false)}}
-=======
-                            
+                            </Button>                            
                             {/*
                             <Button 
                                 size="small" 
                                 onClick={() => {this.handleBack(false)}} 
->>>>>>> 49fce22f60d446f2fdc89f8119c851a83bba21dc
                                 disabled={activeStep === 0}>
                                 Back
                                 <KeyboardArrowLeft/>
@@ -690,13 +663,8 @@ class TextMobileStepper extends React.Component<{}, {
                     </CardContent>
                 </Card>
 
-<<<<<<< HEAD
-                <Card
-=======
-
                 {/*
                 <Card 
->>>>>>> 49fce22f60d446f2fdc89f8119c851a83bba21dc
                     style={{ marginTop: "5px" }}>
                     <CardContent>
                         <Typography>CWD: {process.cwd()}</Typography><br/>
@@ -712,16 +680,10 @@ class TextMobileStepper extends React.Component<{}, {
                 </Card>
 
 
-<<<<<<< HEAD
-                {/*
-                <div
-                    style={{
-=======
                 
                 <div 
                     style={{ 
->>>>>>> 49fce22f60d446f2fdc89f8119c851a83bba21dc
-                        marginTop: "25px",
+                    marginTop: "25px",
                         marginBottom: "25px" }}>
                         <Button
                             variant="contained"
@@ -1799,17 +1761,11 @@ class TextMobileStepper extends React.Component<{}, {
                     
                     
                     
-                    <CardContent >
-<<<<<<< HEAD
-                        <Typography align='center'>Results for contamination file</Typography>
-                            <Typography color='secondary' align='center'>{element["refs"].map((x:any) => {return path.basename(x)}).join(", ")}</Typography>
-                        <Typography align='center'>for reads</Typography>
-                        <Typography color='secondary' align='center'>{element["fastq"].map((x:any) => {return path.basename(x)}).join(", ")}</Typography>
-=======
-                        
+                    <CardContent >       
                         
                         
                         <Typography 
+                            align='center'
                             color='secondary' 
                             >
                                 Results for contamination file {element["refs"].map((x:any) => {return path.basename(x)}).join(", ")}
@@ -1826,8 +1782,6 @@ class TextMobileStepper extends React.Component<{}, {
                                 {element["fastq"].map((x:any) => {return path.basename(x)}).join(", ")}
                         </Typography>
                         
->>>>>>> 49fce22f60d446f2fdc89f8119c851a83bba21dc
-
                         {tablePart}
 
 
@@ -1864,14 +1818,10 @@ class TextMobileStepper extends React.Component<{}, {
                             <Grid container>
                                 
                                 <Grid item xs>
-<<<<<<< HEAD
-                                    <img src={readsPieUrl} width="480" height="360"/>
-=======
                                     <img 
                                         src={readsPieUrl} 
                                         width="300" 
                                         height="auto"/> 
->>>>>>> 49fce22f60d446f2fdc89f8119c851a83bba21dc
                                 </Grid>
                                 
                                 <Grid item xs>
@@ -1882,29 +1832,16 @@ class TextMobileStepper extends React.Component<{}, {
                                 </Grid>
 
                             </Grid>
-                        </React.Fragment>
-<<<<<<< HEAD
-                        <img src={readLengthPlotUrl}/>
-=======
-                        
+                        </React.Fragment>                       
                         
                         <img src={readLengthPlotUrl}/> 
                     */}
 
-
->>>>>>> 49fce22f60d446f2fdc89f8119c851a83bba21dc
                     </CardContent>
                 </Card>);
                 }
 
-            })
-<<<<<<< HEAD
-
-
-        resultTable = <div>{resultCards}</div>
-            console.log("Submitting resultTable");
-=======
-            
+            })            
                 
         resultTable = 
         <div>
@@ -1916,7 +1853,6 @@ class TextMobileStepper extends React.Component<{}, {
         
         
         console.log("Submitting resultTable");
->>>>>>> 49fce22f60d446f2fdc89f8119c851a83bba21dc
         this.setState({resultTable: resultTable});
         this.forceUpdate();
     }
