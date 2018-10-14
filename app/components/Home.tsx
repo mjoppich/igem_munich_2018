@@ -200,6 +200,7 @@ class TextMobileStepper extends React.Component<{}, {
 
        <CardHeader
           title={"Step " + (activeStep+1) + ": " + tutorialSteps[activeStep].headerName }
+          subheader={tutorialSteps[activeStep].alarmlabel}
         />
 
 
@@ -509,24 +510,25 @@ class TextMobileStepper extends React.Component<{}, {
                     As soon as you have uploaded your files an output directory will be generated. At the bottom of the page you have the option to change that directory simply by clicking on the text.&#13;&#10;
                     Click NEXT to proceed.&#13;&#10;
                 </Typography>
-
-                <div></div>
-
-                <div
-                    style={{
-                        display: "inline-flex",
-                        verticalAlign: "middle",
-                        alignItems: "center" }}>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24">
-                        <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
-                    </svg>
-                    Upload your FASTQ files/directories or FAST5 directories.
-                </div>
             </div>,
+        
+        alarmlabel: 
+        
+        <div
+            style={{
+                display: "inline-flex",
+                verticalAlign: "middle",
+                alignItems: "center" }}>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
+            </svg>
+            Upload your FASTQ files/directories or FAST5 directories.
+        </div>,
+
 
         topimgPath: 'sequinfo_neg.jpg',
 
@@ -609,25 +611,24 @@ class TextMobileStepper extends React.Component<{}, {
                     Click START to run the calculations.&#13;&#10;
                 </Typography>
 
-                <div></div>
-
-
-            <div
-                style={{
-                    display: "inline-flex",
-                    verticalAlign: "middle",
-                    alignItems: "center" }}>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24">
-                    <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
-                </svg>
-                    Upload your fasta format files.
-                </div>
                 </div>
             ,
+        
+        alarmlabel:
+        <div
+            style={{
+                display: "inline-flex",
+                verticalAlign: "middle",
+                alignItems: "center" }}>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
+            </svg>
+                Upload your fasta format files.
+            </div>,
 
         topimgPath: 'sequinfo_neg.jpg',
 
@@ -710,24 +711,24 @@ class TextMobileStepper extends React.Component<{}, {
                 Results and saving options are categorized by reference.&#13;&#10;
             </Typography>
 
-                <div></div>
-
-            <div
-                style={{
-                    display: "inline-flex",
-                    verticalAlign: "middle",
-                    alignItems: "center" }}>
-
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24">
-                    <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
-                </svg>
-                You will find all figures and saved files in your chosen output directory.
-            </div>
             </div>,
+
+        alarmlabel:
+        <div
+            style={{
+                display: "inline-flex",
+                verticalAlign: "middle",
+                alignItems: "center" }}>
+
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
+            </svg>
+            You will find all figures and saved files in your chosen output directory.
+        </div>,
 
         topimgPath: 'sequinfo_neg.jpg',
 
