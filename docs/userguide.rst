@@ -6,14 +6,33 @@ User Guide
 
 How to get sequ-into?
 ====
-idk
+
+There are two possibilities to get sequ-into.
+First you can go to the `GitHub releases page <https://github.com/mjoppich/igem_munich_2018/releases/>`_ .
+Simply download the version for your operating system and follow the below instructions.
+
+The second possbility is to build sequ-into from scratch.
+
+sample::
+
+   npm install
+   npm run build
+
+Depending on your operating system, you can build your release using
+
+sample::
+
+   npm run package-win
+   npm run package-mac
 
 
 Install sequ-into
 ====
 Windows
 -------
-idk
+
+After you have setup Windows Subsystem for Linux (WSL), you can continue here.
+A guide for installing Windows Subsystem for Linux (WSL) is available here :ref:`wslsetup`.
 
 Linux
 -------
