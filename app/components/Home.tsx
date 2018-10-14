@@ -4,7 +4,7 @@ import MobileStepper from '@material-ui/core/MobileStepper';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+//import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import { Card, CardActions, CardHeader } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
@@ -17,14 +17,14 @@ import Avatar from '@material-ui/core/Avatar';
 import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
+//import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Collapse from '@material-ui/core/Collapse';
-import CardMedia from '@material-ui/core/CardMedia';
+//import CardMedia from '@material-ui/core/CardMedia';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
@@ -32,7 +32,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 //import * as contaminants from '../contaminants.json';
 
 var remote = require('electron').remote;
-var app = remote.app;
+//var app = remote.app;
 
 var os = require("os");
 var fs = require('fs');
@@ -152,17 +152,19 @@ class TextMobileStepper extends React.Component<{}, {
                         display: "block", 
                         marginLeft: "auto", 
                         marginRight: "auto", 
-                        width: "100%" }}>
+                        width: "100%"}}>
+
                             
                             <img 
                                 style={{
                                     verticalAlign: "middle",
-                                    //TODO horizontalAlign: "middle",
-                                    maxHeight: "100px", 
+                                    maxHeight: "75px", 
                                     width: "auto", 
                                     height: "auto",
                                     marginBottom: "15px",
-                            }} 
+                                    display: "block",
+                                    marginLeft: "auto",
+                                    marginRight: "auto"}} 
                                 src={this.sequintoLogo}/> 
 
                             <span><p style={{display: "inline"}}>{tutorialSteps[activeStep].header}</p></span> 
@@ -207,6 +209,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 Reset
                                 <Icon>youtube_searched_for</Icon>
                             </Button>
+                            
+                            {/*
                             <Button 
                                 size="small" 
                                 onClick={() => {this.handleBack(false)}} 
@@ -214,6 +218,7 @@ class TextMobileStepper extends React.Component<{}, {
                                 Back
                                 <KeyboardArrowLeft/>
                             </Button>
+                            */}
                         </div>
                     }/>
             </CardContent>
@@ -230,11 +235,63 @@ class TextMobileStepper extends React.Component<{}, {
         />
 
 
+        {/*
         <CardMedia
-        // TODO squeeze
-          image={"./"+tutorialSteps[activeStep].imgPath}
-          style={{width: "auto", height: "200px"}}
+            image={"./"+tutorialSteps[activeStep].imgPath}
+            style={{
+                maxHeight: "100px",
+                
+                width: "auto",
+                height: "100px",
+                
+                
+                //display: "block",
+                //marginLeft: "auto",
+                marginRight: "auto"}}
         />
+       
+
+
+        style={{ 
+                        display: "block", 
+                        marginLeft: "auto", 
+                        marginRight: "auto", 
+                        width: "100%"}}
+
+
+        style={{
+                                    verticalAlign: "middle",
+                                    maxHeight: "75px", 
+                                    width: "auto", 
+                                    height: "auto",
+                                    marginBottom: "15px",
+                                    display: "block",
+                                    marginLeft: "auto",
+                                    marginRight: "auto"}} 
+
+         */}
+
+
+
+        <div>
+            <img 
+                src={tutorialSteps[activeStep].imgPath}
+                style={{
+                    maxHeight: "150px",
+                    width: "auto",
+                    height: "auto",
+                    verticalAlign: "middle",
+                    display: "block",
+                    marginLeft: "auto",
+                    marginRight: "auto"
+
+                }}/>
+        </div>
+
+
+
+
+
 
 
 
@@ -244,8 +301,6 @@ class TextMobileStepper extends React.Component<{}, {
             
             onClick={() => this.setState({helpExpanded: !this.state.helpExpanded})}
             aria-expanded={this.state.helpExpanded}
-            aria-label="Show more"
-            // TODO LABEL "show more" doesnt show up
           >
             <ExpandMoreIcon />
           </IconButton>
@@ -428,7 +483,8 @@ class TextMobileStepper extends React.Component<{}, {
         inputSaveItems.push(
             <ListItem
                 key={inputSaveItems.length}>
-                    <Card>
+                    <Card
+                    style={{width: '100%'}}>
                         <CardHeader
                             title={path.basename(element.path)}
                             subheader={"Extract the reads that either aligned or did not align to " + path.basename(element.path) + ""}/>
@@ -498,7 +554,8 @@ class TextMobileStepper extends React.Component<{}, {
         inputSaveItems.push(
             <ListItem
                 key={inputSaveItems.length}>
-                    <Card>
+                    <Card
+                    style={{width: '100%'}}>
                         <CardHeader
                             titleTypographyProps={{color: "primary"}}
                             title={"All references"}
@@ -607,6 +664,8 @@ class TextMobileStepper extends React.Component<{}, {
                     </CardContent>
                 </Card>
 
+
+                {/*
                 <Card 
                     style={{ marginTop: "5px" }}>
                     <CardContent>
@@ -623,7 +682,7 @@ class TextMobileStepper extends React.Component<{}, {
                 </Card>
 
 
-                {/*
+                
                 <div 
                     style={{ 
                         marginTop: "25px",
@@ -1621,6 +1680,7 @@ class TextMobileStepper extends React.Component<{}, {
                 //console.log("looking at "+ element.path+ "because "+element.enabled)
                 var tablePart =
                 <Table>
+                    
                     <TableHead>
                         <TableRow>
                             <TableCell>Number of</TableCell>
@@ -1628,7 +1688,10 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell numeric>Relative value</TableCell>
                         </TableRow>
                     </TableHead>
+                    
+                    
                     <TableBody>
+
                         <TableRow>
                             <TableCell component="th" scope="row">    
                             Reads
@@ -1636,6 +1699,7 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell numeric>{element["totalReads"]}</TableCell>
                             <TableCell numeric>1.00000</TableCell>
                         </TableRow>
+                        
                         <TableRow>
                             <TableCell component="th" scope="row">    
                             Aligned reads
@@ -1643,6 +1707,7 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell numeric>{element["alignedReads"]}</TableCell>
                             <TableCell numeric>{(element["alignedReads"]/element["totalReads"]).toFixed(5)}</TableCell>
                         </TableRow>
+                       
                         <TableRow>
                             <TableCell component="th" scope="row">    
                             Unaligned reads
@@ -1650,6 +1715,7 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell numeric>{element["totalReads"]-element["alignedReads"]}</TableCell>
                             <TableCell numeric>{((element["totalReads"]-element["alignedReads"])/element["totalReads"]).toFixed(5)}</TableCell>
                         </TableRow>
+                        
                         <TableRow>
                             <TableCell component="th" scope="row">    
                             Bases
@@ -1657,6 +1723,7 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell numeric>{element["totalBases"]}</TableCell>
                             <TableCell numeric>1.00000</TableCell>
                         </TableRow>
+                        
                         <TableRow>
                             <TableCell component="th" scope="row">    
                             Alignment bases
@@ -1664,6 +1731,7 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell numeric>{element["alignmentBases"]}</TableCell>
                             <TableCell numeric>{(element["alignmentBases"]/element["totalBases"]).toFixed(5)}</TableCell>
                         </TableRow>
+                        
                         <TableRow>
                             <TableCell component="th" scope="row">    
                             Aligned bases
@@ -1671,6 +1739,7 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell numeric>{element["alignedLength"]}</TableCell>
                             <TableCell numeric>{(element["alignedLength"]/element["totalBases"]).toFixed(5)}</TableCell>
                         </TableRow>
+                        
                         <TableRow>
                             <TableCell component="th" scope="row">    
                             Unaligned bases
@@ -1682,25 +1751,91 @@ class TextMobileStepper extends React.Component<{}, {
                 </Table>;
                 
                 resultCards.push(
+                
+                
                 <Card key={resultCards.length}>
+                    
+                    
+                    
                     <CardContent >
-                        <Typography align='center'>Results for contamination file</Typography>
-                            <Typography color='secondary' align='center'>{element["refs"].map((x:any) => {return path.basename(x)}).join(", ")}</Typography>
-                        <Typography align='center'>for reads</Typography>
-                        <Typography color='secondary' align='center'>{element["fastq"].map((x:any) => {return path.basename(x)}).join(", ")}</Typography>
                         
+                        
+                        
+                        <Typography 
+                            color='secondary' 
+                            >
+                                Results for contamination file {element["refs"].map((x:any) => {return path.basename(x)}).join(", ")}
+                        </Typography>
+                        
+                        <Typography 
+                            align='center'>
+                                for reads
+                        </Typography>
+                        
+                        <Typography 
+                            color='secondary' 
+                            align='center'>
+                                {element["fastq"].map((x:any) => {return path.basename(x)}).join(", ")}
+                        </Typography>
+                        
+
                         {tablePart}
+
+
+                        <div
+                        style={{
+                            display: "block",
+                            verticalAlign: "center"}}>
+
+                            <img
+                                src={readsPieUrl}
+                                width="300"
+                                height="auto"/> 
+
+                            <img
+                                src={basesPieUrl}
+                                width="300"
+                                height="auto"/>
+
+
+                            <img 
+                                src={readLengthPlotUrl}
+                                width="300"
+                                height="auto"/> 
+                        
+                        </div>
+
+
+
+                        
+
+                        {/**
+
                         <React.Fragment>
                             <Grid container>
+                                
                                 <Grid item xs>
-                                    <img src={readsPieUrl} width="480" height="360"/> 
+                                    <img 
+                                        src={readsPieUrl} 
+                                        width="300" 
+                                        height="auto"/> 
                                 </Grid>
+                                
                                 <Grid item xs>
-                                    <img src={basesPieUrl} width="480" height="360"/>
+                                    <img 
+                                        src={basesPieUrl} 
+                                        width="300" 
+                                        height="auto"/>
                                 </Grid>
+
                             </Grid>
                         </React.Fragment>
+                        
+                        
                         <img src={readLengthPlotUrl}/> 
+                    */}
+
+
                     </CardContent>
                 </Card>);
                 }
@@ -1708,8 +1843,16 @@ class TextMobileStepper extends React.Component<{}, {
             })
             
                 
-        resultTable = <div>{resultCards}</div>
-            console.log("Submitting resultTable");
+        resultTable = 
+        <div>
+            <Card>
+                {resultCards}
+            </Card>
+        </div>
+        
+        
+        
+        console.log("Submitting resultTable");
         this.setState({resultTable: resultTable});
         this.forceUpdate();
     }
