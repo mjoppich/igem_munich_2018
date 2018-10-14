@@ -1,7 +1,6 @@
 import * as React from 'react';
 import MobileStepper from '@material-ui/core/MobileStepper';
 import Button from '@material-ui/core/Button';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { Card, CardActions, CardHeader } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -43,8 +42,6 @@ class TextMobileStepper extends React.Component<{}, {
     saveFiles: any,
     inputRefs: Array<any>,
     outputDir: String,
-    showProgress: boolean,
-    showProgress2:boolean,
     contamResult: any,
     contamStrRes: String,
     resultTable: any,
@@ -59,8 +56,6 @@ class TextMobileStepper extends React.Component<{}, {
     saveFiles: JSON.parse("{}"),
     outputDir: "",
     inputRefs: new Array(),
-    showProgress: false,
-    showProgress2: false,
     contamResult: JSON.parse("{}"),
     contamStrRes: "",
     resultTable: <div></div>,
@@ -680,25 +675,11 @@ class TextMobileStepper extends React.Component<{}, {
                         {inputRefList}
                     </CardContent>
 
-                    {
-                        //TODO runs before start?
-                    }
-
-                    {this.state.showProgress ?
-                        <div>
-                            <LinearProgress color="secondary"/>
-                        </div>
-                        :
-                        <div></div>
-                    }
                 </Card>
             </div>,
 
         buttonAction: () => {
             var self = this
-            this.state.showProgress = true;
-
-            this.setState({ showProgress: this.state.showProgress })
             this.render()
 
             window.setTimeout(myFunction, 3000);
@@ -728,9 +709,17 @@ class TextMobileStepper extends React.Component<{}, {
                  </Typography>
 
                  <Typography gutterBottom>
+                    <em>Contamination Results</em> are first shown in a table. This is a statistical overview of your run per reference and file/directory. 
+                    These statistics are also visualized below in two <em>pie charts</em>.
+                    Additionly, a <em>bar plot</em> shows you how often a certain read length was found in your file/directory of your sequencing experiment.
+                    Consider these informations as an indicator of your sequencing quality. 
                  </Typography>
 
                  <Typography gutterBottom>
+                    <em>Extract Reads</em> allows you to filter each file/direcory you uploaded by either the single references separately or by all references at once.
+                    For example, if you turn on the <em>aligned switch</em> for ecoli_k12_mg1655.fasta and your first FastQ file and click <em>Save</em> you will find a new FastQ file in
+                    your output directoy that contains only those reads of your first file that mapped to the ecoli_k12_mg1655.fasta sequence.
+                    The <em>not aligned switch</em> works respectively.
                  </Typography>
 
    
@@ -751,7 +740,7 @@ class TextMobileStepper extends React.Component<{}, {
                 viewBox="0 0 24 24">
                 <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
             </svg>
-            You will find all figures and saved files in your chosen output directory.
+            You will find all figures and saved files in your chosen output directory
         </div>,
 
         topimgPath: 'sequinfo_neg.jpg',
@@ -789,13 +778,6 @@ class TextMobileStepper extends React.Component<{}, {
                             Save Files&nbsp;
                             <Icon>save</Icon>
                         </Button>
-
-
-                        {this.state.showProgress2 ?
-                        <div> <LinearProgress color="secondary"/> </div>
-                        :
-                        <div></div>
-                        }
                 </Card>
 
 
@@ -1082,7 +1064,11 @@ class TextMobileStepper extends React.Component<{}, {
     }
 
    // ### STEP 4 ###
-       startPython() {
+
+    
+
+
+       async startPython() {
       
         var self = this;
 
@@ -1478,11 +1464,6 @@ class TextMobileStepper extends React.Component<{}, {
                     }
                 });
             }
-
-
-
-            self.state.showProgress2 = false;
-            self.setState({ showProgress: self.state.showProgress })
     }
 
     getBasename(inpath:string)
