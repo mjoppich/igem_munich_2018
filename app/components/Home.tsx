@@ -501,15 +501,22 @@ class TextMobileStepper extends React.Component<{}, {
         headerName: "Read Files",
         label:
             <div>
-                {// TODO new line??? :(
-                }
                 <Typography gutterBottom>
-                    sequ-into provides an easy and quick overview on what your sequenced reads actually consist of.&#13;&#10;
-                    Each upload will be handled separately. This is also true if you upload the same file twice. If you wish to examine certain reads together, e.g. because they stem from
-                    the same experiment, make sure to save them in a folder and upload that folder via CHOOSE DIRECTORY. In order to analyse a single file, upload it via CHOOSE FILE.&#13;&#10;
-                    As soon as you have uploaded your files an output directory will be generated. At the bottom of the page you have the option to change that directory simply by clicking on the text.&#13;&#10;
-                    Click NEXT to proceed.&#13;&#10;
+                    Sequ-into provides an easy and quick overview on what your sequenced reads truly consist of.
                 </Typography>
+
+                 <Typography gutterBottom>
+                    Each chosen file will be handled separately. This is also true if you upload the same file twice. If you wish to examine certain reads together, e.g. because they stem from
+                    the same experiment, make sure to save them in a folder and upload that folder via <em>Choose Directory</em>. In order to analyse a single file, upload it via <em>Choose File</em>.
+                 </Typography>
+
+                 <Typography gutterBottom>
+                    As soon as you have uploaded your files an output directory will be generated. At the bottom of the page you have the option to change that directory simply by clicking on the text.
+                 </Typography>
+
+                 <Typography gutterBottom>
+                    Click <em>Next</em> to proceed.
+                 </Typography>
             </div>,
         
         alarmlabel: 
@@ -526,7 +533,7 @@ class TextMobileStepper extends React.Component<{}, {
                 viewBox="0 0 24 24">
                 <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
             </svg>
-            Upload your FASTQ files/directories or FAST5 directories.
+            Choose your FastQ files/directories or Fast5 directories
         </div>,
 
 
@@ -600,17 +607,23 @@ class TextMobileStepper extends React.Component<{}, {
 
         label:
             <div>
-                <Typography variant="body1" gutterBottom>
+                <Typography gutterBottom>
                     To check what your reads truly consist of you need a reference against which the reads will be mapped. The reference might be a possible contamination,
-                    such as E. Coli, or a known genome that your reads should be representing. You can use RNA as well as DNA sequences, as long as they are in the FASTA Format. You can find sequences for example on NCBI.&#13;&#10;
-
-                    Click on CHOOSE REFERENCE to choose your reference files. You can selected as many files as you wish. These files will still be present after you used RESET, but are deleted when you close the application.
-                    If you work with certain references repeatedly they can also be saved in the app so that they are available every time even after you closed sequ-into. For this, choose the reference via SAVE CONTAMINANTS. Your own references can always be deleted from sequ-into later on, just click the trash can to do so.
-                    Keep in mind that calculation time increases with file size and file quantity! Consider using the switches behind each reference to turn them off if you don't need them for your current run. They will still be available after you used RESET.&#13;&#10;
-
-                    Click START to run the calculations.&#13;&#10;
+                    such as E. Coli, or a known genome that your reads ought to be representing. You can use RNA as well as DNA sequences, as long as they are in the FastA Format. You will find sequences for example on NCBI.
                 </Typography>
 
+                 <Typography gutterBottom>
+                    Click on <em>Choose Reference</em> to choose your reference files. You can selected as many files as you wish. These files will still be present after you used <em>Reset</em>, but are deleted when you close the application.
+                    If you work with certain references repeatedly they can also be saved in the app to make them available every time - even after you closed sequ-into. For this, choose the reference via <em>Save Contaminants</em>. Your own references can always be deleted from sequ-into later on, just click the trash icon to do so.
+                 </Typography>
+
+                 <Typography gutterBottom>
+                    Keep in mind that calculation time increases with file size and file quantity! Consider using the switches behind each reference to turn them off if you don't need them for your current run. They will still be available after you used <em>Reset</em>.
+                 </Typography>
+
+                 <Typography gutterBottom>
+                    Click <em>Start</em> to run the calculations.
+                 </Typography>
                 </div>
             ,
         
@@ -627,7 +640,7 @@ class TextMobileStepper extends React.Component<{}, {
                 viewBox="0 0 24 24">
                 <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z" />
             </svg>
-                Upload your fasta format files.
+                Choose your FastA files
             </div>,
 
         topimgPath: 'sequinfo_neg.jpg',
@@ -705,11 +718,22 @@ class TextMobileStepper extends React.Component<{}, {
         label:
         <div>
 
-             <Typography variant="body1" gutterBottom>
-                On this page you will find two things: the statistical overview on how your reads mapped to the reference(s)
-                and the possibility to extract and save only those filtered reads you need for your downstream analysis.&#13;&#10;
-                Results and saving options are categorized by reference.&#13;&#10;
-            </Typography>
+                <Typography gutterBottom>
+                    On this page you will find two things: the statistical overview on how your reads mapped to the reference(s)
+                    and the possibility to extract and save only those filtered reads you need for your downstream analysis.
+                </Typography>
+
+                 <Typography gutterBottom>
+                    Results and saving options are categorized by reference and file/directory.
+                 </Typography>
+
+                 <Typography gutterBottom>
+                 </Typography>
+
+                 <Typography gutterBottom>
+                 </Typography>
+
+   
 
             </div>,
 
