@@ -1925,7 +1925,7 @@ class TextMobileStepper extends React.Component<{}, {
    {
 
            const {spawnSync} = require('child_process');
-           var command = this.getExtractReadsToolPath() + " --folder " + folderPath;
+           var command = this.getExtractReadsToolPath() + " --count 1000 --folder " + folderPath;
 
            var program = "";
            var programArgs = null;
