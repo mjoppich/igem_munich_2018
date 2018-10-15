@@ -189,8 +189,9 @@ print(json.dumps(fasta_file_to_dict))
 if extracted_not_aligned:
     output_path = os.path.join(output_dir, "_".join(extracted_not_aligned))
     intersected_reads = []
-    for file in extracted_not_aligned:
-        sam_file_name = os.path.join(output_dir,os.path.split(file)[1][:-6] + ".sam")
+    for fqfile, samfile in sam_fasta_pairs:
+        sam_file_name = samfile
+        
         if not intersected_reads:
             intersected_reads=sam_file_to_dict[sam_file_name]["idNotAlignedReads"]
         intersected_reads = list(set(intersected_reads).intersection(sam_file_to_dict[sam_file_name]["idNotAlignedReads"]))
@@ -205,8 +206,8 @@ if extracted_not_aligned:
 
 if extracted_aligned:
     intersected_reads = []
-    for file in extracted_aligned:
-        sam_file_name = os.path.join(output_dir,os.path.split(file)[1][:-6] + ".sam")
+    for fqfile, samfile in sam_fasta_pairs:
+        sam_file_name = samfile
         if not intersected_reads:
             intersected_reads=sam_file_to_dict[sam_file_name]["idAlignedReads"]
         intersected_reads = list(set(intersected_reads).intersection(sam_file_to_dict[sam_file_name]["idAlignedReads"]))

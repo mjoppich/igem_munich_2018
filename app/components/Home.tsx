@@ -23,6 +23,7 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
+
 const {spawnSync} = require('child_process');
 
 var remote = require('electron').remote;
@@ -47,7 +48,9 @@ class TextMobileStepper extends React.Component<{}, {
     contamResult: any,
     contamStrRes: String,
     resultTable: any,
-    helpExpanded: boolean
+    helpExpanded: boolean,
+    showProgress: boolean,
+    showProgress2: boolean
 }>
 
 
@@ -61,7 +64,9 @@ class TextMobileStepper extends React.Component<{}, {
     contamResult: JSON.parse("{}"),
     contamStrRes: "",
     resultTable: <div></div>,
-    helpExpanded: false
+    helpExpanded: false,
+    showProgress: false,
+    showProgress2: false
   };
 
   constructor(props: any)
@@ -144,6 +149,7 @@ class TextMobileStepper extends React.Component<{}, {
                             <span><p style={{display: "inline"}}>{tutorialSteps[activeStep].header}</p></span>
                 </div>
 
+
                 <MobileStepper
                     steps={maxSteps}
                     position="static"
@@ -157,7 +163,8 @@ class TextMobileStepper extends React.Component<{}, {
                                 variant="contained"
                                 color="secondary"
                                 onClick={tutorialSteps[activeStep].buttonAction}
-                                disabled={activeStep === maxSteps - 1}>
+                                disabled={this.state.showProgress}
+                                >
                                 Start&nbsp;
                                 <Icon>search</Icon>
                             </Button>)
@@ -238,10 +245,7 @@ class TextMobileStepper extends React.Component<{}, {
         </Collapse>
 
 
-
         </Card>
-
-
 
         {tutorialSteps[activeStep].content}
 
@@ -682,6 +686,11 @@ class TextMobileStepper extends React.Component<{}, {
 
         buttonAction: () => {
             var self = this
+
+
+            this.state.showProgress = true
+            this.setState({ showProgress: this.state.showProgress })
+
             this.render()
 
             window.setTimeout(myFunction, 3000);
@@ -771,7 +780,24 @@ class TextMobileStepper extends React.Component<{}, {
                         <Button
                             variant="contained"
                             size="small"
-                            onClick={() => {this.startPythonSave()}}
+                            disabled={this.state.showProgress2}
+                            onClick={() => {
+                                this.startPythonSave()
+
+                                //this.state.showProgress2 = true
+                                //this.setState({ showProgress2: this.state.showProgress2 })
+                                //this.render()
+                            
+                            
+                            
+                            
+                            
+                            }
+
+                               
+                            
+                            
+                            }
                             style={{
                                 marginBottom: "20px",
                                 marginRight: "50px",
@@ -824,6 +850,14 @@ class TextMobileStepper extends React.Component<{}, {
 
     // correct backwards step
     handleBack(reset:boolean) {
+        
+        this.state.showProgress = false
+        this.setState({ showProgress: this.state.showProgress })
+        this.render()
+
+        this.state.showProgress2 = false
+        this.setState({ showProgress2: this.state.showProgress2 })
+        this.render()
 
         var newStep = this.state.activeStep-1;
 
@@ -1316,7 +1350,8 @@ class TextMobileStepper extends React.Component<{}, {
                             var refElementPath = "";
                             if (refElement.appfile === true)
                             {
-                                refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
+                                refElementPath = self.normalizePath(path.join(self.getDataPath(), refElement.path));
+
                             } else {
                                 refElementPath = self.normalizePath(refElement.path);
                             }
@@ -1328,8 +1363,10 @@ class TextMobileStepper extends React.Component<{}, {
                             command += "--o " + self.normalizePath(self.state.outputDir) + "/extractedFiles" + " "
                             command += "--no_images "
 
-                            command += "--extract_prefix " + self.makeExportPath(readsPath)
-                                    + "_"  + self.makeExportPath(refElementPath)  + " ";
+                            var extractPrefix = self.makeExportPath(readsPath) + "_"  + self.makeExportPath(refElementPath)
+
+                            command += "--prefix " + extractPrefix + " " 
+                            command += "--extract_prefix " + extractPrefix + " "
 
                             if (doAligned)
                             {
@@ -1342,6 +1379,7 @@ class TextMobileStepper extends React.Component<{}, {
                             }
 
                             console.log("+++ +++ +++ Command SaveFiles: " + command)
+
 
                             // python
                             var child = null;
@@ -1400,7 +1438,7 @@ class TextMobileStepper extends React.Component<{}, {
                     var refElementPath = "";
                     if (refElement.appfile === true)
                     {
-                        refElementPath = self.normalizePath(path.join(path.resolve(""), refElement.path));
+                        refElementPath = self.normalizePath(path.join(self.getDataPath(), refElement.path));
                     } else {
                         refElementPath = self.normalizePath(refElement.path);
                     }
@@ -1426,7 +1464,12 @@ class TextMobileStepper extends React.Component<{}, {
                         var readsPath = self.normalizePath(fileElement);
                         command += "--reads " + readsPath + " "
                         command += "--o " + self.normalizePath(path.join(self.state.outputDir, "/extractedFiles")) + " "
-                        command += "--extract_prefix " + self.makeExportPath(readsPath) + "_all" + " "
+
+                        var extractPrefix = self.makeExportPath(readsPath) + "_all"
+
+                        command += "--prefix " + extractPrefix + " "
+                        command += "--extract_prefix " + extractPrefix + " "
+
                         command += "--no_images "
                         command = command + cont
 
@@ -1769,3 +1812,4 @@ class TextMobileStepper extends React.Component<{}, {
 }
 
 export default TextMobileStepper;
+
