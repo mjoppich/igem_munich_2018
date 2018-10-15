@@ -36,8 +36,6 @@ Goto UG
 
 
 
-
-
-test
+wsl guide
 
 wsl-guide_.
