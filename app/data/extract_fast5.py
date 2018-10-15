@@ -4,8 +4,6 @@ import glob
 import h5py
 import sys
 from pathlib import Path
-
-
 from collections import OrderedDict
 from enum import Enum
 from collections import OrderedDict, Counter
@@ -386,7 +384,8 @@ class Fast5File:
             return timestamp
         except:
             try:
-                parsedTime = dateutil.parser.parse(timeAttribData)
+                from dateutil import parser
+                parsedTime = parser.parse(str(timeAttribData))
                 timestamp = parsedTime.timestamp()
                 return int(timestamp)
 
@@ -558,6 +557,7 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
 
     ap.add_argument("--folder", type=str, required=True, help="path to the read file")
+    ap.add_argument("--count", type=int, required=False, default=-1, help="path to the read file")
 
     args = ap.parse_args()
 
@@ -568,13 +568,28 @@ if __name__ == '__main__':
 
     allOutput = []
 
-    with open(args.folder + "/reads.fastq", 'w') as fout:
+    with open(args.folder + "/reads.fastq", 'w') as fout, open(args.folder + "/reads.info", 'w') as ftimeout:
 
         for f5file in f5folder.collect():
 
+            if args.count != -1 and iFilesInFolder > args.count:
+                break
+
             output = f5file.getFastQ()
+            createDate = f5file.readCreateTime()
+
+            if not type(createDate) == int:
+                print(createDate)
+
+            #dateTime = parser.parse(createDate)
+
 
             fout.write(str(output) + "\n")
 
-    print("Folder done: " + f5folder.path + " [Files: " + str(iFilesInFolder) + "]")
+
+            output.id = output.id.split(" ")[0]
+            ftimeout.write(output.id + "\t" + str(int(createDate)) + "\n")
+            iFilesInFolder += 1
+
+    print("Folder done: " + str(f5folder.path) + " [Files: " + str(iFilesInFolder) + "]")
 

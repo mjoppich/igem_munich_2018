@@ -1,5 +1,4 @@
 import argparse
-from pathlib import Path
 import json
 import os
 import HTSeq
@@ -51,8 +50,8 @@ for file in read_file:
     if not file.endswith(".fastq"):
         print('Please enter contamination in fastq format \n *Please no spaces in file name!*')
         exit()
-    file = Path(file)
-    if not file.is_file:
+
+    if not os.path.isfile(file):
         print('Read file does not exist \n *Please no spaces in file name!*')
         exit()
 
@@ -60,8 +59,8 @@ for file in cont_file:
     if not file.endswith(".fasta"):
         print('Please enter contamination in fasta format \n *Please no spaces in file name!*')
         exit()
-    file = Path(file)
-    if not file.is_file:
+
+    if not os.path.isfile(file):
         print('Contamination file does not exist \n *Please no spaces in file name!*')
         exit()
 

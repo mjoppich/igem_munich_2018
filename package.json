@@ -63,6 +63,7 @@
         }
       ]
     },
+
     "extraFiles": [
       {
         "from": "./app/data",
@@ -82,14 +83,20 @@
       "package.json",
       "step1.jpg",
       "step2.jpg",
-      "step3.jpg"
+      "step3.jpg",
+      "app.*"
     ],
     "directories": {
       "output": "release",
-      "app": "./app"
+      "app": "./app",
+      "buildResources": "build"
     },
     "win": {
-      "target": "dir"
+      "target": "dir",
+      "icon": "build/app.ico"
+    },
+    "mac": {
+      "icon": "build/app.icns"
     },
     "linux": {
       "target": [
