@@ -38,10 +38,6 @@ idk
 
 
 
-<<<<<<< HEAD
-....
+wsl guide 
+wsl-guide_ .
 
-wslguide_.
-=======
-wsl guide wsl-guide_ .
->>>>>>> master
