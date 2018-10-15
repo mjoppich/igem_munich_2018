@@ -12,3 +12,4 @@ sequ-into is cool!
 	userguide.rst
 	methods.rst
 	licence.rst
+	wslsetup.rst

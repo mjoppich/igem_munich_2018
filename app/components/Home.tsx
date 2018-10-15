@@ -23,10 +23,12 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
+const {spawnSync} = require('child_process');
 
 var remote = require('electron').remote;
 var os = require("os");
 var fs = require('fs');
+const shellPath = require('shell-path');
 
 
 var dialog = remote.dialog;
@@ -1163,7 +1165,6 @@ class TextMobileStepper extends React.Component<{}, {
             var splitted_command = command.split(" ");
         //console.log(command+" command")
 
-            const {spawnSync} = require('child_process');
             var child = null;
             let processOutput = "";
 
@@ -1192,6 +1193,12 @@ class TextMobileStepper extends React.Component<{}, {
 
                 console.log("Unix Version")
                 console.log(splitted_command);
+            }
+
+            if (os.platform() == "darwin")
+            {
+                var np = shellPath.sync();
+                process.env.PATH = np;
             }
 
             child = spawnSync(program, programArgs,{
@@ -1337,7 +1344,6 @@ class TextMobileStepper extends React.Component<{}, {
                             console.log("+++ +++ +++ Command SaveFiles: " + command)
 
                             // python
-                            const {spawnSync} = require('child_process');
                             var child = null;
                             var program = "";
                             var programArgs = null;
@@ -1358,6 +1364,12 @@ class TextMobileStepper extends React.Component<{}, {
 
                                 console.log("Unix Version")
                                 console.log(programArgs);
+                            }
+
+                            if (os.platform() == "darwin")
+                            {
+                                var np = shellPath.sync();
+                                process.env.PATH = np;
                             }
 
                             child = spawnSync(program, programArgs,{
@@ -1429,7 +1441,6 @@ class TextMobileStepper extends React.Component<{}, {
                         }
 
                         // python
-                        const {spawnSync} = require('child_process');
                         var child = null;
                         var program = "";
                         var programArgs = null;
@@ -1450,6 +1461,12 @@ class TextMobileStepper extends React.Component<{}, {
 
                             console.log("Unix Version")
                             console.log(programArgs);
+                        }
+
+                        if (os.platform() == "darwin")
+                        {
+                            var np = shellPath.sync();
+                            process.env.PATH = np;
                         }
 
                         child = spawnSync(program, programArgs,{
@@ -1695,8 +1712,6 @@ class TextMobileStepper extends React.Component<{}, {
 
     extractReadsForFolder(folderPath: string)
    {
-
-           const {spawnSync} = require('child_process');
            var command = this.getExtractReadsToolPath() + " --count 1000 --folder " + folderPath;
 
            var program = "";
@@ -1725,6 +1740,8 @@ class TextMobileStepper extends React.Component<{}, {
                console.log("Unix Version")
                console.log(splitted_command);
            }
+
+           
 
            var child = spawnSync(program, programArgs,{
                cwd: process.cwd(),
