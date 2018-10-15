@@ -100,4 +100,4 @@ In the *For developers* options we switch from *Windows Store apps* to *Develope
    :scale: 30
 
 
-.. warning:: This setup guide is taken from `bioGUI documentation <https://github.com/mjoppich/bioGUI/>`_ .
+.. warning:: This setup guide is taken from `bioGUI documentation <https://github.com/mjoppich/bioGUI/>`_ from the original author for reasons.
