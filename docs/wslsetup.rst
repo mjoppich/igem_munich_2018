@@ -1,4 +1,5 @@
-.. _wsl-guide:
+.. wslguide:
+
 ********************
 How to setup Windows Subsystem for Linux
 ********************

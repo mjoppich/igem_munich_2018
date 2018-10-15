@@ -26,16 +26,18 @@ Goto UG
 ====
 Windows
 ====
+
 wsl 
 ====
 ...
+
 Package Installation
 ====
-...
-Goto UG
+idk
 
 
 
-wsl guide
 
-wsl-guide_.
+....
+
+wslguide_.
