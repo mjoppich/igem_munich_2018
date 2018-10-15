@@ -7,13 +7,20 @@ Mac OS
 ====
 Package Installation
 ====
-idk
+...
+
+DMG
+====
+...
+Goto UG
 
 
 ====
 Linux
 ====
-idk
+...
+Goto UG
+
 
 
 ====
@@ -21,12 +28,16 @@ Windows
 ====
 wsl 
 ====
+...
 Package Installation
 ====
-idk
+...
+Goto UG
+
+
+
+
 
 test
 
-wsl_.
-
-.. _wslsetup:
+wsl-guide_.
