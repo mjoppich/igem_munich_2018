@@ -27,7 +27,7 @@ As soon as you have chosen your files an output directory will be generated. You
 
 After that, click *Next* to proceed.
 
-.. image:: ./images/1.png
+.. image:: ./images/gastep1.png
    :scale: 20
 
 
@@ -48,7 +48,7 @@ If you work with certain references repeatedly they can also be saved in the app
 
 After that, click *Start* to run the calculations.
 
-.. image:: ./images/2.png
+.. image:: ./images/gastep2.png
    :scale: 20
 
 
@@ -57,14 +57,21 @@ Step 3: Results
 -------
 
 
-
 The Results consist of two parts:a statistical overview on how your reads mapped to the reference(s) and the
 possibility to extract and save only those filtered reads you need for your downstream analysis.
 saved ->
 
+.. image:: ./images/gastep3.png
+   :scale: 20
+
+
+
+
+
+
 
 **Statistical Overview**
-.. image:: ./images/3.png
+.. image:: ./images/gastep3.png
    :scale: 40
 
 
