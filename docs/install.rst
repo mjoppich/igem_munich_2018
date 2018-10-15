@@ -26,4 +26,7 @@ Package Installation
 idk
 
 test
+
+wsl_.
+
 .. _wslsetup:
