@@ -6,6 +6,10 @@ sequ-into - A straightforward desktop app for third generation sequencing
 read analysis
 ********************
 
+====
+CORRECT VERSION
+====
+
 
 ====
 sequ-into
