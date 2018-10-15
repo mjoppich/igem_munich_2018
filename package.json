@@ -81,10 +81,10 @@
       "main.js",
       "main.js.map",
       "package.json",
-      "step1.jpg",
-      "step2.jpg",
-      "step3.jpg",
-      "app.*"
+      "step1.png",
+      "step2.png",
+      "step3.png",
+      "sequinto_logo_text.png"
     ],
     "directories": {
       "output": "release",
