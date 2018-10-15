@@ -2,7 +2,7 @@
 Installation
 **********************
 
-Windows
+Mac OS
 -------
 idk
 
@@ -10,6 +10,8 @@ Linux
 -------
 idk
 
-Mac OS
+Windows
 -------
 idk
+
+.. _wslsetup:

@@ -9,7 +9,7 @@ sequ-into is cool!
 
 	intro.rst
 	install.rst
+	wslsetup.rst
 	userguide.rst
 	methods.rst
 	licence.rst
-	wslsetup.rst
