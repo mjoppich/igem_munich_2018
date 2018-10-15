@@ -37,7 +37,5 @@ idk
 
 
 
-
-wsl guide 
-wsl-guide_ .
+here is a test link :ref:`wslsetupguide`
 
