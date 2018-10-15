@@ -14,4 +14,5 @@ Windows
 -------
 idk
 
+test
 .. _wslsetup:
