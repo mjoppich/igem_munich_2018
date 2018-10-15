@@ -7,11 +7,6 @@ read analysis
 ********************
 
 ====
-CORRECT VERSION
-====
-
-
-====
 sequ-into
 ====
 
