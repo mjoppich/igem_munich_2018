@@ -71,10 +71,10 @@ saved ->
 
 **Statistical Overview**
 .. image:: ./images/contamresults.png
-   :scale: 40
+   :scale: 20
 
 
 
 **Saving of filtered files**
 .. image:: ./images/extractreads.png
-    :scale: 40
+    :scale: 20
