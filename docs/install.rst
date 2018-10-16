@@ -74,14 +74,14 @@ To install this package with conda run **one** of the following:
     conda install -c conda-forge/label/testing matplotlib
     conda install -c conda-forge/label/rc matplotlib
 
-Install on Mac
+Install sequ-into
 ====
 
 In order to install sequ-into, go to the GitHub.com repository and download the Mac OS release.
 
 A DMG image will be downloaded. Open the image and drag the sequ-into app into your applications folder.
 
-.. image:: ./images/mac/dmg_drag.PNG
+.. image:: ./images/mac/dmg_drag.png
    :scale: 30
 
 You are now ready to use sequ-into.
