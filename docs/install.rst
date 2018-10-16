@@ -45,7 +45,7 @@ Enter this in your terminal:
 
 Enter this in your terminal: 
 
-* ``conda install -c anaconda h5py `
+* ``conda install -c anaconda h5py``
 
 5. pysam
 
