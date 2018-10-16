@@ -10,7 +10,7 @@ How this is done is explained at the end of this page, since this is only requir
 
 For all recent versions of Windows 10 you can start with step 1.
 
-.. warning:: Some antivirus software (e.g. Kaspersky) disable internet access for unknown/new programs. Make sure bioGUI can access the internet!
+.. warning:: Some antivirus software (e.g. Kaspersky) disable internet access for unknown/new programs. Make sure you have internet access!
 
 Step 1: Activate WSL feature
 -----------------------------
@@ -44,7 +44,7 @@ In order to do so, we open the Windows Store app, and search for *Linux*. We sel
 
 
 There are many different flavors (comparable to strains in biology) of linux and some are already offered on the Windows store.
-Best compatibility for *bioGUI* has Ubuntu.
+Best compatibility for *sequ-into* has Ubuntu.
 
 *Important*: You should consider using the latest Ubuntu version available. This is Ubuntu 18.04 at the time of writing. You specifically have to search for *Ubuntu 18.04* in the store !
 
@@ -60,7 +60,7 @@ The black screen will guide you through the install process.
 It will first unpack itself and then ask you to create a linux user account.
 
 It is recommended to choose a username and password you can easily remember.
-Remembering the password is essential here, as it will be needed for any installation to be performed on *WSL* and by *bioGUI*.
+Remembering the password is essential here, as it will be needed for any installation to be performed on *WSL*!
 
 .. image:: ./images/wsl/powershell_setup_user.PNG
    :scale: 30
@@ -69,17 +69,8 @@ Remembering the password is essential here, as it will be needed for any install
 Step 3: Prepare WSL
 -------------------
 
-Before you can use *bioGUI* on *WSL*/Ubuntu please make sure to run the *First time Ubuntu/WSL/apt-get Setup* from *bioGUI*.
-For the *sudo/user password* please enter the password for your linux user account from the step above.
+Before you can use *sequ-into* on *WSL*/Ubuntu please make sure to follow the :ref:`wslpackinstall` instructions.
 
-.. image:: ./images/wsl/wsl_setup_biogui.png
-   :scale: 30
-
-
-In case there are problems please contact the author of the software.
-
-
-If you are running an old Windows 10 version, you first need to activate developer mode before you are able to enable the Windows Subsystem for Linux feature.
 
 Step 0: Activate Developer Mode
 
