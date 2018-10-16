@@ -77,7 +77,7 @@ To install this package with conda run **one** of the following:
 Install sequ-into
 ====
 
-In order to install sequ-into, go to the GitHub.com repository and download the Mac OS release.
+In order to install sequ-into, go to the `sequ-into repository <https://github.com/mjoppich/igem_munich_2018>`_  and download the Mac OS release.
 
 A DMG image will be downloaded. Open the image and drag the sequ-into app into your applications folder.
 
