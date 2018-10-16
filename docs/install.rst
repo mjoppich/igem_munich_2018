@@ -8,7 +8,7 @@ Installation
 Mac OS
 ====
 
-To be able to install sequ-into on your Mac OS system, first make sure you have all support packages.
+To be able to install sequ-into on your Mac OS system, first make sure you have all support packages. **It is important to add them in this order.**
 
 ====
 Support Package Installation:
@@ -62,7 +62,7 @@ Enter this in your terminal:
 
 7. **matplotlib**
 
-To install this package with conda run one of the following:
+To install this package with conda run **one** of the following:
 
 * ``conda install -c conda-forge matplotlib``
 * ``conda install -c conda-forge/label/broken matplotlib``
@@ -70,8 +70,9 @@ To install this package with conda run one of the following:
 * ``conda install -c conda-forge/label/rc matplotlib``
 
 ====
-Sequ-into Package Installation:
+sequ-into Package Installation:
 ====
+
 
 ...
 Goto UG
