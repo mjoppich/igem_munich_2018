@@ -60,7 +60,7 @@ The Results consist of two sections: a statistical overview on how your reads ma
 
 For each combination of FastQ (file/directory) with FastA you will find one table and three plots. 
 
-The table includes read and base frequencies in the reference FastA file. For reads you recieve the information about aligned or not aligned reads. It is not sufficient to rely only on reads in the further analysis. The different read sizes can cause the wrong interpretation of the data: three contaminanted reads of length 50 bp or 5000 bp make a big difference despite the fact that there is three of them in both cases. For making a proper conlusion about the data it is useful to take a look on the bases as well. For bases it is important to note that there are two different definitions: *alignment bases* and *aligned bases*. 
+The table includes read and base frequencies in the reference FastA file. For reads you recieve the information about aligned or not aligned reads. It is not always sufficient enought to rely only on reads in the further analysis. The different read sizes can cause the wrong interpretation of the data: three contaminanted reads of length 50 bp or 5000 bp make a big difference despite the fact that there is three of them in both cases. For making a proper conlusion about the data it is useful to take a look on the bases as well. For bases it is important to note that there are two different definitions: *alignment bases* and *aligned bases*. 
 
 Aligned reads consist out of bases. This bases are called the *aligned bases*. On the other hand, the bases that are indeed aligned, means mapped to the the base in the refernce and are not skipped, are called *alignment bases*. 
 
