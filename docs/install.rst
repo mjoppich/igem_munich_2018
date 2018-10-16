@@ -33,7 +33,6 @@ and enter the following:
 If you have any trubles installing Anaconda you can review this site for more details and a visual installer: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
 
 2. **Bioconda**
-
 ::
     conda config --add channels defaults
     conda config --add channels bioconda
