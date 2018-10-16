@@ -34,7 +34,6 @@ If you have any trubles installing Anaconda you can review this site for more de
 
 2. **Bioconda**
 
-Enter this in your terminal: 
 ::
     conda config --add channels defaults
     conda config --add channels bioconda
