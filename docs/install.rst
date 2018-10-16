@@ -33,6 +33,7 @@ and enter the following:
 If you have any trubles installing Anaconda you can review this site for more details and a visual installer: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
 
 2. **Bioconda**
+
 Enter this in your terminal: 
 ::
     conda config --add channels defaults
@@ -40,27 +41,32 @@ Enter this in your terminal:
     conda config --add channels conda-forge
 
 3. **GraphMap**
+
 Enter this in your terminal: 
 ::
     conda install graphmap
 
 4. **h5py**
+
 Enter this in your terminal: 
 ::
     conda install -c anaconda h5py
 
 5. **pysam**
+
 Enter this in your terminal: 
 ::
     conda config --add channels r
     conda install pysam
 
 6. **HTseq**
+
 Enter this in your terminal:
 ::
     conda install htseq
 
 7. **matplotlib**
+
 To install this package with conda run **one** of the following:
 ::
     conda install -c conda-forge matplotlib
