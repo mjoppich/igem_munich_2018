@@ -37,15 +37,11 @@ Enter this in your terminal:
 
 3. **GraphMap**
 
-Enter this in your terminal: 
-
-* ``conda install graphmap``
+Enter this in your terminal: ``conda install graphmap``
 
 4. **h5py**
 
-Enter this in your terminal: 
-
-* ``conda install -c anaconda h5py``
+Enter this in your terminal: ``conda install -c anaconda h5py``
 
 5. **pysam**
 
@@ -56,9 +52,7 @@ Enter this in your terminal:
 
 6. **HTseq**
 
-Enter this in your terminal: 
-
-* ``conda install htseq``
+Enter this in your terminal: ``conda install htseq``
 
 7. **matplotlib**
 
