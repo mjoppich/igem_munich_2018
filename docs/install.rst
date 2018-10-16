@@ -23,7 +23,7 @@ Support Package Installation:
 * The installer prompts you to press ``Enter`` to confirm the location. It may take a few minutes to complete.  We recommend you accept the default install location and press ``Enter``.
 * The installer prompts “Do you wish the installer to prepend the Anaconda install location to PATH in your /home/<user>/.bash_profile ?” We recommend ``yes``.
 * The installer finishes and displays “Thank you for installing Anaconda!”
-* The installer describes Microsoft VS Code and asks if you would like to install VS Code. Enter yes or no. You don't need Microsoft VS Code to use sequ-into!
+* The installer describes Microsoft VS Code and asks if you would like to install VS Code. Enter ``yes`` or ``no``. You don't need Microsoft VS Code to use sequ-into!
 
 If you have any trubles installing Anaconda you can review this site for more details and a visual installer here: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
 
@@ -41,8 +41,38 @@ Enter this in your terminal:
 
 * ``conda install graphmap``
 
-DMG
+4. h5py
+
+Enter this in your terminal: 
+
+* ``conda install -c anaconda h5py `
+
+5. pysam
+
+Enter this in your terminal: 
+
+* ``conda config --add channels r``
+* ``conda install pysam``
+
+6. HTseq
+
+Enter this in your terminal: 
+
+* ``conda install htseq``
+
+7. matplotlib
+
+To install this package with conda run one of the following:
+
+* ``conda install -c conda-forge matplotlib``
+* ``conda install -c conda-forge/label/broken matplotlib``
+* ``conda install -c conda-forge/label/testing matplotlib``
+* ``conda install -c conda-forge/label/rc matplotlib``
+
 ====
+Sequ-into Package Installation:
+====
+
 ...
 Goto UG
 
