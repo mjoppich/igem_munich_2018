@@ -19,14 +19,11 @@ Support Package Installation:
 
 * Download the installation package here: https://repo.angaconda.com/archive/Anaconda3-5.3.0-MacOSX-x86_64.pkg
 * Open your terminal window (for example by typing "terminal" in the spotlight search field) and enter the following:
-Enter this in your terminal: 
-::
-    conda config --add channels defaults
-    conda config --add channels bioconda
-    conda config --add channels conda-forge
-
+ 
 ::
     bash ~/Downloads/Anaconda3-5.3.0-MacOSX-x86_64.sh
+
+
 
 * The installer prompts “In order to continue the installation process, please review the license agreement.” Click ``Enter`` to view license terms.
 * Scroll to the bottom of the license terms and enter ``yes`` to agree to them.
