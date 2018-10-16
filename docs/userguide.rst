@@ -6,8 +6,7 @@ User Guide
 
 How to get sequ-into?
 ====
-You can use *sequ-into* on a Mac OS, Linux as well as on a Windows System. Please follow the respective instructions in our installation guide.
-:ref:`installguide`
+You can use *sequ-into* on a Mac OS, Linux as well as on a Windows System. Please follow the respective instructions in our :ref:`installguide` guide.
 
 
 
