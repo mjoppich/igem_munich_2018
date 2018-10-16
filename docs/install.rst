@@ -16,7 +16,6 @@ Support Package Installation:
 ====
 
 1. **Anaconda**
-
 * Download the installation package here: https://repo.angaconda.com/archive/Anaconda3-5.3.0-MacOSX-x86_64.pkg
 * Open your terminal window (for example by typing "terminal" in the spotlight search field)
 and enter the following:
