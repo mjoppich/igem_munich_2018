@@ -159,7 +159,6 @@ First you must clone the `sequ-into repository <https://github.com/mjoppich/igem
 You will find the sequ-into application in igem_munich_2018/release/ .
 
 In order to have all python scripts running, please install the following dependencies. You may leave *python3-pip* out if you are using your own pip or anaconda.
-
 ::
     sudo apt-get update
     sudo apt-get install git build-essential python3 python3-pip libhdf5-serial-dev
