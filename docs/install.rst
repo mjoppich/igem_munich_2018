@@ -14,7 +14,7 @@ To be able to install sequ-into on your Mac OS system, first make sure you have 
 Support Package Installation:
 ====
 
-1. Anaconda
+1. **Anaconda**
 
 * Download the installation package here: https://repo.anaconda.com/archive/Anaconda3-5.3.0-MacOSX-x86_64.pkg
 * Open your terminal window (for example by typing "terminal" in the spotlight search field) and enter the following: ``bash ~/Downloads/Anaconda3-5.3.0-MacOSX-x86_64.sh``
@@ -27,7 +27,7 @@ Support Package Installation:
 
 If you have any trubles installing Anaconda you can review this site for more details and a visual installer here: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
 
-2. Bioconda
+2. **Bioconda**
 
 Enter this in your terminal: 
 
@@ -35,32 +35,32 @@ Enter this in your terminal:
 * ``conda config --add channels bioconda``
 * ``conda config --add channels conda-forge``
 
-3. GraphMap
+3. **GraphMap**
 
 Enter this in your terminal: 
 
 * ``conda install graphmap``
 
-4. h5py
+4. **h5py**
 
 Enter this in your terminal: 
 
 * ``conda install -c anaconda h5py``
 
-5. pysam
+5. **pysam**
 
 Enter this in your terminal: 
 
 * ``conda config --add channels r``
 * ``conda install pysam``
 
-6. HTseq
+6. **HTseq**
 
 Enter this in your terminal: 
 
 * ``conda install htseq``
 
-7. matplotlib
+7. **matplotlib**
 
 To install this package with conda run one of the following:
 
