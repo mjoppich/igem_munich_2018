@@ -70,11 +70,11 @@ saved ->
 
 
 **Statistical Overview**
-.. image:: ./images/gastep3.jpg
+.. image:: ./images/contamresults.png
    :scale: 40
 
 
 
 **Saving of filtered files**
-.. image:: ./images/4.jpg
+.. image:: ./images/extractreads.png
     :scale: 40
