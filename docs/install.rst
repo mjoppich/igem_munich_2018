@@ -82,7 +82,7 @@ In order to install sequ-into, go to the GitHub.com repository and download the 
 A DMG image will be downloaded. Open the image and drag the sequ-into app into your applications folder.
 
 .. image:: ./images/mac/dmg_drag.png
-   :scale: 10
+   :scale: 20
 
 You are now ready to use sequ-into.
 
