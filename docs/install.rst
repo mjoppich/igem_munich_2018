@@ -27,7 +27,15 @@ Support Package Installation:
 
 If you have any trubles installing Anaconda you can review this site for more details and a visual installer here: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
 
-2. 
+2. Bioconda
+Enter this in your terminal: 
+* ``conda config --add channels defaults``
+* ``conda config --add channels bioconda``
+* ``conda config --add channels conda-forge``
+
+3. GraphMap
+Enter this in your terminal: 
+* ``conda install graphmap``
 DMG
 ====
 ...
