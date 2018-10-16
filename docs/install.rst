@@ -18,7 +18,9 @@ Support Package Installation:
 1. **Anaconda**
 
 * Download the installation package here: https://repo.angaconda.com/archive/Anaconda3-5.3.0-MacOSX-x86_64.pkg
-* Open your terminal window (for example by typing "terminal" in the spotlight search field) and enter the following: ``bash ~/Downloads/Anaconda3-5.3.0-MacOSX-x86_64.sh``
+* Open your terminal window (for example by typing "terminal" in the spotlight search field) and enter the following:
+::
+    bash ~/Downloads/Anaconda3-5.3.0-MacOSX-x86_64.sh
 * The installer prompts “In order to continue the installation process, please review the license agreement.” Click ``Enter`` to view license terms.
 * Scroll to the bottom of the license terms and enter ``yes`` to agree to them.
 * The installer prompts you to press ``Enter`` to confirm the location. It may take a few minutes to complete.  We recommend you accept the default install location and press ``Enter``.
@@ -58,11 +60,11 @@ Enter this in your terminal:
 
 7. **matplotlib**
 To install this package with conda run **one** of the following:
-
-* ``conda install -c conda-forge matplotlib``
-* ``conda install -c conda-forge/label/broken matplotlib``
-* ``conda install -c conda-forge/label/testing matplotlib``
-* ``conda install -c conda-forge/label/rc matplotlib``
+::
+    conda install -c conda-forge matplotlib
+    conda install -c conda-forge/label/broken matplotlib
+    conda install -c conda-forge/label/testing matplotlib
+    conda install -c conda-forge/label/rc matplotlib
 
 Install on Mac
 ====
