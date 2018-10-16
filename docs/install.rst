@@ -25,7 +25,9 @@ Support Package Installation:
 * The installer finishes and displays “Thank you for installing Anaconda!”
 * The installer describes Microsoft VS Code and asks if you would like to install VS Code. Enter yes or no. You don't need Microsoft VS Code to use sequ-into!
 
+If you have trubles installing Anaconda you can review this iste for more details and a visual installer here: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
 
+2. 
 DMG
 ====
 ...
