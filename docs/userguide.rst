@@ -62,7 +62,7 @@ For each combination of FastQ (file/directory) with FastA you will find one tabl
 
 The table includes read and base frequencies in the reference FastA file. For reads you recieve the information about aligned or not aligned reads. For bases it is important to note that there are two different definitions: *alignment bases* and *aligned bases*. Aligned reads consist out of bases. This bases are called the *alignment bases*. On the other hand, the bases that are really aligned, means mapped to the the same base in the refernce and are not skipped, are called *aligned bases*. 
 
-To support this information visualy we also added two pie charts that correspond to the relative and absolute values in the table. With help of this two plots you can gain the information about the amount of bases and reads that were found in a refence file and make a conclusion about the posibility of contamination. 
+To support the statistical information in the table visualy we also added two pie charts that correspond to the relative and absolute values in the table. These two plots will help you to gain the information about the amount of bases and reads that were found in a refence file and make a conclusion about the posibility of contamination. 
 
 Additionally, there is a bar plot representing the destribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequecing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
 saved ->
