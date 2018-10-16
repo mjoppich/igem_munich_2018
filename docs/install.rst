@@ -40,7 +40,7 @@ Enter this in your terminal:
     conda config --add channels bioconda
     conda config --add channels conda-forge
 
-3. **GraphMap**
+3. `**GraphMap** <https://github.com/isovic/graphmap>`_ 
 
 Enter this in your terminal: 
 ::
