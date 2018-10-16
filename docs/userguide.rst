@@ -56,11 +56,13 @@ Step 3: Results
 -------
 
 
-The Results consist of two sections: a statistical overview on how your reads mapped to the reference(s) and the filter with to extract and save only those reads you need for your downstream analysis.
+The Results consist of two sections: a statistical overview on how your reads mapped to the reference(s) and the filter to extract and save only those reads you need for your downstream analysis.
 
 For each combination of FastQ (file/directory) with FastA you will find one table and three plots. 
 
-The table includes read and base frequencies in the reference FastA file. For reads you recieve the information about aligned or not aligned reads. For bases it is important to note that there are two different definitions: *alignment bases* and *aligned bases*. Aligned reads consist out of bases. This bases are called the *alignment bases*. On the other hand, the bases that are really aligned, means mapped to the the same base in the refernce and are not skipped, are called *aligned bases*. 
+The table includes read and base frequencies in the reference FastA file. For reads you recieve the information about aligned or not aligned reads. For the further analysis  it is not sufficient to rely only on reads, which have different length. For making a proper conlusion about the data it is useful to take a look on the bases as well. For bases it is important to note that there are two different definitions: *alignment bases* and *aligned bases*. 
+
+Aligned reads consist out of bases. This bases are called the *aligned bases*. On the other hand, the bases that are indeed aligned, means mapped to the the base in the refernce and are not skipped, are called *alignment bases*. 
 
 To support the statistical information in the table visualy we also added two pie charts that correspond to the relative and absolute values in the table. These two plots will help you to gain the information about the amount of bases and reads that were found in a refence file and make a conclusion about the posibility of contamination. 
 
