@@ -166,7 +166,6 @@ In order to have all python scripts running, please install the following depend
     sudo pip3 install pysam HTseq matplotlib h5py
 
 You now have to install `graphmap <https://github.com/isovic/graphmap>`_ and add it to your path. This can, for instance, be done using the following commands:
-
 ::
     mkdir --parents ~/progs/ && cd ~/progs/ && git clone https://github.com/isovic/graphmap.git
     cd ~/progs/graphmap/ && make modules && make
