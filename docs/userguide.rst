@@ -56,8 +56,10 @@ Step 3: Results
 -------
 
 
-The Results consist of two parts:a statistical overview on how your reads mapped to the reference(s) and the
+The Results consist of two parts: a statistical overview on how your reads mapped to the reference(s) and the
 possibility to extract and save only those filtered reads you need for your downstream analysis.
+
+The table includes reads and bases frequencies in the reference FastA file that you have included. To support this information visualy we also added two pie charts that correspond to the relative values in the table. From this two plots you can gain the imformation about how much bases and reads were found in a refence. Additionally, there is a bar plot representing the destribution of the read length in the FastQ file you uploaded. **All plots are saved in the output directory.**
 saved ->
 
 .. image:: ./images/gastep3.png
