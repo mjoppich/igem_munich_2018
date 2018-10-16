@@ -59,7 +59,7 @@ Step 3: Results
 The Results consist of two parts: a statistical overview on how your reads mapped to the reference(s) and the
 possibility to extract and save only those filtered reads you need for your downstream analysis.
 
-The table includes reads and bases frequencies in the reference FastA file that you have included. To support this information visualy we also added two pie charts that correspond to the relative and absolute values in the table. From this two plots you can gain the information about the amount of bases and reads were found in a refence. Additionally, there is a bar plot representing the destribution of the read length in the FastQ file you uploaded. **All plots are saved in the output directory.**
+For each combination of FastQ (file/directory) with FastA you will find one table and three plots. The table includes read and base frequencies in the reference FastA file. To support this information visualy we also added two pie charts that correspond to the relative and absolute values in the table. With help of this two plots you can gain the information about the amount of bases and reads that were found in a refence file and make a conclusion about the posibility of contamination. Additionally, there is a bar plot representing the destribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequecing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
 saved ->
 
 .. image:: ./images/gastep3.png
