@@ -35,7 +35,7 @@ Step 2: Reference files
 -------
 To check what your sequencing files truly consist of you need a reference against which the reads will be mapped. 
 
-That reference might be a possible contamination, such as E. Coli, or a targeted known genome of what you intended to sequence. Of course you can also use shorter sequences instead of a whole genome as a reference. For details on possible technical limitations, please see https://github.com/isovic/graphmap and https://www.nature.com/articles/ncomms11307.
+That reference might be a possible contamination, such as *E. Coli*, or a targeted known genome of what you intended to sequence. Of course you can also use shorter sequences instead of a whole genome as a reference. For details on possible technical limitations, please see `GraphMap <https://github.com/isovic/graphmap>`_ and https://www.nature.com/articles/ncomms11307.
 
 Mapping is possible against RNA as well as against DNA sequences, as long as they are in the FastA Format. You can find sequences for example on NCBI https://www.ncbi.nlm.nih.gov/genome/?term=.
 
