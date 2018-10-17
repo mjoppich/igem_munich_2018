@@ -78,7 +78,7 @@ After acquiring the sequenced data meant to be analyzed, *sequ-into* handles eac
         });
 
 
-All files that are pooled in a folder are handled as one file in the further steps, resulting in a combined analysis of all the files in that folder.
+All files that are pooled in a folder are handled as one file in the further steps (ContamTool.py_), resulting in a combined analysis of all the files in that folder.
 
 
 **Reference Files**
@@ -137,12 +137,11 @@ The output of each python call - that is for each file per reference - is collec
 
 
 
-.. _ContamTool.py:
 
 ContamTool.py
 ====
 
-As mentioned above the functionality of *sequ-into* depends on this python script that assesses the input read file, coordinates the alignment, interprets the alignment results and allows for read extraction according to the gained knowledge.
+As mentioned above the functionality of *sequ-into* depends on this python script that assesses the input read files, coordinates the alignment, interprets the alignment results and allows for read extraction according to the gained knowledge.
 
 
 **Read File Handling**
@@ -154,24 +153,64 @@ All files that are pooled in a folder are handled as one FastQ file in the furth
 
 
 
-
-
-
-
-
-
 .. _alignment-tool:
 
 **Calling the Alignment Tool GraphMap**
 
+The idea behind finding possible contaminations and deciding if a certain target was sequenced, respectively, is to map the raw reads from the sequencing files against a reference. Thus allowing to split the original joint read file into two categories: the reads that aligned to the reference and those that did not.
+
+Nanopore sequencing data, however, comes with certain obstacles that complicate alignments. 
+On the one hand, because of Nanopores high-throughput nature, the data size means that alignment algorithms commonly used are too slow - something that was overcome only with a tradeoff to lower sensitivity, on the other hand, the variable error profile of ONT MinION sequencers that made parameter tuning mandatory to gain high sensitivity as well as precision.
+
+
+
+
+
++++
+Experiments with several real and synthetic data sets demonstrate that GraphMap is a more sensitive mapper than BWA-MEM, DALIGNER, BLASR and LAST, while reporting accurate alignments with nanopore sequencing data. This benefits all downstream applications of mapping, as highlighted here with a few natural proof-of-concept applications for a low cost, long read, portable sequencer, that is, single-nucleotide polymorphism calling in complex regions of the human genome, structural variants (SVs; insertions and deletions) detection and real-time pathogen identification.
++++
+https://www.nature.com/articles/ncomms11307
+
+
+
+
+
+
+::
+	for file in cont_file:
+		sam_file_name = os.path.split(file)[1][:-6]+".sam"
+		samFile = os.path.join(output_dir,prefix + sam_file_name)
+		os.system("graphmap align -r "+file+" -d "+read_file+" -o "+samFile)
+		sam_fasta_pairs.append( (file, samFile) )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 **Evaluating the GraphMap Output**
 
 **Extracting Read Files**
+
+Intersection
 
 
 
 .. _here:
 
 **Output**
+
+
 
 
