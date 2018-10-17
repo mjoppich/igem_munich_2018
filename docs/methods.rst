@@ -34,7 +34,7 @@ From a Typescript interface to functionality
 ====
 
 .. image:: ./images/sequinto_flow.png
-   :scale: 40
+   :scale: 50
 
 The user interface of *sequ-into* is based on Electron and React and written in Typescript. However, the functionality of our app depends on a python script (ContamTool.py_) in the background, that must be called according to the users request.
 
