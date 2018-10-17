@@ -16,13 +16,13 @@ Get started
 
 Step 1: Read files
 -------
-FastQ as well as Fast5 are suitable formats for evaluating your sequencing data with *sequ-into*.
+FastQ, as well as Fast5, are suitable formats for evaluating your sequencing data with *sequ-into*.
 
-In the first step you can choose which files you would like to seek into. Each chosen file or folder will be handled separately. This is also true if you upload them twice. 
+In the first step, you can choose which files you would like to seek into. Each chosen file or folder will be handled separately. This is also true if you upload them twice. 
 
 If you wish to examine certain reads together, e.g. because they stem from the same experiment, make sure to save them in a folder and upload that folder via *Choose Directory*. In order to analyze a single file, upload it via *Choose File*.
 
-As soon as you have chosen your files an output directory will be generated. You will find a temp folder where your read files reside. You can change that output directory and folder name at the bottom of the page if you click on the textfield.
+As soon as you have chosen your files an output directory will be generated. You will find a temp folder where your read files reside. You can change that output directory and folder name at the bottom of the page if you click on the text field.
 
 After that, click *Next* to proceed.
 
@@ -35,11 +35,11 @@ Step 2: Reference files
 -------
 To check what your sequencing files truly consist of you need a reference against which the reads will be mapped. 
 
-That reference might be a possible contamination, such as *E. Coli*, or a targeted known genome of what you intended to sequence. Of course you can also use shorter sequences instead of a whole genome as a reference. For details on possible technical limitations, please see `GraphMap <https://github.com/isovic/graphmap>`_ and https://www.nature.com/articles/ncomms11307.
+That reference might be a possible contamination, such as *E. Coli*, or a targeted known genome of what you intended to sequence. Of course, you can also use shorter sequences instead of a whole genome as a reference. For details on possible technical limitations, please see `GraphMap <https://github.com/isovic/graphmap>`_ and https://www.nature.com/articles/ncomms11307.
 
 Mapping is possible against RNA as well as against DNA sequences, as long as they are in the FastA Format. You can find sequences for example on NCBI https://www.ncbi.nlm.nih.gov/genome/?term=.
 
-Click on *Choose Reference* to choose your reference files. You can selected as many files as you wish. These files will still be present after you used *Reset*, but are deleted when you close the application.
+Click on *Choose Reference* to choose your reference files. You can select as many files as you wish. These files will still be present after you used *Reset*, but are deleted when you close the application.
 
 If you work with certain references repeatedly they can also be saved in the app so that they are available every time even after you closed *sequ-into*. For this, choose the reference via *Save Contaminants*. Your own references can always be deleted from *sequ-into* later on, just click the trash can to do so.
 
@@ -72,7 +72,7 @@ Aligned reads consist out of bases. These bases are called the *aligned bases*. 
 
 To support the statistical information in the table visually we also added two pie charts that correspond to the relative and absolute values in the table. These two plots will help you to gain information about the number of bases and reads that were found in a reference file and make a conclusion about the possibility of contamination. 
 
-Additionally, there is a bar plot representing the distribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequencing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
+Additionally, there is a bar plot representing the distribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequencing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory** specified in Step 1.
 
 Section 2:
 -------
@@ -86,4 +86,4 @@ If you uploaded multiple references files one more filter will appear (*All refe
 
 With this filter, it is possible to refine sequencing data and consequently, achieve preferable results by downstream analysis. It can also give you a hint about the origin of the possible contamination, as the reads that are not mapped to the expected organism can be checked with `BLAST <https://blast.ncbi.nlm.nih.gov/Blast.cgi>`_.
 
-Once again all files will be saved in your output directory.
+Once again all files will be saved in your output directory specified in Step 1.
