@@ -27,7 +27,7 @@ As soon as you have chosen your files an output directory will be generated. You
 After that, click *Next* to proceed.
 
 .. image:: ./images/gastep1.png
-   :scale: 20
+   :scale: 40
 
 
 
@@ -48,7 +48,7 @@ If you work with certain references repeatedly they can also be saved in the app
 After that, click *Start* to run the calculations.
 
 .. image:: ./images/gastep2.png
-   :scale: 20
+   :scale: 40
 
 
 
@@ -69,7 +69,7 @@ To support the statistical information in the table visually we also added two p
 Additionally, there is a bar plot representing the distribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequencing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
 
 .. image:: ./images/T--Munich--Software_sequ_final.png
-   :scale: 20
+   :scale: 40
 
 In the section below you will find a filter which you can optionally use to extract and save distinguish parts of the read FastQ file: reads that were mapped to the reference (*aligned switch*) and those which were not (*not aligned switch*), in other words possibly contaminated reads and reads that can be used for downstream analysis (in case the reference FastA file you used is a possible contaminant. If you added the FastA file of the organism you expect to sequence, *not aligned* reads are contamination).
 
@@ -80,4 +80,4 @@ With this filter, it is possible to refine sequencing data and consequently, ach
 Once again all files will be saved in your output directory.
 
 .. image:: ./images/extractreads.png
-    :scale: 20
+    :scale: 30
