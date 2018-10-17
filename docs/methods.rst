@@ -199,7 +199,7 @@ With the pysam interface it is now easy to count the features of interest direct
 
 .. _here:
 
-**Output**
+**ContamTool.py Output**
 
 Every single read file is assest for each reference. ContamTool.py produces three images per reference from the generated data. A read length distribution of the original FastQ file/ files, and two pie charts showing the percentage of aligned and not aligned reads or bases.
 The collected data, as well as the paths to the images are dumped in a JSON file, per input file.
