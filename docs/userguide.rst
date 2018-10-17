@@ -41,7 +41,7 @@ Mapping is possible against RNA as well as against DNA sequences, as long as the
 
 Click on *Choose Reference* to choose your reference files. You can select as many files as you wish. These files will still be present after you used *Reset*, but are deleted when you close the application.
 
-If you work with certain references repeatedly they can also be saved in the app so that they are available every time even after you closed *sequ-into*. For this, choose the reference via *Save Contaminants*. Your own references can always be deleted from *sequ-into* later on, just click the trash can to do so.
+If you work with certain references repeatedly they can also be saved in the app so that they are available every time even after you closed *sequ-into*. Simply *Save Contaminants*. Your own references can always be deleted from *sequ-into* later on, just click the trash can to do so.
 
 **Keep in mind that calculation time increases with file size and file quantity!** Consider using the switches behind each reference to turn them off if you don't need them for your current run. They will still be available after you used *Reset*.
 

@@ -1,1 +1,1 @@
-[{"name":"Escherichia coli K-12 MG1655","path":"ecoli_k12_mg1655.fasta","type":"file","enabled":true,"protected":true,"appfile":true}]
+[{"name":"Escherichia coli K-12 MG1655","path":"ecoli_k12_mg1655.fasta","type":"file","enabled":true,"protected":true,"appfile":true},{"path":"C:\\igem\\demo_data_sequinto\\3S.phage.fasta","type":"file","enabled":true}]
