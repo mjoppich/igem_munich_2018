@@ -1164,6 +1164,7 @@ class TextMobileStepper extends React.Component<{}, {
         self.state.inputFiles.forEach(element => {
 
             var stats = fs.lstatSync(element.path)
+            
             if (stats.isDirectory()){
 
                 processFilesForElement[element.path] = [];
@@ -1188,6 +1189,8 @@ class TextMobileStepper extends React.Component<{}, {
                 processFilesForElement[element.path] = [self.normalizePath(element.path)];
             }
         });
+
+
 
         var processFileKeys = Object.keys(processFilesForElement);
         var totalProcessRuns:any = processFileKeys.length;
@@ -1217,6 +1220,8 @@ class TextMobileStepper extends React.Component<{}, {
 
             var refFiles: any = [];
 
+
+            
             self.state.inputRefs.forEach(element => {if (element.enabled)
                     {
                         console.log(element);
@@ -1294,7 +1299,7 @@ class TextMobileStepper extends React.Component<{}, {
             console.log(child)
 
             processOutput = child.output[1];
-            //console.log(processOutput);
+            console.log(`processOutput   ++++ ` + processOutput);
 
             if (child.status != 0)
             {
