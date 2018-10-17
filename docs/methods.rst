@@ -29,8 +29,10 @@ How does sequ-into achieve this?
 ====
 
 
-Python Call
+From a Typescript interface to functionality
 ====
+The user interface of *sequ-into* is based on Electron and React and written in Typescript. However, the functionality of our app depends on a python script (ContamTool.py_) in the background, that must be called according to the users request.
+
 
 **Read Files**
 
@@ -92,20 +94,20 @@ To make these files available even after the app is closed, we use a `JSON <http
 
 **Cross Plattform Compatibility**
 
-Now that the required data is accessible, the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
+Now that the required data is accessible, the python script (ContamTool.py_) handling the alignment, calculation and plotting can be called.
 
 As the alignment-tool_ we employed in our python script runs asynchron but since we have to make several calls for the functionality of *sequ-into*, one for each file per reference, we call the python script sequential.
 ::
 	child = spawnSync(
-        program, 
-        programArgs,
-            {
-                cwd: process.cwd(),
-                env: process.env,
-                stdio: 'pipe',
-                encoding: 'utf-8',
-                shell: useShell
-            })
+            program, 
+            programArgs,
+                {
+                    cwd: process.cwd(),
+                    env: process.env,
+                    stdio: 'pipe',
+                    encoding: 'utf-8',
+                    shell: useShell
+                })
 
 
 To facilitate this on every platform *sequ-into* formulates the call command accordingly.
@@ -137,7 +139,7 @@ On Windows, however, it is necessary to make the call `WSL <https://docs.microso
 The output of each python call - that is for each file per reference - is collected via another JSON file data structure. More details here_.
 
 
-
+.. _ContamTool.py:
 
 ContamTool.py
 ====
@@ -157,3 +159,5 @@ ContamTool.py
 .. _here:
 
 **Output**
+
+
