@@ -1133,6 +1133,10 @@ class TextMobileStepper extends React.Component<{}, {
 
    // ### STEP 4 ###
 
+
+
+
+   // SYNC + COMMAND ZUSAMMMENSETZUNG
     
 
 
@@ -1148,30 +1152,27 @@ class TextMobileStepper extends React.Component<{}, {
         self.state.inputFiles.forEach(element => {
 
             var stats = fs.lstatSync(element.path)
+            
             if (stats.isDirectory()){
                 var allFilesInDir = fs.readdirSync(element.path);
-
                 processFilesForElement[element.path] = [];
 
                 allFilesInDir.forEach((myFile:any) => {
                     if(myFile.toUpperCase().endsWith("FASTQ") || myFile.toUpperCase().endsWith("FQ")){
-
                         var pathToFile = self.normalizePath(path.join(element.path, myFile));
-
                         processFilesForElement[element.path].push(pathToFile)
-
                     }
                 });
 
-                if (processFilesForElement[element.path].length == 0)
-               {
+                if (processFilesForElement[element.path].length == 0){
                    self.extractReadsForFolder(element.path);
-               }
-               
+                }
             }else{
                 processFilesForElement[element.path] = [self.normalizePath(element.path)];
             }
         });
+
+
 
         var processFileKeys = Object.keys(processFilesForElement);
         var totalProcessRuns:any = processFileKeys.length;
@@ -1201,6 +1202,8 @@ class TextMobileStepper extends React.Component<{}, {
 
             var refFiles: any = [];
 
+
+            
             self.state.inputRefs.forEach(element => {if (element.enabled)
                     {
                         console.log(element);
@@ -1278,7 +1281,7 @@ class TextMobileStepper extends React.Component<{}, {
             console.log(child)
 
             processOutput = child.output[1];
-            //console.log(processOutput);
+            console.log(`processOutput   ++++ ` + processOutput);
 
             if (child.status != 0)
             {

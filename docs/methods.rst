@@ -112,8 +112,8 @@ To facilitate this on every platform *sequ-into* formulates the call command acc
 
 For a Unix system, this is simply:
 ::
-	var splitted_command = command.split(" ");
-	program = "python3";
+    var splitted_command = command.split(" ");
+    program = "python3";
     programArgs = splitted_command;
     useShell = true;
 
@@ -130,3 +130,26 @@ On Windows, however, it is necessary to make the call `WSL <https://docs.microso
 	program = "bash";
 	programArgs = splitCmd;
 	useShell = false;
+
+
+**Script Output**
+
+The output of each python call - that is for each file per reference - is collected via another JSON file data structure. More details here_.
+
+
+
+
+ContamTool.py
+====
+
+**Read File Handeling**
+
+**Calling the Alignment Tool GraphMap**
+
+**Evaluating the GraphMap Output**
+
+**Extracting Read Files**
+
+
+.. _here:
+**Output**
