@@ -80,11 +80,13 @@ With this filter, it is possible to refine sequencing data and consequently, ach
 Once again all files will be saved in your output directory.
 
 **Statistical Overview**
+
 .. image:: ./images/contamresults.png
    :scale: 20
 
 
 
 **Saving of filtered files**
+
 .. image:: ./images/extractreads.png
     :scale: 20
