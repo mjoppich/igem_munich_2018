@@ -75,9 +75,9 @@ In the section below you will find a filter which you can optionally use to extr
 
 If you uploaded multiple references files one more filter will appear (*All references*): filter of reads that are aligned to **all** references or reads that are aligned to **none** of the references. 
 
-With this filter, it is possible to refine sequencing data and consequently preferable results by downstream analysis. It can also give you a hint about the origin of the possible contamination, as the reads that are not mapped to the expected organism can be checked with `BLAST <https://blast.ncbi.nlm.nih.gov/Blast.cgi>`_.
+With this filter, it is possible to refine sequencing data and consequently, achieve preferable results by downstream analysis. It can also give you a hint about the origin of the possible contamination, as the reads that are not mapped to the expected organism can be checked with `BLAST <https://blast.ncbi.nlm.nih.gov/Blast.cgi>`_.
 
-
+Once again all files will be saved in your output directory.
 
 **Statistical Overview**
 .. image:: ./images/contamresults.png
