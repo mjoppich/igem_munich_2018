@@ -72,7 +72,7 @@ Aligned reads consist out of bases. These bases are called the *aligned bases*. 
 
 To support the statistical information in the table visually we also added two pie charts that correspond to the relative and absolute values in the table. These two plots will help you to gain information about the number of bases and reads that were found in a reference file and make a conclusion about the possibility of contamination. 
 
-Additionally, there is a bar plot representing the distribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequencing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
+Additionally, there is a bar plot representing the distribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequencing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory** specified in Step 1.
 
 Section 2:
 -------
@@ -86,4 +86,4 @@ If you uploaded multiple references files one more filter will appear (*All refe
 
 With this filter, it is possible to refine sequencing data and consequently, achieve preferable results by downstream analysis. It can also give you a hint about the origin of the possible contamination, as the reads that are not mapped to the expected organism can be checked with `BLAST <https://blast.ncbi.nlm.nih.gov/Blast.cgi>`_.
 
-Once again all files will be saved in your output directory.
+Once again all files will be saved in your output directory specified in Step 1.
