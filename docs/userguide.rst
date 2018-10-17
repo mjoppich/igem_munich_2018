@@ -6,8 +6,7 @@ User Guide
 
 How to get sequ-into?
 ====
-You can use *sequ-into* on a Mac OS, Linux as well as on a Windows System. Please follow the respective instructions in our installation guide.
-:ref:`installguide`
+You can use *sequ-into* on a Mac OS, Linux as well as on a Windows System. Please follow the respective instructions in our :ref:`installguide` guide.
 
 
 
@@ -36,7 +35,7 @@ Step 2: Reference files
 -------
 To check what your sequencing files truly consist of you need a reference against which the reads will be mapped. 
 
-That reference might be a possible contamination, such as E. Coli, or a targeted known genome of what you intended to sequence. Of course you can also use shorter sequences instead of a whole genome as a reference. For details on possible technical limitations, please see https://github.com/isovic/graphmap and https://www.nature.com/articles/ncomms11307.
+That reference might be a possible contamination, such as *E. Coli*, or a targeted known genome of what you intended to sequence. Of course you can also use shorter sequences instead of a whole genome as a reference. For details on possible technical limitations, please see `GraphMap <https://github.com/isovic/graphmap>`_ and https://www.nature.com/articles/ncomms11307.
 
 Mapping is possible against RNA as well as against DNA sequences, as long as they are in the FastA Format. You can find sequences for example on NCBI https://www.ncbi.nlm.nih.gov/genome/?term=.
 
@@ -57,25 +56,35 @@ Step 3: Results
 -------
 
 
-The Results consist of two parts:a statistical overview on how your reads mapped to the reference(s) and the
-possibility to extract and save only those filtered reads you need for your downstream analysis.
-saved ->
+The Results consist of two sections: a statistical overview on how your reads mapped to the reference(s) and the filter to extract and save only those reads you need for your downstream analysis.
+
+For each combination of FastQ (file/directory) with FastA you will find one table and three plots. 
+
+The table includes read and base frequencies in the reference FastA file. For reads, you receive the information about aligned or not aligned reads. It is not always sufficient enough to rely only on reads in the further analysis. The different read sizes can cause the wrong interpretation of the data: three contaminated reads of length 50 bp or 5000 bp make a big difference despite the fact that there is three of them in both cases. For making proper conclusions about the data it is useful to take a look on the bases as well. For bases, it is important to note that there are two different definitions: *alignment bases* and *aligned bases*. 
+
+Aligned reads consist out of bases. These bases are called the *aligned bases*. On the other hand, the bases that are indeed aligned, means mapped to the base in the reference and are not skipped, are called *alignment bases*. 
+
+To support the statistical information in the table visually we also added two pie charts that correspond to the relative and absolute values in the table. These two plots will help you to gain information about the number of bases and reads that were found in a reference file and make a conclusion about the possibility of contamination. 
+
+Additionally, there is a bar plot representing the distribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequencing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
 
 .. image:: ./images/gastep3.png
    :scale: 20
 
+In the section below you will find a filter which you can optionally use to extract and save distinguish parts of the read FastQ file: reads that were mapped to the reference (*aligned switch*) and those which were not (*not aligned switch*), in other words possibly contaminated reads and reads that can be used for downstream analysis (in case the reference FastA file you used is a possible contaminant. If you added the FastA file of the organism you expect to sequence, *not aligned* reads are contamination).
 
+If you uploaded multiple references files one more filter will appear (*All references*): filter of reads that are aligned to **all** references or reads that are aligned to **none** of the references. 
 
+With this filter, it is possible to refine sequencing data and consequently, achieve preferable results by downstream analysis. It can also give you a hint about the origin of the possible contamination, as the reads that are not mapped to the expected organism can be checked with `BLAST <https://blast.ncbi.nlm.nih.gov/Blast.cgi>`_.
 
-
-
+Once again all files will be saved in your output directory.
 
 **Statistical Overview**
-.. image:: ./images/gastep3.png
-   :scale: 40
+.. image:: ./images/contamresults.png
+   :scale: 20
 
 
 
 **Saving of filtered files**
-.. image:: ./images/4.png
-    :scale: 40
+.. image:: ./images/extractreads.png
+    :scale: 20

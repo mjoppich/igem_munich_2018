@@ -40,28 +40,20 @@ Enter this in your terminal:
     conda config --add channels bioconda
     conda config --add channels conda-forge
 
-3. `**GraphMap** <https://github.com/isovic/graphmap>`_ 
-
-Enter this in your terminal: 
+3. **GraphMap** 
 ::
     conda install graphmap
 
 4. **h5py**
-
-Enter this in your terminal: 
 ::
     conda install -c anaconda h5py
 
 5. **pysam**
-
-Enter this in your terminal: 
 ::
     conda config --add channels r
     conda install pysam
 
 6. **HTseq**
-
-Enter this in your terminal:
 ::
     conda install htseq
 
