@@ -197,19 +197,45 @@ With the pysam interface it is now easy to count the features of interest direct
 			alignedReads += 1
 
 
-
-
-
-
-
-
-
-
-
-
 .. _here:
 
 **Output**
+
+kjhflks
+::
+    {
+    "/pathToReference/ecoli_k12_mg1655.fasta": 
+        {
+            "totalReads": 7, 
+            "alignedReads": 0, 
+            "totalBases": 62387, 
+            "alignmentBases": 0, 
+            "alignedLength": 0, 
+            "idAlignedReads": [], 
+            "idNotAlignedReads": ["c9a72623-c55c-4464-ac5e-d1e70cea8466", "4b57cb5c-0c3d-4650-9d57-c94cf4aea2ef", ...], 
+            "readLengthPlot": "/outputPath/file2_ecoli_k12_mg1655_ref1_ref2_reads_length.png", 
+            "readsPie": "/outputPath/file2_ecoli_k12_mg1655_ref1_ref2_read_pie.png", 
+            "basesPie": "/outputPath/file2_ecoli_k12_mg1655_ref1_ref2_bases_pie.png", 
+            "refs": ["/pathToReference/ecoli_k12_mg1655.fasta"]}, 
+    
+    "/Users/juliamayer/Downloads/des/electron/ref1.fasta": 
+        {
+            "totalReads": 7, 
+            "alignedReads": 0, 
+            ...},
+
+    "/Users/juliamayer/Downloads/des/electron/ref2.fasta":
+        {
+            "totalReads": 7, 
+            "alignedReads": 0, 
+            ...}
+
+
+
+
+
+
+
 
 
 
