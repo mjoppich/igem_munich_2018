@@ -237,10 +237,10 @@ The collected data, as well as the paths to the images are dumped in a JSON file
 
 Besides the contamination evaluation, *sequ-into* furthermore allows for a separation of the reads into the ones that aligned to the reference versus the ones that that did not align.
 It generates new FastQ files according to the users inquiry which can then be used in a more elaborate downstream analysis.
-One notable possibility that *sequ-into* offers, is the extraction of reads against several references at once. Exporting only those reads in the end that represent the intersection of reads aligned against all references or none, according to set theory.
+One notable possibility that *sequ-into* offers, is the extraction of reads against several references at once. Exporting only those reads in the end that represent the intersection (red) of reads aligned against all references or none, according to set theory.
 
 .. image:: ./images/intersection.png
-   :scale: 40
+   :scale: 50
 
 
 
