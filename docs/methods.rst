@@ -250,7 +250,4 @@ Now that the required data is accessible the python script (ContamTool.py) handl
 
 .. _here:
 
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-
-
 **Output**
