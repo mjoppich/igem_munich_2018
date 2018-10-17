@@ -92,7 +92,7 @@ To make these files available even after the app is closed, we use a `JSON <http
 
 **Cross Plattform Compatibility**
 
-Now that the required data is accessible the python script handling the alignment, calculation and plotting can be called.
+Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
 
 As the alignment tool we employed in our python script runs asynchron but we have to make several calls for the functionality of *sequ-into*, one for each file per reference, we call the python script sequential.
 ::

@@ -1133,11 +1133,23 @@ class TextMobileStepper extends React.Component<{}, {
 
    // ### STEP 4 ###
 
+        getAllReadFilesFromDir(dirPath: any)
+        {
+            var self = this;
+            var allFilesInDir = fs.readdirSync(dirPath);
+            var reportedFiles:any = [];
 
+            allFilesInDir.forEach((myFile:any) => {
+                if(myFile.toUpperCase().endsWith("FASTQ") || myFile.toUpperCase().endsWith("FQ")){
 
+                    var pathToFile = self.normalizePath(path.join(dirPath, myFile));
 
-   // SYNC + COMMAND ZUSAMMMENSETZUNG
-    
+                    reportedFiles.push(pathToFile);
+                }
+            });
+
+            return reportedFiles;
+        }
 
 
        async startPython() {
@@ -1154,19 +1166,25 @@ class TextMobileStepper extends React.Component<{}, {
             var stats = fs.lstatSync(element.path)
             
             if (stats.isDirectory()){
-                var allFilesInDir = fs.readdirSync(element.path);
+
                 processFilesForElement[element.path] = [];
 
-                allFilesInDir.forEach((myFile:any) => {
-                    if(myFile.toUpperCase().endsWith("FASTQ") || myFile.toUpperCase().endsWith("FQ")){
-                        var pathToFile = self.normalizePath(path.join(element.path, myFile));
-                        processFilesForElement[element.path].push(pathToFile)
-                    }
-                });
+                var allFoundFiles: any = self.getAllReadFilesFromDir(element.path);
 
-                if (processFilesForElement[element.path].length == 0){
-                   self.extractReadsForFolder(element.path);
+                if (allFoundFiles.length == 0)
+                {
+                    console.log("Extracting redas" + element.path);
+                    // extract reads
+                    self.extractReadsForFolder(element.path);
+                    // get extracted reads
+                    allFoundFiles = self.getAllReadFilesFromDir(element.path);
                 }
+
+                console.log("All found files")
+                console.log(allFoundFiles)
+
+                processFilesForElement[element.path] = allFoundFiles;
+               
             }else{
                 processFilesForElement[element.path] = [self.normalizePath(element.path)];
             }
@@ -1790,7 +1808,9 @@ class TextMobileStepper extends React.Component<{}, {
 
     extractReadsForFolder(folderPath: string)
    {
-           var command = this.getExtractReadsToolPath() + " --count 1000 --folder " + folderPath;
+        var nfolderPath = this.normalizePath(folderPath)
+
+           var command = this.getExtractReadsToolPath() + " --count 1000 --folder " + nfolderPath;
 
            var program = "";
            var programArgs = null;
