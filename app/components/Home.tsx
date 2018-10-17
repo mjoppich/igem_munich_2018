@@ -615,7 +615,7 @@ class TextMobileStepper extends React.Component<{}, {
 
                  <Typography gutterBottom>
                     Click on <em>Choose Reference</em> to choose your reference files. You can selected as many files as you wish. These files will still be present after you used <em>Reset</em>, but are deleted when you close the application.
-                    If you work with certain references repeatedly they can also be saved in the app to make them available every time - even after you closed sequ-into. For this, choose the reference via <em>Save Contaminants</em>. Your own references can always be deleted from sequ-into later on, just click the trash icon to do so.
+                    If you work with certain references repeatedly they can also be saved in the app to make them available every time - even after you closed sequ-into. For this, choose simply <em>Save Contaminants</em>. Your own references can always be deleted from sequ-into later on, just click the trash icon to do so.
                  </Typography>
 
                  <Typography gutterBottom>
