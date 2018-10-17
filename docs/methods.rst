@@ -24,60 +24,83 @@ The distribution of read length from the original files and the results of these
    :scale: 30
 
 
-
-
-
-
-
-
-
-
-
-
 ====
 How does sequ-into achieve this?
 ====
 
 
-App Interaction
+Python Call
 ====
-@Markus! :o ???
-To allow for a python script to run in a typescript environment it was necessary to synchronize?
 
-home.tsx -> 1143
+**Read Files**
 
+*sequ-into* is able to deal with both, the FastQ as well as the Fast5 format. If the latter is used, we extract the base called sequences and convert them into the FastQ format.
 
+Thanks to the fact that the Fast5 format is in fact `HDF5 <https://support.hdfgroup.org/HDF5/>`_, a file format that can contain an unlimited variety of datatypes while allowing for input/output of complex data, it was possible to manipulate the files with the `h5py <https://www.h5py.org>`_ python interface efficiently.
+To prevent excessive runtimes in our app, there is currently a processing limit of 1000 reads per Fast5 file.
 
-Sequencing Files
-====
-Depending on your routine, the sequencing files already contain the sequence of the single reads (FastQ) or the base calling is still needed to be done (FastQ).
-*sequ-into* can handle either one thanks to an script that handles the bascalling. 
-@Markus
-
-
-.py :
-
-Dir vs file
--> 74
-
-As soon as the sequences of the reads are obtained 
-The sequencing files are examined in two ways. For a start we look at 
--> 89
-
-
-Calling GraphMap
-====
--> 114
+.. code:: bash
+	return OrderedDict([
+            (Fast5TYPE.BASECALL_2D, '/Analyses/Basecall_2D_%03d/'),
+            (Fast5TYPE.BASECALL_1D_COMPL, '/Analyses/Basecall_1D_%03d/'),
+            (Fast5TYPE.BASECALL_1D, '/Analyses/Basecall_1D_%03d/'),
+            (Fast5TYPE.BASECALL_RNN_1D, '/Analyses/Basecall_RNN_1D_%03d/'),
+            (Fast5TYPE.BARCODING, '/Analyses/Barcoding_%03d/'),
+            (Fast5TYPE.PRE_BASECALL, '/Analyses/EventDetection_%03d/')
+        ])
 
 
 
-Analyzing results of GraphMap
-====
-sam -> 128
+After acquiring the sequenced data meant to be analyzed, *sequ-into* handles each uploaded file/folder as a separated call. In the case of a folder, *sequ-into* searches for each file in that directory down to the deepest level of the directory tree.
+
+.. code:: bash
+	self.state.inputFiles.forEach(element => {
+
+            var stats = fs.lstatSync(element.path)
+            
+            if (stats.isDirectory()){
+                var allFilesInDir = fs.readdirSync(element.path);
+                processFilesForElement[element.path] = [];
+
+                allFilesInDir.forEach((myFile:any) => {
+                    if(myFile.toUpperCase().endsWith("FASTQ") || myFile.toUpperCase().endsWith("FQ")){
+                        var pathToFile = self.normalizePath(path.join(element.path, myFile));
+                        processFilesForElement[element.path].push(pathToFile)
+                    }
+                });
+
+                if (processFilesForElement[element.path].length == 0){
+                   self.extractReadsForFolder(element.path);
+                }
+            }else{
+                processFilesForElement[element.path] = [self.normalizePath(element.path)];
+            }
+        });
 
 
-Extract Files
-====
--> 216
+All files that are pooled in a folder are handled as one FastQ file in the further steps.
+
+.. code:: bash
+	fastqFile = os.path.join(output_dir, prefix + "complete.fastq")
+	os.system("cat " + ' '.join(read_file) + " > " + fastqFile)
+
+
+
+**Reference Files**
+The next step is to acquire the FastA files that are used as a reference for the alignment. As the user might have similar requests repeatedly, it is possible to save reference files in the app itself.
+To make these files available even after the app is closed, we use a `JSON <https://www.json.org>`_ file internally to store their paths together with our default genome of *Escherichia coli* K-12 MG1655.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
