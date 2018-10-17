@@ -60,22 +60,22 @@ The Results consist of two sections: a statistical overview on how your reads ma
 
 For each combination of FastQ (file/directory) with FastA you will find one table and three plots. 
 
-The table includes read and base frequencies in the reference FastA file. For reads you recieve the information about aligned or not aligned reads. It is not always sufficient enought to rely only on reads in the further analysis. The different read sizes can cause the wrong interpretation of the data: three contaminanted reads of length 50 bp or 5000 bp make a big difference despite the fact that there is three of them in both cases. For making a proper conlusion about the data it is useful to take a look on the bases as well. For bases it is important to note that there are two different definitions: *alignment bases* and *aligned bases*. 
+The table includes read and base frequencies in the reference FastA file. For reads, you receive the information about aligned or not aligned reads. It is not always sufficient enough to rely only on reads in the further analysis. The different read sizes can cause the wrong interpretation of the data: three contaminated reads of length 50 bp or 5000 bp make a big difference despite the fact that there is three of them in both cases. For making proper conclusions about the data it is useful to take a look on the bases as well. For bases, it is important to note that there are two different definitions: *alignment bases* and *aligned bases*. 
 
-Aligned reads consist out of bases. This bases are called the *aligned bases*. On the other hand, the bases that are indeed aligned, means mapped to the the base in the refernce and are not skipped, are called *alignment bases*. 
+Aligned reads consist out of bases. These bases are called the *aligned bases*. On the other hand, the bases that are indeed aligned, means mapped to the base in the reference and are not skipped, are called *alignment bases*. 
 
-To support the statistical information in the table visualy we also added two pie charts that correspond to the relative and absolute values in the table. These two plots will help you to gain the information about the amount of bases and reads that were found in a refence file and make a conclusion about the posibility of contamination. 
+To support the statistical information in the table visually we also added two pie charts that correspond to the relative and absolute values in the table. These two plots will help you to gain information about the number of bases and reads that were found in a reference file and make a conclusion about the possibility of contamination. 
 
-Additionally, there is a bar plot representing the destribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequecing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
+Additionally, there is a bar plot representing the distribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequencing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
 
 .. image:: ./images/gastep3.png
    :scale: 20
 
-In the section bellow you will find a filter which you can optionaly use to extract and save distinguish patrs of the read FastQ file: reads that were mapped to the reference (*aligned switch*) and those which were not (*not aligned switch*), in other words possibly contaminated reads and reads that can be used for downstream analysis (in case the reference FastA file you used is a possible contaminant. If you added the FastA file of the organism you expect to sequence, *not aligned* reads are contamination).
+In the section below you will find a filter which you can optionally use to extract and save distinguish parts of the read FastQ file: reads that were mapped to the reference (*aligned switch*) and those which were not (*not aligned switch*), in other words possibly contaminated reads and reads that can be used for downstream analysis (in case the reference FastA file you used is a possible contaminant. If you added the FastA file of the organism you expect to sequence, *not aligned* reads are contamination).
 
-If you uploaded multiple reference files one more filter will appear (*All references*): filter of reads that are aligned to **all** references or reads that are aligned to **none** of the references. 
+If you uploaded multiple references files one more filter will appear (*All references*): filter of reads that are aligned to **all** references or reads that are aligned to **none** of the references. 
 
-With this filter it is possible to refine sequencing data and consequently preferable results by downstream analysis. It can also give you a hint about the origin of the possible contamination, as the reads that are not mapped to the expacted organism can be checked with `BLAST <https://blast.ncbi.nlm.nih.gov/Blast.cgi>`_.
+With this filter, it is possible to refine sequencing data and consequently preferable results by downstream analysis. It can also give you a hint about the origin of the possible contamination, as the reads that are not mapped to the expected organism can be checked with `BLAST <https://blast.ncbi.nlm.nih.gov/Blast.cgi>`_.
 
 
 
