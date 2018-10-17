@@ -168,7 +168,7 @@ The idea behind *sequ-into* that enables finding possible contaminations and dec
 
 Nanopore sequencing data, however, comes with certain obstacles that complicate alignments. 
 On the one hand, because of Nanopores high-throughput nature, the data size means that alignment algorithms commonly used are too slow - something that was overcome only with a tradeoff to lower sensitivity. On the other hand, the variable error profile of ONT MinION sequencers made parameter tuning mandatory to gain high sensitivity and precision.
-What makes *sequ-into* a reliable tool nevertheless, is GraphMap. This mapping algorithm is specifically designed to analyse nanopore sequencing reads, while it handles potentially high-error rates robustly  and aligns long reads with speed and high precision thanks to a fast graph traversal. (`Nature 2016, Sovic et al. <https://www.nature.com/articles/ncomms11307>`)
+What makes *sequ-into* a reliable tool nevertheless, is GraphMap. This mapping algorithm is specifically designed to analyse nanopore sequencing reads, while it handles potentially high-error rates robustly  and aligns long reads with speed and high precision thanks to a fast graph traversal. (`Nature 2016, Sovic et al. <https://www.nature.com/articles/ncomms11307>`_)
 ::
 	for file in cont_file:
 		sam_file_name = os.path.split(file)[1][:-6]+".sam"
