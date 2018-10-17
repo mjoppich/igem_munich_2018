@@ -52,7 +52,7 @@ To prevent excessive runtimes in our app, there is currently a processing limit 
 
 After acquiring the sequenced data meant to be analyzed, *sequ-into* handles each uploaded file/folder as a separated call. In the case of a folder, *sequ-into* searches for each file in that directory down to the deepest level of the directory tree.
 ::
-	self.state.inputFiles.forEach(element => {
+    self.state.inputFiles.forEach(element => {
 
             var stats = fs.lstatSync(element.path)
             
@@ -90,12 +90,40 @@ To make these files available even after the app is closed, we use a `JSON <http
 
 
 
+**Cross Plattform Compatibility**
 
+Now that the required data is accessible the python script handling the alignment, calculation and plotting can be called.
 
-Enter this in your terminal: 
+As the alignment tool we employed in our python script runs asynchron but we have to make several calls for the functionality of *sequ-into*, one for each file per reference, we call the python script sequential.
 ::
-    conda config --add channels defaults
-    conda config --add channels bioconda
-    conda config --add channels conda-forge
+	child = spawnSync(program, programArgs,{
+                cwd: process.cwd(),
+                env: process.env,
+                stdio: 'pipe',
+                encoding: 'utf-8',
+                shell: useShell
+            })
 
 
+To facilitate this on every platform *sequ-into* formulates the call command accordingly.
+
+For a Unix system, this is simply:
+::
+	var splitted_command = command.split(" ");
+	program = "python3";
+       programArgs = splitted_command;
+       useShell = true;
+
+
+For Mac OS, the explicit path to all files is needed additionally:
+::
+	var np = shellPath.sync();
+	process.env.PATH = np; 
+
+
+On Windows, however, it is necessary to make the call `WSL <https://docs.microsoft.com/en-us/windows/wsl/about>` compatible:
+::
+	var splitCmd = ["-i", "-c", "python3 " + command];
+	program = "bash";
+	programArgs = splitCmd;
+	useShell = false;
