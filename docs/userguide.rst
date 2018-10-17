@@ -73,9 +73,9 @@ Additionally, there is a bar plot representing the destribution of the read leng
 
 In the section bellow you will find a filter which you can optionaly use to extract and save distinguish patrs of the read FastQ file: reads that were mapped to the reference (*aligned switch*) and those which were not (*not aligned switch*), in other words possibly contaminated reads and reads that can be used for downstream analysis (in case the reference FastA file you used is a possible contaminant. If you added the FastA file of the organism you expect to sequence, *not aligned* reads are contamination).
 
-If you uploaded more than one reference file one more filter will appear (*All references*): filter of reads that are aligned to **all** references or reads that are aligned to **none** of the references. 
+If you uploaded multiple reference files one more filter will appear (*All references*): filter of reads that are aligned to **all** references or reads that are aligned to **none** of the references. 
 
-
+With this filter it is possible to refine sequencing data and consequently preferable results by downstream analysis. It can also give you a hint about the origin of the possible contamination, as the reads that are not mapped to the expacted organism can be checked with `BLAST <https://blast.ncbi.nlm.nih.gov/Blast.cgi>`_.
 
 
 
