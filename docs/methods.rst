@@ -17,11 +17,12 @@ To make this possible we run a python script in the background that relies on `H
 What does sequ-into do?
 ====
 
+.. image:: ./images/workflow_overview.png
+   :scale: 30
+
 In order to be able to draw conclusions of the sequencing quality in general and the composition of the data - in terms of contaminations versus the true sequencing traget - the reads are mapped to references. The reference being either a possible contamination, leaving your desired reads unaligned, or your target sequence, meaning your designated reads are the ones that did align.
 The distribution of read length from the original files and the results of these alignments are then elucidated in a statistical overview and employed to separate those reads you aimed for from those that were sequenced involuntary.
 
-.. image:: ./images/workflow_overview.png
-   :scale: 30
 
 
 ====
@@ -31,6 +32,10 @@ How does sequ-into achieve this?
 
 From a Typescript interface to functionality
 ====
+
+.. image:: ./images/sequinto_flow.png
+   :scale: 30
+
 The user interface of *sequ-into* is based on Electron and React and written in Typescript. However, the functionality of our app depends on a python script (ContamTool.py_) in the background, that must be called according to the users request.
 
 
@@ -169,12 +174,13 @@ The idea behind *sequ-into* that enables finding possible contaminations and dec
 Nanopore sequencing data, however, comes with certain obstacles that complicate alignments. 
 On the one hand, because of Nanopores high-throughput nature, the data size means that alignment algorithms commonly used are too slow - something that was overcome only with a tradeoff to lower sensitivity. On the other hand, the variable error profile of ONT MinION sequencers made parameter tuning mandatory to gain high sensitivity and precision.
 What makes *sequ-into* a reliable tool nevertheless, is GraphMap. This mapping algorithm is specifically designed to analyse nanopore sequencing reads, while it handles potentially high-error rates robustly  and aligns long reads with speed and high precision thanks to a fast graph traversal. (`Nature 2016, Sovic et al. <https://www.nature.com/articles/ncomms11307>`_)
+
+For each reference, GraphMap is called with the input read file, generating a `Sequence Alignment Map <https://samtools.github.io/hts-specs/SAMv1.pdf>`_.
 ::
 	for file in cont_file:
 		sam_file_name = os.path.split(file)[1][:-6]+".sam"
 		samFile = os.path.join(output_dir,prefix + sam_file_name)
 		os.system("graphmap align -r "+file+" -d "+read_file+" -o "+samFile)
-		sam_fasta_pairs.append( (file, samFile) )
 
 
 
