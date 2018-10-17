@@ -64,6 +64,15 @@ for file in cont_file:
         print('Contamination file does not exist \n *Please no spaces in file name!*')
         exit()
 
+
+
+
+
+
+
+
+# ALL FASTQ IN EIN FILE PER AUFRUF
+
 fastqFile = os.path.join(output_dir, prefix + "complete.fastq")
 
 os.system("cat " + ' '.join(read_file) + " > " + fastqFile)
@@ -95,12 +104,26 @@ if makeImages:
 
 sam_fasta_pairs = []
 
+
+
+
+
+
+# GRAPHMAP AUFRUF
+
 for file in cont_file:
     sam_file_name = os.path.split(file)[1][:-6]+".sam"
     samFile = os.path.join(output_dir,prefix + sam_file_name)
 
     os.system("graphmap align -r "+file+" -d "+read_file+" -o "+samFile)
     sam_fasta_pairs.append( (file, samFile) )
+
+
+
+
+
+
+# SAM FILE BEARBEITUNG
 
 import pysam
 sam_file_to_dict = dict()
@@ -120,6 +143,9 @@ for fastaFile, samFilePath in sam_fasta_pairs:
 
     fasta_file_name = fastaFile
     samFile = pysam.AlignmentFile(samFilePath, "r")
+
+    # iterator
+
 
     for aln in samFile:
         totalBases += len(aln.seq)
@@ -186,6 +212,12 @@ print(json.dumps(fasta_file_to_dict))
 
 
 
+
+# SAVE FILES
+
+# INTERSECTION OF SET -> make picture
+
+
 if extracted_not_aligned:
     output_path = os.path.join(output_dir, "_".join(extracted_not_aligned))
     intersected_reads = []
@@ -220,6 +252,9 @@ if extracted_aligned:
             myread = HTSeq.SequenceWithQualities(read.seq, read.name, read.qualstr)
             myread.write_to_fastq_file(my_fastq_file)
     my_fastq_file.close()
+
+
+
 
 
 deleteFileSilently(read_file)
