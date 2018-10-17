@@ -18,7 +18,7 @@ What does sequ-into do?
 ====
 
 .. image:: ./images/workflow_overview.png
-   :scale: 30
+   :scale: 40
 
 In order to be able to draw conclusions of the sequencing quality in general and the composition of the data - in terms of contaminations versus the true sequencing traget - the reads are mapped to references. The reference being either a possible contamination, leaving your desired reads unaligned, or your target sequence, meaning your designated reads are the ones that did align.
 The distribution of read length from the original files and the results of these alignments are then elucidated in a statistical overview and employed to separate those reads you aimed for from those that were sequenced involuntary.
@@ -34,7 +34,7 @@ From a Typescript interface to functionality
 ====
 
 .. image:: ./images/sequinto_flow.png
-   :scale: 30
+   :scale: 40
 
 The user interface of *sequ-into* is based on Electron and React and written in Typescript. However, the functionality of our app depends on a python script (ContamTool.py_) in the background, that must be called according to the users request.
 
@@ -185,6 +185,16 @@ For each reference, GraphMap is called with the input read file, generating a `S
 
 
 **Evaluating the GraphMap Output**
+
+With the pysam interface it is now easy to count the features of interest directly from the corresponding sam file for each reference:
+::
+	for aln in samFile:
+		totalBases += len(aln.seq)
+		totalReads += 1
+		if not aln.is_unmapped:
+			alignmentBases += aln.alen
+			alignedLength += len(aln.seq)
+			alignedReads += 1
 
 
 
