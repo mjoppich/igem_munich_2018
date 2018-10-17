@@ -78,11 +78,7 @@ After acquiring the sequenced data meant to be analyzed, *sequ-into* handles eac
         });
 
 
-All files that are pooled in a folder are handled as one FastQ file in the further steps.
-::
-	fastqFile = os.path.join(output_dir, prefix + "complete.fastq")
-	os.system("cat " + ' '.join(read_file) + " > " + fastqFile)
-
+All files that are pooled in a folder are handled as one file in the further steps, resulting in a combined analysis of all the files in that folder.
 
 
 **Reference Files**
@@ -149,8 +145,20 @@ ContamTool.py
 As mentioned above the functionality of *sequ-into* depends on this python script that assesses the input read file, coordinates the alignment, interprets the alignment results and allows for read extraction according to the gained knowledge.
 
 
+**Read File Handling**
 
-**Read File Handeling**
+All files that are pooled in a folder are handled as one FastQ file in the further steps.
+::
+	fastqFile = os.path.join(output_dir, prefix + "complete.fastq")
+	os.system("cat " + ' '.join(read_file) + " > " + fastqFile)
+
+
+
+
+
+
+
+
 
 .. _alignment-tool:
 
