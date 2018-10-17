@@ -16,13 +16,13 @@ Get started
 
 Step 1: Read files
 -------
-FastQ as well as Fast5 are suitable formats for evaluating your sequencing data with *sequ-into*.
+FastQ, as well as Fast5, are suitable formats for evaluating your sequencing data with *sequ-into*.
 
-In the first step you can choose which files you would like to seek into. Each chosen file or folder will be handled separately. This is also true if you upload them twice. 
+In the first step, you can choose which files you would like to seek into. Each chosen file or folder will be handled separately. This is also true if you upload them twice. 
 
 If you wish to examine certain reads together, e.g. because they stem from the same experiment, make sure to save them in a folder and upload that folder via *Choose Directory*. In order to analyze a single file, upload it via *Choose File*.
 
-As soon as you have chosen your files an output directory will be generated. You will find a temp folder where your read files reside. You can change that output directory and folder name at the bottom of the page if you click on the textfield.
+As soon as you have chosen your files an output directory will be generated. You will find a temp folder where your read files reside. You can change that output directory and folder name at the bottom of the page if you click on the text field.
 
 After that, click *Next* to proceed.
 
@@ -35,11 +35,11 @@ Step 2: Reference files
 -------
 To check what your sequencing files truly consist of you need a reference against which the reads will be mapped. 
 
-That reference might be a possible contamination, such as *E. Coli*, or a targeted known genome of what you intended to sequence. Of course you can also use shorter sequences instead of a whole genome as a reference. For details on possible technical limitations, please see `GraphMap <https://github.com/isovic/graphmap>`_ and https://www.nature.com/articles/ncomms11307.
+That reference might be a possible contamination, such as *E. Coli*, or a targeted known genome of what you intended to sequence. Of course, you can also use shorter sequences instead of a whole genome as a reference. For details on possible technical limitations, please see `GraphMap <https://github.com/isovic/graphmap>`_ and https://www.nature.com/articles/ncomms11307.
 
 Mapping is possible against RNA as well as against DNA sequences, as long as they are in the FastA Format. You can find sequences for example on NCBI https://www.ncbi.nlm.nih.gov/genome/?term=.
 
-Click on *Choose Reference* to choose your reference files. You can selected as many files as you wish. These files will still be present after you used *Reset*, but are deleted when you close the application.
+Click on *Choose Reference* to choose your reference files. You can select as many files as you wish. These files will still be present after you used *Reset*, but are deleted when you close the application.
 
 If you work with certain references repeatedly they can also be saved in the app so that they are available every time even after you closed *sequ-into*. For this, choose the reference via *Save Contaminants*. Your own references can always be deleted from *sequ-into* later on, just click the trash can to do so.
 
