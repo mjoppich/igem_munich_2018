@@ -86,7 +86,7 @@ All files that are pooled in a folder are handled as one FastQ file in the furth
 **Reference Files**
 
 The next step is to acquire the FastA files that are used as a reference for the alignment. As the user might have similar requests repeatedly, it is possible to save reference files in the app itself.
-To make these files available even after the app is closed, we use a `JSON <https://www.json.org>`_ file internally to store their paths together with our default genome of *Escherichia coli* K-12 MG1655.
+To make these files available even after the app is closed, we use a `JSON <https://www.json.org>`_ file to store their paths internally together with our default genome of *Escherichia coli* K-12 MG1655.
 
 
 
@@ -96,7 +96,10 @@ Now that the required data is accessible the python script handling the alignmen
 
 As the alignment tool we employed in our python script runs asynchron but we have to make several calls for the functionality of *sequ-into*, one for each file per reference, we call the python script sequential.
 ::
-	child = spawnSync(program, programArgs,{
+	child = spawnSync(
+        program, 
+        programArgs,
+            {
                 cwd: process.cwd(),
                 env: process.env,
                 stdio: 'pipe',
@@ -111,8 +114,8 @@ For a Unix system, this is simply:
 ::
 	var splitted_command = command.split(" ");
 	program = "python3";
-       programArgs = splitted_command;
-       useShell = true;
+    programArgs = splitted_command;
+    useShell = true;
 
 
 For Mac OS, the explicit path to all files is needed additionally:
@@ -121,7 +124,7 @@ For Mac OS, the explicit path to all files is needed additionally:
 	process.env.PATH = np; 
 
 
-On Windows, however, it is necessary to make the call `WSL <https://docs.microsoft.com/en-us/windows/wsl/about>` compatible:
+On Windows, however, it is necessary to make the call `WSL <https://docs.microsoft.com/en-us/windows/wsl/about>`_ compatible:
 ::
 	var splitCmd = ["-i", "-c", "python3 " + command];
 	program = "bash";
