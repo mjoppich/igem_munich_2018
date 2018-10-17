@@ -92,7 +92,7 @@ The next step is to acquire the FastA files that are used as a reference for the
 To make these files available even after the app is closed, we use a `JSON <https://www.json.org>`_ file internally to store their paths together with our default genome of *Escherichia coli* K-12 MG1655.
 
 
-
+...
 
 
 
