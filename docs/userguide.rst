@@ -58,6 +58,9 @@ Step 3: Results
 
 The Results consist of two sections: a statistical overview on how your reads mapped to the reference(s) and the filter to extract and save only those reads you need for your downstream analysis.
 
+Section 1:
+-------
+
 For each combination of FastQ (file/directory) with FastA you will find one table and three plots. 
 
 .. image:: ./images/T--Munich--Software_sequ_final.png
@@ -71,6 +74,8 @@ To support the statistical information in the table visually we also added two p
 
 Additionally, there is a bar plot representing the distribution of the read length in the FastQ file you uploaded. This chart could be used for evaluation of the quality of sequencing or even be helpful by evolving theories about files with filtered reads. For your сonvenience **all plots are saved in the output directory.**
 
+Section 2:
+-------
 
 In the section below you will find a filter which you can optionally use to extract and save distinguish parts of the read FastQ file: reads that were mapped to the reference (*aligned switch*) and those which were not (*not aligned switch*), in other words possibly contaminated reads and reads that can be used for downstream analysis (in case the reference FastA file you used is a possible contaminant. If you added the FastA file of the organism you expect to sequence, *not aligned* reads are contamination).
 
