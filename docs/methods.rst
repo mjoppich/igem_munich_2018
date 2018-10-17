@@ -92,6 +92,10 @@ To make these files available even after the app is closed, we use a `JSON <http
 
 
 
-
+Enter this in your terminal: 
+::
+    conda config --add channels defaults
+    conda config --add channels bioconda
+    conda config --add channels conda-forge
 
 
