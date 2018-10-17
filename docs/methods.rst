@@ -37,7 +37,7 @@ Python Call
 *sequ-into* is able to deal with both, the FastQ as well as the Fast5 format. If the latter is used, we extract the base called sequences and convert them into the FastQ format.
 
 Thanks to the fact that the Fast5 format is in fact `HDF5 <https://support.hdfgroup.org/HDF5/>`_, a file format that can contain an unlimited variety of datatypes while allowing for input/output of complex data, it was possible to manipulate the files with the `h5py <https://www.h5py.org>`_ python interface efficiently.
-To prevent excessive runtimes in our app, there is currently a processing limit of 1000 reads per Fast5 file.
+To prevent excessive runtimes of our app, there is currently a processing limit of 1000 reads per Fast5 file.
 ::
 	return OrderedDict([
             (Fast5TYPE.BASECALL_2D, '/Analyses/Basecall_2D_%03d/'),
@@ -92,9 +92,9 @@ To make these files available even after the app is closed, we use a `JSON <http
 
 **Cross Plattform Compatibility**
 
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
+Now that the required data is accessible, the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
 
-As the alignment tool we employed in our python script runs asynchron but we have to make several calls for the functionality of *sequ-into*, one for each file per reference, we call the python script sequential.
+As the alignment-tool_ we employed in our python script runs asynchron but since we have to make several calls for the functionality of *sequ-into*, one for each file per reference, we call the python script sequential.
 ::
 	child = spawnSync(
         program, 
@@ -144,107 +144,13 @@ ContamTool.py
 
 **Read File Handeling**
 
+.. _alignment-tool:
+
 **Calling the Alignment Tool GraphMap**
 
 **Evaluating the GraphMap Output**
 
 **Extracting Read Files**
-
-
-
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
-Now that the required data is accessible the python script (ContamTool.py) handling the alignment, calculation and plotting can be called.
 
 
 
