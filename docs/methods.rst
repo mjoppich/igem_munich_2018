@@ -38,7 +38,6 @@ Python Call
 
 Thanks to the fact that the Fast5 format is in fact `HDF5 <https://support.hdfgroup.org/HDF5/>`_, a file format that can contain an unlimited variety of datatypes while allowing for input/output of complex data, it was possible to manipulate the files with the `h5py <https://www.h5py.org>`_ python interface efficiently.
 To prevent excessive runtimes in our app, there is currently a processing limit of 1000 reads per Fast5 file.
-
 ::
 	return OrderedDict([
             (Fast5TYPE.BASECALL_2D, '/Analyses/Basecall_2D_%03d/'),
@@ -52,7 +51,6 @@ To prevent excessive runtimes in our app, there is currently a processing limit 
 
 
 After acquiring the sequenced data meant to be analyzed, *sequ-into* handles each uploaded file/folder as a separated call. In the case of a folder, *sequ-into* searches for each file in that directory down to the deepest level of the directory tree.
-
 ::
 	self.state.inputFiles.forEach(element => {
 
@@ -79,7 +77,6 @@ After acquiring the sequenced data meant to be analyzed, *sequ-into* handles eac
 
 
 All files that are pooled in a folder are handled as one FastQ file in the further steps.
-
 ::
 	fastqFile = os.path.join(output_dir, prefix + "complete.fastq")
 	os.system("cat " + ' '.join(read_file) + " > " + fastqFile)
@@ -90,13 +87,6 @@ All files that are pooled in a folder are handled as one FastQ file in the furth
 
 The next step is to acquire the FastA files that are used as a reference for the alignment. As the user might have similar requests repeatedly, it is possible to save reference files in the app itself.
 To make these files available even after the app is closed, we use a `JSON <https://www.json.org>`_ file internally to store their paths together with our default genome of *Escherichia coli* K-12 MG1655.
-
-
-...
-
-
-
-
 
 
 
