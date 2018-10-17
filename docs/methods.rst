@@ -139,10 +139,16 @@ On Windows, however, it is necessary to make the call `WSL <https://docs.microso
 The output of each python call - that is for each file per reference - is collected via another JSON file data structure. More details here_.
 
 
+
+
 .. _ContamTool.py:
 
 ContamTool.py
 ====
+
+As mentioned above the functionality of *sequ-into* depends on this python script that assesses the input read file, coordinates the alignment, interprets the alignment results and allows for read extraction according to the gained knowledge.
+
+
 
 **Read File Handeling**
 
