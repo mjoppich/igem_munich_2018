@@ -23,7 +23,7 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
-
+const {shell} = require('electron');
 const {spawnSync} = require('child_process');
 
 var remote = require('electron').remote;
@@ -140,7 +140,7 @@ class TextMobileStepper extends React.Component<{}, {
                                     maxHeight: "75px", 
                                     width: "auto", 
                                     height: "auto",
-                                    marginBottom: "15px",
+                                    marginBottom: this.largeMargin,
                                     display: "block",
                                     marginLeft: "auto",
                                     marginRight: "auto"}} 
@@ -267,16 +267,33 @@ class TextMobileStepper extends React.Component<{}, {
     this.state.inputFiles.forEach(element => {
 
         var icon = <Icon>insert_drive_file</Icon>;
-        if (element.type == "folder") {icon = <Icon>folder_open</Icon>;}
+        var enableFast5Extract = null;
+
+
+        if (element.type == "folder")
+        {  
+            icon = <Icon>folder_open</Icon>;
+            enableFast5Extract = <div><Switch
+                                    checked={element.forceFast5Extract}
+                                    color="primary"
+                                    onChange={() => {element.forceFast5Extract = !element.forceFast5Extract;
+                                    this.setState({inputRefs: this.state.inputRefs})}}/>Re-Extract</div>
+        }
+
+
+
 
         inputListItems.push(
             <ListItem
                 key={inputListItems.length}>
-                    <Avatar> {icon} </Avatar>
+                    <Avatar                 onClick={() => {if (element.type == "folder") {console.log("shell open item"); shell.openItem(element.path)};}}
+> {icon} </Avatar>
 
                     <ListItemText
                     primary={element.path} secondary={element.type}
                     />
+
+                    {enableFast5Extract}
 
                     <IconButton
                         aria-label="Delete"
@@ -614,7 +631,7 @@ class TextMobileStepper extends React.Component<{}, {
                 </Typography>
 
                  <Typography gutterBottom>
-                    Click on <em>Choose Reference</em> to choose your reference files. You can selected as many files as you wish. These files will still be present after you used <em>Reset</em>, but are deleted when you close the application.
+                    Click on <em>Choose Reference</em> to choose yonpm ur reference files. You can selected as many files as you wish. These files will still be present after you used <em>Reset</em>, but are deleted when you close the application.
                     If you work with certain references repeatedly they can also be saved in the app to make them available every time - even after you closed sequ-into. For this, choose simply <em>Save Contaminants</em>. Your own references can always be deleted from sequ-into later on, just click the trash icon to do so.
                  </Typography>
 
@@ -1164,14 +1181,13 @@ class TextMobileStepper extends React.Component<{}, {
         self.state.inputFiles.forEach(element => {
 
             var stats = fs.lstatSync(element.path)
-            
             if (stats.isDirectory()){
 
                 processFilesForElement[element.path] = [];
 
                 var allFoundFiles: any = self.getAllReadFilesFromDir(element.path);
 
-                if (allFoundFiles.length == 0)
+                if ((allFoundFiles.length == 0) || (element.forceFast5Extract == true))
                 {
                     console.log("Extracting redas" + element.path);
                     // extract reads
@@ -1189,8 +1205,6 @@ class TextMobileStepper extends React.Component<{}, {
                 processFilesForElement[element.path] = [self.normalizePath(element.path)];
             }
         });
-
-
 
         var processFileKeys = Object.keys(processFilesForElement);
         var totalProcessRuns:any = processFileKeys.length;
@@ -1220,8 +1234,6 @@ class TextMobileStepper extends React.Component<{}, {
 
             var refFiles: any = [];
 
-
-            
             self.state.inputRefs.forEach(element => {if (element.enabled)
                     {
                         console.log(element);
@@ -1299,7 +1311,7 @@ class TextMobileStepper extends React.Component<{}, {
             console.log(child)
 
             processOutput = child.output[1];
-            console.log(`processOutput   ++++ ` + processOutput);
+            //console.log(processOutput);
 
             if (child.status != 0)
             {
@@ -1594,6 +1606,30 @@ class TextMobileStepper extends React.Component<{}, {
 
     }
 
+    numberFormat(n: number, suffix:string, decimals:number = 3)
+    {
+        var intVal = Math.floor(n);
+        var remVal = n-intVal;
+
+        var intSVal = String(intVal);
+        var remSVal = remVal.toFixed(decimals);
+
+        intSVal = intSVal.replace(/./g, function(c, i, a) {
+            return i > 0 && c !== "." && (a.length - i) % 3 === 0 ? "," + c : c;
+        });
+
+        remSVal = remSVal.substr(3);
+
+        var retVal = intSVal;
+
+        if (remVal > 0.0)
+        {
+            retVal += "." + remSVal;
+        }
+     
+        return retVal + suffix;
+    }
+
     makeContamResultTable()
     {
         var resultTable = <div></div>;
@@ -1613,11 +1649,13 @@ class TextMobileStepper extends React.Component<{}, {
             var basesPieUrl = element.basesPie;
             var readLengthPlotUrl = element.readLengthPlot;
             var readsPieUrl = element.readsPie;
+            var readLengthSmallPlotUrl = element.readLengthPlotSmall;
 
             if (os.platform() == "win32")
             {
                 basesPieUrl = self.convertUnix2Win(element.basesPie);
                 readLengthPlotUrl = self.convertUnix2Win(element.readLengthPlot);
+                readLengthSmallPlotUrl = self.convertUnix2Win(element.readLengthPlotSmall);
                 readsPieUrl = self.convertUnix2Win(element.readsPie);
             }
 
@@ -1671,56 +1709,56 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell component="th" scope="row">
                             Reads
                             </TableCell>
-                            <TableCell numeric>{element["totalReads"]}</TableCell>
-                            <TableCell numeric>1.00000</TableCell>
+                            <TableCell numeric>{this.numberFormat(element["totalReads"], "", 0)}</TableCell>
+                            <TableCell numeric>100%</TableCell>
                         </TableRow>
                         
                         <TableRow>
                             <TableCell component="th" scope="row">
                             Aligned reads
                             </TableCell>
-                            <TableCell numeric>{element["alignedReads"]}</TableCell>
-                            <TableCell numeric>{(element["alignedReads"]/element["totalReads"]).toFixed(5)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(element["alignedReads"], "", 0)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(100*element["alignedReads"]/element["totalReads"],"%")}</TableCell>
                         </TableRow>
                        
                         <TableRow>
                             <TableCell component="th" scope="row">
                             Unaligned reads
                             </TableCell>
-                            <TableCell numeric>{element["totalReads"]-element["alignedReads"]}</TableCell>
-                            <TableCell numeric>{((element["totalReads"]-element["alignedReads"])/element["totalReads"]).toFixed(5)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(element["totalReads"]-element["alignedReads"], "", 0)}</TableCell>
+                            <TableCell numeric>{this.numberFormat((100*(element["totalReads"]-element["alignedReads"])/element["totalReads"]), "%")}</TableCell>
                         </TableRow>
                         
                         <TableRow>
                             <TableCell component="th" scope="row">
                             Bases
                             </TableCell>
-                            <TableCell numeric>{element["totalBases"]}</TableCell>
-                            <TableCell numeric>1.00000</TableCell>
+                            <TableCell numeric>{this.numberFormat(element["totalBases"], "", 0)}</TableCell>
+                            <TableCell numeric>100%</TableCell>
                         </TableRow>
                         
                         <TableRow>
                             <TableCell component="th" scope="row">
                             Alignment bases
                             </TableCell>
-                            <TableCell numeric>{element["alignmentBases"]}</TableCell>
-                            <TableCell numeric>{(element["alignmentBases"]/element["totalBases"]).toFixed(5)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(element["alignmentBases"], "", 0)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(100*element["alignmentBases"]/element["totalBases"], "%")}</TableCell>
                         </TableRow>
                         
                         <TableRow>
                             <TableCell component="th" scope="row">
                             Aligned bases
                             </TableCell>
-                            <TableCell numeric>{element["alignedLength"]}</TableCell>
-                            <TableCell numeric>{(element["alignedLength"]/element["totalBases"]).toFixed(5)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(element["alignedLength"], "", 0)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(100*element["alignedLength"]/element["totalBases"],"%")}</TableCell>
                         </TableRow>
                         
                         <TableRow>
                             <TableCell component="th" scope="row">
                             Unaligned bases
                             </TableCell>
-                            <TableCell numeric>{element["totalBases"]-element["alignedLength"]}</TableCell>
-                            <TableCell numeric>{((element["totalBases"]-element["alignedLength"])/element["totalBases"]).toFixed(5)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(element["totalBases"]-element["alignedLength"], "", 0)}</TableCell>
+                            <TableCell numeric>{this.numberFormat(100*(element["totalBases"]-element["alignedLength"])/element["totalBases"], "%")}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>;
@@ -1782,6 +1820,11 @@ class TextMobileStepper extends React.Component<{}, {
                                 src={readLengthPlotUrl}
                                 width="300px"
                                 height="auto"/> 
+
+                            <img 
+                                src={readLengthSmallPlotUrl}
+                                width="300px"
+                                height="auto"/> 
                         
                         </div>
 
@@ -1807,7 +1850,7 @@ class TextMobileStepper extends React.Component<{}, {
     }
 
     extractReadsForFolder(folderPath: string)
-   {
+    {
         var nfolderPath = this.normalizePath(folderPath)
 
            var command = this.getExtractReadsToolPath() + " --count 1000 --folder " + nfolderPath;

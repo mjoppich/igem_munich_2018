@@ -91,7 +91,7 @@
       "buildResources": "build"
     },
     "win": {
-      "target": "dir",
+      "target": "portable",
       "icon": "build/app.ico"
     },
     "mac": {

@@ -8,7 +8,7 @@ How does Sequ-Into work?
 
 While highly specialized tools and pipelines for third generation sequencing data analysis are available, they often are not handy nor convenient to use as a first assessment right after or during the sequencing run.
 
-As a possible solution we brought together a straightforward intuitive interface built with `Electron <https://electronjs.org>`_ and `React <https://reactjs.org>`_, that gives the user easy access to the state-of-the-art long read alignment tool `GraphMap <https://www.nature.com/articles/ncomms11307>`_ which itself is highly specialized for nanopore sequencing. 
+As a possible solution we brought together a straightforward intuitive interface built with `Electron <https://electronjs.org>`_ and `React <https://reactjs.org>`_, that gives the user easy access to the state-of-the-art long read alignment tool `Minimap2/mappy <https://github.com/lh3/minimap2>`_ which itself is highly specialized for nanopore sequencing. 
 
 To make this possible we run a python script in the background that relies on `HTSeq <https://htseq.readthedocs.io/en/release_0.10.0/>`_ as infrastructure for high-throughput data and `pysam <https://pysam.readthedocs.io/en/latest/>`_ to handle the genomic data sets.
 
@@ -157,45 +157,52 @@ All files that are pooled in a folder are handled as one FastQ file in the furth
 	os.system("cat " + ' '.join(read_file) + " > " + fastqFile)
 
 
-`HTSeq <https://htseq.readthedocs.io/en/release_0.10.0/>`_ allows for an efficient iteration over all reads from the now single input file.
-::
-	reads = HTSeq.FastqReader(read_file)
-	for read in reads:
-		...
-
-
-
 .. _alignment-tool:
 
-**Calling the Alignment Tool GraphMap**
+**Using the Alignment Tool Minimap2**
 
 The idea behind *sequ-into* that enables finding possible contaminations and deciding if a certain target was sequenced, respectively, is to map the raw reads from the sequencing files against a reference. Thus allowing to split the original joint read file into two categories: the reads that aligned to the reference and those that did not.
 
 Nanopore sequencing data, however, comes with certain obstacles that complicate alignments. 
 On the one hand, because of Nanopores high-throughput nature, the data size means that alignment algorithms commonly used are too slow - something that was overcome only with a tradeoff to lower sensitivity. On the other hand, the variable error profile of ONT MinION sequencers made parameter tuning mandatory to gain high sensitivity and precision.
-What makes *sequ-into* a reliable tool nevertheless, is GraphMap. This mapping algorithm is specifically designed to analyse nanopore sequencing reads, while it handles potentially high-error rates robustly  and aligns long reads with speed and high precision thanks to a fast graph traversal. (`Nature 2016, Sovic et al. <https://www.nature.com/articles/ncomms11307>`_)
+What makes *sequ-into* a reliable tool nevertheless, is Minimap2. This mapping algorithm is specifically designed to analyse long-read sequencing data, while it handles potentially high-error rates robustly  and aligns long reads with speed and high precision thanks to a fast graph traversal. (`Minimap2: pairwise alignment for nucleotide sequences, Heng Li, Bioinformatics, Volume 34, Issue 18, 15 September 2018, Pages 3094–3100, <https://doi.org/10.1093/bioinformatics/bty191>`_)
 
-For each reference, GraphMap is called with the input read file, generating a `Sequence Alignment Map <https://samtools.github.io/hts-specs/SAMv1.pdf>`_.
+For each reference, Minimap2 is called with the input read file, generating a `Sequence Alignment Map <https://samtools.github.io/hts-specs/SAMv1.pdf>`_.
 ::
-	for file in cont_file:
-		sam_file_name = os.path.split(file)[1][:-6]+".sam"
-		samFile = os.path.join(output_dir,prefix + sam_file_name)
-		os.system("graphmap align -r "+file+" -d "+read_file+" -o "+samFile)
+	for refFileIdx, refFile in enumerate(cont_file):
+
+        a = mp.Aligner(refFile)  # load or build index
+        if not a:
+            raise Exception("ERROR: failed to load/build index")
+        ...
+        for fastqFile in read_file:
+            for name, seq, qual in mp.fastx_read(fastqFile): # read a fasta/q sequence
+                totalReads += 1
+                totalBases += len(seq)
+                ...
 
 
 
-**Evaluating the GraphMap Output**
+**Evaluating the Minimap2 Output**
 
-With the pysam interface it is now easy to count the features of interest directly from the corresponding sam file for each reference:
+With the `mappy <https://pypi.org/project/mappy/>`_ wrapper for Minimap2 it is now easy to count the features of interest directly from the corresponding sam file for each reference:
 ::
-	for aln in samFile:
-		totalBases += len(aln.seq)
-		totalReads += 1
-		if not aln.is_unmapped:
-			alignmentBases += aln.alen
-			alignedLength += len(aln.seq)
-			alignedReads += 1
+	for name, seq, qual in mp.fastx_read(fastqFile): # read a fasta/q sequence
 
+        hasHit = False
+
+        totalReads += 1
+        totalBases += len(seq)
+        readLengths.append(len(seq))
+
+        for hit in a.map(seq): # traverse alignments
+            hasHit = True
+
+            alignmentBases += hit.ctg_len
+            alignedBases += hit.mlen
+
+            alignedLength += hit.blen
+            ...
 
 .. _here:
 

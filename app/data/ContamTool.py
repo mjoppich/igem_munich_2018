@@ -1,8 +1,8 @@
 import argparse
 import json
 import os
-import HTSeq
 
+import re
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -36,143 +36,132 @@ makeImages = not args['no_images']
 if prefix[-1] != "_":
     prefix += "_"
 
-def deleteFileSilently(filepath):
-
-    try:
-        os.remove(filepath)
-    except OSError:
-        pass
-
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
-for file in read_file:
-    if not file.endswith(".fastq"):
+for rf in read_file:
+    if not rf.endswith(".fastq"):
         print('Please enter contamination in fastq format \n *Please no spaces in file name!*')
         exit()
 
-    if not os.path.isfile(file):
+    if not os.path.isfile(rf):
         print('Read file does not exist \n *Please no spaces in file name!*')
         exit()
 
-for file in cont_file:
-    if not file.endswith(".fasta"):
+for rf in cont_file:
+    if not rf.endswith(".fasta"):
         print('Please enter contamination in fasta format \n *Please no spaces in file name!*')
         exit()
 
-    if not os.path.isfile(file):
+    if not os.path.isfile(rf):
         print('Contamination file does not exist \n *Please no spaces in file name!*')
         exit()
 
-
-
-
-
-
-
-
-# ALL FASTQ IN EIN FILE PER AUFRUF
-
-fastqFile = os.path.join(output_dir, prefix + "complete.fastq")
-
-os.system("cat " + ' '.join(read_file) + " > " + fastqFile)
-
-read_file = fastqFile
-
-reads = HTSeq.FastqReader(read_file)
-n_reads = 0
-len_reads=[]
-
-readsLengthPlot = os.path.join(output_dir,prefix+"reads_length.png")
-
-
-if makeImages:
-    try:
-        for read in reads:
-            len_reads.append(len(read.seq))
-            n_reads= n_reads + 1
-        plt.ylabel('Frequency', fontsize=10)
-        plt.xlabel('Length of reads', fontsize=10)
-        plt.title('Length frequencies of all reads', fontsize=12)
-        plt.hist(len_reads, bins=100, color='green')
-        plt.savefig(readsLengthPlot)
-        plt.close()
-    except ValueError:
-        print('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
-        exit()
-
-
-sam_fasta_pairs = []
-
-
-
-
-
-
 # GRAPHMAP AUFRUF
 
-for file in cont_file:
-    sam_file_name = os.path.split(file)[1][:-6]+".sam"
-    samFile = os.path.join(output_dir,prefix + sam_file_name)
+import mappy as mp
 
-    os.system("graphmap align -r "+file+" -d "+read_file+" -o "+samFile)
-    sam_fasta_pairs.append( (file, samFile) )
-
-
-
-
-
+refFile2Aligner = {}
 
 # SAM FILE BEARBEITUNG
-
-import pysam
 sam_file_to_dict = dict()
 fasta_file_to_dict = dict()
 
-for fastaFile, samFilePath in sam_fasta_pairs:
+for refFileIdx, refFile in enumerate(cont_file):
+
+    a = mp.Aligner(refFile)  # load or build index
+    if not a:
+        raise Exception("ERROR: failed to load/build index")
+
 
     alignedLength = 0
-    alignmentBases = 0
+
+
     totalBases = 0
+    alignedBases = 0
+    alignmentBases = 0
+    
     totalReads = 0
     alignedReads = 0
+
     idAlignedReads = []
     idNotAlignedReads = []
+    
+    fasta_outname = re.sub('\W+', '_', refFile)    
+
+    extractAlignedFile = None
+    extractUnalignedFile = None
+
+    if extracted_aligned:
+        extractAlignedFile = open(os.path.join(output_dir, extract_prefix+ "_aligned_reads.fastq"), "w")
+
+    if extracted_not_aligned:
+        extractUnalignedFile = open(os.path.join(output_dir, extract_prefix+ "_aligned_reads.fastq"), "w")
+
+    readLengths = []
+
+    for fastqFile in read_file:
+        for name, seq, qual in mp.fastx_read(fastqFile): # read a fasta/q sequence
+
+            hasHit = False
+
+            totalReads += 1
+            totalBases += len(seq)
+            readLengths.append(len(seq))
 
 
+            for hit in a.map(seq): # traverse alignments
+                hasHit = True
 
-    fasta_file_name = fastaFile
-    samFile = pysam.AlignmentFile(samFilePath, "r")
+                alignmentBases += hit.r_en-hit.r_st
+                alignedBases += hit.mlen
 
-    # iterator
+                alignedLength += hit.blen
+
+                #print("{}\t{}\t{}\t{}".format(hit.ctg, hit.r_st, hit.r_en, hit.cigar_str))
+
+            if not hasHit:
+                idNotAlignedReads.append(name)
+
+                if extractUnalignedFile != None:
+                    extractUnalignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
+
+            else:
+                idAlignedReads.append(name)
+                alignedReads += 1
+
+                if extractAlignedFile != None:
+                    extractAlignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
+
+    if refFileIdx == 0:
+
+        try:
+            readsLengthPlot = os.path.join(output_dir,prefix+"reads_length.png")
+            readsLengthPlot10k = os.path.join(output_dir,prefix+"reads_length_10000.png")
+
+            plt.figure(0)
+            plt.ylabel('Frequency', fontsize=10)
+            plt.xlabel('Length of reads', fontsize=10)
+            plt.title('Length frequencies of all reads', fontsize=12)
+            plt.hist(readLengths, bins=100, color='green')
+            plt.savefig(readsLengthPlot)
+            plt.close()
+
+            plt.figure(1)
+            plt.ylabel('Frequency', fontsize=10)
+            plt.xlabel('Length of reads', fontsize=10)
+            plt.title('Length frequencies of all reads', fontsize=12)
+            plt.hist([x for x in readLengths if x < 10000], bins=100, color='green')
+            plt.savefig(readsLengthPlot10k)
+            plt.close()
+
+        except ValueError:
+            print('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
+            exit()
 
 
-    for aln in samFile:
-        totalBases += len(aln.seq)
-        totalReads += 1
-        if not aln.is_unmapped:
-            alignmentBases += aln.alen
-            alignedLength += len(aln.seq)
-            alignedReads += 1
-            idAlignedReads.append(aln.query_name)
-        else:
-            idNotAlignedReads.append(aln.query_name)
-    sep = "\t"
-
-    #print(file)
-    #print("DESCR", "ABS", "REL", sep=sep)
-    #print("reads", totalReads, "{:.5}".format(1.0), sep=sep)
-    #print("aligned reads", alignedReads, "{:.5}".format(alignedReads / totalReads), sep=sep)
-    #print("unaligned reads", totalReads - alignedReads, "{:.5}".format((totalReads - alignedReads) / totalReads),
-    #      sep=sep)
-    #print("bases", totalBases, "{:.5}".format(1.0), sep=sep)
-    #print("alignment bases", alignmentBases, "{:.5}".format(alignmentBases / totalBases), sep=sep)
-    #print("aligned bases", alignedLength, "{:.5}".format(alignedLength / totalBases), sep=sep)
-    #print("unaligned bases", totalBases - alignedLength, "{:.5}".format((totalBases - alignedLength) / totalBases),
-    #      sep=sep)
-
-    readPiePlot = os.path.join(output_dir,prefix + "read_pie.png")
-    basesPiePlot = os.path.join(output_dir,prefix + "bases_pie.png")
+    readPiePlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "read_pie.png")
+    basesPiePlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "bases_pie.png")
 
     if makeImages:
         labels = ('Aligned \n Reads \n (n={acount})'.format(acount=alignedReads), 'Unaligned \n Reads \n (n={acount})'.format(acount=totalReads-alignedReads))
@@ -191,72 +180,23 @@ for fastaFile, samFilePath in sam_fasta_pairs:
         plt.close()
 
 
-    tmp_dict = dict(totalReads=totalReads, alignedReads=alignedReads, totalBases=totalBases, alignmentBases=alignmentBases,
-                    alignedLength=alignedLength, idAlignedReads=idAlignedReads, idNotAlignedReads=idNotAlignedReads)
+    tmp_dict = dict(
+                    totalReads=totalReads,
+                    alignedReads=alignedReads,
+                    totalBases=totalBases,
+                    alignmentBases=alignmentBases,
+                    alignedLength=alignedLength,
+                    idAlignedReads=idAlignedReads,
+                    idNotAlignedReads=idNotAlignedReads
+                    )
 
     if makeImages:
         tmp_dict["readLengthPlot"] = readsLengthPlot
+        tmp_dict["readLengthPlotSmall"] = readsLengthPlot10k
         tmp_dict["readsPie"] = readPiePlot
         tmp_dict["basesPie"] = basesPiePlot
-        tmp_dict["refs"] = [fasta_file_name]
+        tmp_dict["refs"] = [refFile]
 
+    fasta_file_to_dict[refFile]=tmp_dict
 
-    sam_file_to_dict[samFilePath] = tmp_dict
-    fasta_file_to_dict[fasta_file_name]=tmp_dict
 print(json.dumps(fasta_file_to_dict))
-
-
-
-# outpufolder -> subfolder for extracted
-
-
-
-
-
-# SAVE FILES
-
-# INTERSECTION OF SET -> make picture
-
-
-if extracted_not_aligned:
-    output_path = os.path.join(output_dir, "_".join(extracted_not_aligned))
-    intersected_reads = []
-    for fqfile, samfile in sam_fasta_pairs:
-        sam_file_name = samfile
-        
-        if not intersected_reads:
-            intersected_reads=sam_file_to_dict[sam_file_name]["idNotAlignedReads"]
-        intersected_reads = list(set(intersected_reads).intersection(sam_file_to_dict[sam_file_name]["idNotAlignedReads"]))
-        import HTSeq
-        fastq_file = HTSeq.FastqReader(read_file)
-        my_fastq_file = open(os.path.join(output_dir, extract_prefix+ "_not_aligned_reads.fastq"), "w")
-        for read in fastq_file:
-            if any(read.name.split(" ")[0] in s for s in intersected_reads):
-                myread = HTSeq.SequenceWithQualities(read.seq, read.name, read.qualstr)
-                myread.write_to_fastq_file(my_fastq_file)
-        my_fastq_file.close()
-
-if extracted_aligned:
-    intersected_reads = []
-    for fqfile, samfile in sam_fasta_pairs:
-        sam_file_name = samfile
-        if not intersected_reads:
-            intersected_reads=sam_file_to_dict[sam_file_name]["idAlignedReads"]
-        intersected_reads = list(set(intersected_reads).intersection(sam_file_to_dict[sam_file_name]["idAlignedReads"]))
-    import HTSeq
-    fastq_file = HTSeq.FastqReader(read_file)
-
-    my_fastq_file = open(os.path.join(output_dir, extract_prefix+ "_aligned_reads.fastq"), "w")
-    for read in fastq_file:
-        if any(read.name.split(" ")[0] in s for s in intersected_reads):
-            myread = HTSeq.SequenceWithQualities(read.seq, read.name, read.qualstr)
-            myread.write_to_fastq_file(my_fastq_file)
-    my_fastq_file.close()
-
-
-
-
-
-deleteFileSilently(read_file)
-for fastaFile, samFilePath in sam_fasta_pairs:
-    deleteFileSilently(samFilePath)
