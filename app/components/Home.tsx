@@ -21,6 +21,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Collapse from '@material-ui/core/Collapse';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 
 const {shell} = require('electron');
@@ -277,11 +279,14 @@ class TextMobileStepper extends React.Component<{}, {
                                     checked={element.forceFast5Extract}
                                     color="primary"
                                     onChange={() => {element.forceFast5Extract = !element.forceFast5Extract;
-                                    this.setState({inputRefs: this.state.inputRefs})}}/>Re-Extract</div>
+                                    this.setState({inputRefs: this.state.inputRefs})}}/></div>
         }
-
-
-
+        var enableTrancript = null;
+        enableTrancript = <div><Switch
+            checked={element.transcript === undefined ? false : element.transcript}
+            color="primary"
+            onChange={() => {element.transcript = !element.transcript;
+            this.setState({inputFiles: this.state.inputFiles})}}/></div>
 
         inputListItems.push(
             <ListItem
@@ -293,8 +298,17 @@ class TextMobileStepper extends React.Component<{}, {
                     primary={element.path} secondary={element.type}
                     />
 
-                    {enableFast5Extract}
+                    
+                    <FormGroup>
+                        <FormControlLabel
+                        control = {enableFast5Extract === null ? <div></div> : enableFast5Extract}
+                        label = {enableFast5Extract === null ? "" : "Re-Extract"}/>
 
+                        <FormControlLabel
+                        control={enableTrancript === null ? <div></div> : enableTrancript }
+                        label = "Transcript"/>
+                    </FormGroup>
+                    
                     <IconButton
                         aria-label="Delete"
                         color="primary"
@@ -1180,6 +1194,9 @@ class TextMobileStepper extends React.Component<{}, {
 
         self.state.inputFiles.forEach(element => {
 
+            console.log("TRANSCRIPT "+element.transcript);
+            console.log("FAST5 "+element.forceFast5Extract);
+
             var stats = fs.lstatSync(element.path)
             if (stats.isDirectory()){
 
@@ -1189,7 +1206,8 @@ class TextMobileStepper extends React.Component<{}, {
 
                 if ((allFoundFiles.length == 0) || (element.forceFast5Extract == true))
                 {
-                    console.log("Extracting redas" + element.path);
+                    
+                    console.log("Extracting reads" + element.path);
                     // extract reads
                     self.extractReadsForFolder(element.path);
                     // get extracted reads
