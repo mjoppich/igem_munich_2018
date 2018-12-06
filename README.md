@@ -24,12 +24,12 @@ The app was implemented in the context of our iGEM project, where several DNA pu
 - save only those extracted reads you need for your further analysis (reads that either aligned, or didn't align to the chosen reference)   
 
 #### Employed Software and Modules
-- Graphmap
-- HTSeq
+- [Mappy](https://pypi.org/project/mappy/) / [minimap2](https://github.com/lh3/minimap2)
 - Electron
 - Material-UI
 
 #### Acknowledgement
+The app framework is based on:
 irath96: Electron Biolerplate
 https://github.com/irath96/electron-react-typescript-boilerplate
 
