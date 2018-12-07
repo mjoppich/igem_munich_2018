@@ -1191,6 +1191,7 @@ class TextMobileStepper extends React.Component<{}, {
 
 
         var processFilesForElement:any = {};
+        var processFilesTranscript:any = [];
 
         self.state.inputFiles.forEach(element => {
 
@@ -1206,7 +1207,6 @@ class TextMobileStepper extends React.Component<{}, {
 
                 if ((allFoundFiles.length == 0) || (element.forceFast5Extract == true))
                 {
-                    
                     console.log("Extracting reads" + element.path);
                     // extract reads
                     self.extractReadsForFolder(element.path);
@@ -1218,10 +1218,18 @@ class TextMobileStepper extends React.Component<{}, {
                 console.log(allFoundFiles)
 
                 processFilesForElement[element.path] = allFoundFiles;
+                if (element.transcript){
+                    processFilesTranscript = processFilesTranscript.concat(allFoundFiles);
+                }
                
             }else{
                 processFilesForElement[element.path] = [self.normalizePath(element.path)];
+                if(element.transcript){
+                    processFilesTranscript.push(element.path)
+                }
+                
             }
+            
         });
 
         var processFileKeys = Object.keys(processFilesForElement);
@@ -1248,6 +1256,9 @@ class TextMobileStepper extends React.Component<{}, {
             console.log(allFiles);
 
             var command = self.getContamToolPath() + " --reads " + useInputFiles + " ";
+            if (processFilesTranscript.length>0){
+                command = command + "--transcript " + processFilesTranscript.join(" ") +" "
+            }
             command = command + "--cont ";
 
             var refFiles: any = [];

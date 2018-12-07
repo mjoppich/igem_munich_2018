@@ -11,6 +11,7 @@ ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta
 
 ap.add_argument("--reads", nargs='+', required=True, help="path to the read file")
 ap.add_argument('--cont', nargs='+', help="path to the fasta file(s)", required=True)
+ap.add_argument("--transcript", nargs="+", required=False, help = "path to the trascriptomic read files")
 
 ap.add_argument('--o', help="path to the output directory", required=True)
 
@@ -25,13 +26,15 @@ ap.add_argument("--no_images", default=False, action="store_true", required=Fals
 args = vars(ap.parse_args())
 read_file = args["reads"]
 cont_file = args["cont"]
+proof_transcript = []
+proof_transcript = args['transcript']
 output_dir = args["o"]
 prefix = args["prefix"]
 
 extracted_not_aligned = args["extract_not_aligned"]
 extracted_aligned = args["extract_aligned"]
 extract_prefix = args["extract_prefix"]
-makeImages = not args['no_images']
+makeImages = not args['no_images'] 
 
 if prefix[-1] != "_":
     prefix += "_"
@@ -117,6 +120,16 @@ for refFileIdx, refFile in enumerate(cont_file):
                 alignedBases += hit.mlen
 
                 alignedLength += hit.blen
+
+                #if transcript
+                if proof_transcript is not None:
+                    if fastqFile in proof_transcript:
+                        skipped = 0
+                        cigar_array = hit.cigar
+                        for i in range(len(cigar_array)):
+                            if cigar_array[i][0] == "N":
+                                skipped += cigar_array[i][1]
+                        alignmentBases = alignmentBases - skipped
 
                 #print("{}\t{}\t{}\t{}".format(hit.ctg, hit.r_st, hit.r_en, hit.cigar_str))
 
