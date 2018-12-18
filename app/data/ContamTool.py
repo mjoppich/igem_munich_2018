@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 
 ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
 
-ap.add_argument("--reads", nargs='+', required=True, help="path to the read file")
-ap.add_argument('--cont', nargs='+', help="path to the fasta file(s)", required=True)
-ap.add_argument("--transcript", nargs="+", required=False, help = "path to the trascriptomic read files")
+ap.add_argument("--reads", nargs='+', required=True, help="path to tde read file")
+ap.add_argument('--cont', nargs='+', help="path to tde fasta file(s)", required=True)
+ap.add_argument("--transcript", nargs="+", required=False, help = "path to tde trascriptomic read files")
 
-ap.add_argument('--o', help="path to the output directory", required=True)
+ap.add_argument('--o', help="path to tde output directory", required=True)
 
 ap.add_argument("--prefix", help="", required=True)
 
@@ -60,7 +60,78 @@ for rf in cont_file:
         print('Contamination file does not exist \n *Please no spaces in file name!*')
         exit()
 
-# GRAPHMAP AUFRUF
+
+def makeReport(resDict, fname):
+
+    outHTML = """
+    <html>
+    <head>
+    <title>sequ-into Overview</title>
+    <style>
+    img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto }
+
+    table {
+    border-collapse: collapse;
+    width: 100%;
+    }
+
+    th, td {
+    text-align: left;
+    padding: 8px;
+    }
+
+    tr:nth-child(even){background-color: #f2f2f2}
+
+    th {
+    background-color: #4CAF50;
+    color: white;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    </style> 
+    </head>
+    <body>
+    """
+
+    outHTML += "<h1>sequ-into report: "+os.path.basename(fname)+"</h1>" + "\n"
+
+    outHTML += "<h2>Alignment Statistics</h2>" + "\n"
+
+    outHTML += "<table><tbody>" + "\n"
+    outHTML += "<tr><th>Statistics</th><th>Value</th><th>Rel. Value</th></tr>" + "\n"
+    outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Total Reads", tval=resDict["totalReads"], rval=1.0) + "\n"
+    outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Aligned Reads", tval=resDict["alignedReads"], rval=resDict["alignedReads"]/resDict["totalReads"]) + "\n"
+    outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Unaligned Reads", tval=resDict["totalReads"]-resDict["alignedReads"], rval=(resDict["totalReads"]-resDict["alignedReads"])/resDict["totalReads"]) + "\n"
+    outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Total Bases", tval=resDict["totalBases"], rval=1.0) + "\n"
+    outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Alignment Bases", tval=resDict["alignmentBases"], rval=resDict["alignmentBases"]/resDict["totalBases"]) + "\n"
+    outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Aligned Length", tval=resDict["alignedLength"], rval=resDict["alignedLength"]/resDict["totalBases"]) + "\n"
+    outHTML += "</tbody></table>"
+
+
+    outHTML += "<h2>Read Length Distribution (all reads)</h2>" + "\n"
+    outHTML += "<img src=\"{tget}\"/>".format(tget=os.path.basename(resDict["readLengthPlot"])) + "\n"
+
+    outHTML += "<h2>Read Length Distribution (reads <= 10kbp)</h2>" + "\n"
+    outHTML += "<img src=\"{tget}\"/>".format(tget=os.path.basename(resDict["readLengthPlotSmall"])) + "\n"
+
+    outHTML += "<h2>Aligned Reads Fraction</h2>" + "\n"
+    outHTML += "<img src=\"{tget}\"/>".format(tget=os.path.basename(resDict["readsPie"])) + "\n"
+
+    outHTML += "<h2>Aligned Bases Fraction</h2>" + "\n"
+    outHTML += "<img src=\"{tget}\"/>".format(tget=os.path.basename(resDict["basesPie"])) + "\n"
+
+    with open(resDict['overviewUrl'], 'w') as fout:
+
+        fout.write(outHTML)
+
+
+
+# Mapper/Aligner
 
 import mappy as mp
 
@@ -169,7 +240,7 @@ for refFileIdx, refFile in enumerate(cont_file):
             plt.close()
 
         except ValueError:
-            print('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
+            print('Some problems witd read file: Secondary ID line in FASTQ file doesnot start witd ''+''.')
             exit()
 
 
@@ -198,10 +269,10 @@ for refFileIdx, refFile in enumerate(cont_file):
                     alignedReads=alignedReads,
                     totalBases=totalBases,
                     alignmentBases=alignmentBases,
-                    alignedLength=alignedLength,
-                    idAlignedReads=idAlignedReads,
-                    idNotAlignedReads=idNotAlignedReads
+                    alignedLength=alignedLength
                     )
+                    #idAlignedReads=idAlignedReads,
+                    #idNotAlignedReads=idNotAlignedReads
 
     if makeImages:
         tmp_dict["readLengthPlot"] = readsLengthPlot
@@ -209,6 +280,10 @@ for refFileIdx, refFile in enumerate(cont_file):
         tmp_dict["readsPie"] = readPiePlot
         tmp_dict["basesPie"] = basesPiePlot
         tmp_dict["refs"] = [refFile]
+        tmp_dict["overviewUrl"] = os.path.join(output_dir,prefix + "_" + fasta_outname + "overview.html")
+
+
+        makeReport(tmp_dict, refFile)
 
     fasta_file_to_dict[refFile]=tmp_dict
 

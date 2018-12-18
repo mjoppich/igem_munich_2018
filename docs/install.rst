@@ -40,25 +40,21 @@ Enter this in your terminal:
     conda config --add channels bioconda
     conda config --add channels conda-forge
 
-3. **GraphMap** 
+3. **Minimap2** 
+
+For aligning the reads to the reference:
 ::
-    conda install graphmap
+     conda install -c bioconda mappy 
 
 4. **h5py**
+
+For reading FAST5 files (they are essentially HDF5-format):
 ::
     conda install -c anaconda h5py
 
-5. **pysam**
-::
-    conda config --add channels r
-    conda install pysam
 
-6. **HTseq**
-::
-    conda install htseq
-
-7. **matplotlib**
-
+5. **matplotlib**
+For plotting purposes.
 To install this package with conda run **one** of the following:
 ::
     conda install -c conda-forge matplotlib
@@ -99,16 +95,11 @@ Please note, the following guide is aimed at having an Ubuntu installed. However
 
 Package Installation
 ====
-Unfortunately sequ-into depends on several smaller libraries and applications, which we now have to install.
+Unfortunately sequ-into depends on several smaller libraries and applications, which we now have to install. You may do so manually (below) or use a `script <https://gist.github.com/mjoppich/d1f5caf69bdb940f90f79b1a97f024b9>`_ we prepared for this task.
 :: 
     sudo apt-get update
     sudo apt-get install git build-essential python3 python3-pip libhdf5-serial-dev
-    sudo pip3 install pysam HTseq matplotlib h5py
-
-    mkdir --parents ~/progs/ && cd ~/progs/ && git clone https://github.com/isovic/graphmap.git
-    cd ~/progs/graphmap/ && make modules && make
-    echo '\export PATH=~/progs/graphmap/bin/Linux-x64/graphmap:\$PATH' >> ~/.bashrc'
-
+    sudo pip3 install pysam HTseq matplotlib h5py mappy
 
 You will be asked to enter your *WSL* password when you submit your first *sudo* command. However, since *sudo* will give you administrator right in *WSL*, it might also be that it asks for your password everytime.
 
@@ -117,14 +108,12 @@ We have also created a *cmd* script which you can simply execute by double-click
 The following will explain the packages and software going to be installed. Since you provided your *sudo*-password, you should get to know what we are doing ;) If you are not interested: congratulations, you're done!
 
 First a basic developer package has to be installed, which is done by installing *git* for version control/access to repositories, *build-essential* to get C/C++ compilers (to build other software) and python3 for generating reads from fast5 files and making the statistics.
-*python3-pip* is the python package manager which we need to install some python packages, and finally libhdf5 is needed to access fast5 files.
-
-Additionally we must ensure that you have `graphmap <https://github.com/isovic/graphmap>`_ installed. We thus download and install it to *~/progs/graphmap/* in your *WSL*.
+*python3-pip* is the python package manager which we need to install some python packages, and finally libhdf5 is needed to access fast5 files. For alignment of the reads we rely on `mappy/minimap2 <https://pypi.org/project/mappy/>`_ .
 
 After you have completed these steps, you are ready to use sequ-into!
 
 
-DMG
+Executable
 ====
 
 We have built sequ-into as a portable app. You thus only need to place the downloaded executable at any location and can start using it!
@@ -151,10 +140,4 @@ In order to have all python scripts running, please install the following depend
 ::
     sudo apt-get update
     sudo apt-get install git build-essential python3 python3-pip libhdf5-serial-dev
-    sudo pip3 install pysam HTseq matplotlib h5py
-
-You now have to install `graphmap <https://github.com/isovic/graphmap>`_ and add it to your path. This can, for instance, be done using the following commands:
-::
-    mkdir --parents ~/progs/ && cd ~/progs/ && git clone https://github.com/isovic/graphmap.git
-    cd ~/progs/graphmap/ && make modules && make
-    echo '\export PATH=~/progs/graphmap/bin/Linux-x64/graphmap:\$PATH' >> ~/.bashrc'
+    sudo pip3 install pysam HTseq matplotlib h5py mappy

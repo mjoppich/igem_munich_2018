@@ -23,6 +23,8 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Gallery from './ImageGallery';
 
 
 const {shell} = require('electron');
@@ -52,7 +54,8 @@ class TextMobileStepper extends React.Component<{}, {
     resultTable: any,
     helpExpanded: boolean,
     showProgress: boolean,
-    showProgress2: boolean
+    showProgress2: boolean,
+    showImages: boolean
 }>
 
 
@@ -68,7 +71,8 @@ class TextMobileStepper extends React.Component<{}, {
     resultTable: <div></div>,
     helpExpanded: false,
     showProgress: false,
-    showProgress2: false
+    showProgress2: false,
+    showImages: false
   };
 
   constructor(props: any)
@@ -725,6 +729,7 @@ class TextMobileStepper extends React.Component<{}, {
                     </CardActions>
 
                     <CardContent>
+                        {this.state.showProgress ? <LinearProgress /> : <div></div>}
                         {inputRefList}
                     </CardContent>
 
@@ -733,18 +738,15 @@ class TextMobileStepper extends React.Component<{}, {
 
         buttonAction: () => {
             var self = this
-
-
-            this.state.showProgress = true
-            this.setState({ showProgress: this.state.showProgress })
+            this.setState({ showProgress: true })
 
             this.render()
-
-            window.setTimeout(myFunction, 3000);
-
-            function myFunction() {
+           
+            var myFunction = function() {
                 self.startPython();
             }
+
+            window.setTimeout(myFunction);
         }
     },
 
@@ -795,7 +797,8 @@ class TextMobileStepper extends React.Component<{}, {
                     <Typography component="span" color="secondary">
                         Saving can take several minutes to complete, during that the app might become not responsible.
                     </Typography>
-
+                    
+                    
 
                     <div 
                         style={{
@@ -844,23 +847,7 @@ class TextMobileStepper extends React.Component<{}, {
                             variant="contained"
                             size="small"
                             disabled={this.state.showProgress2}
-                            onClick={() => {
-                                this.startPythonSave()
-
-                                //this.state.showProgress2 = true
-                                //this.setState({ showProgress2: this.state.showProgress2 })
-                                //this.render()
-                            
-                            
-                            
-                            
-                            
-                            }
-
-                               
-                            
-                            
-                            }
+                            onClick={() => {this.startPythonSave()}}
                             style={{
                                 marginBottom: "20px",
                                 marginRight: "50px",
@@ -1679,6 +1666,7 @@ class TextMobileStepper extends React.Component<{}, {
             var readLengthPlotUrl = element.readLengthPlot;
             var readsPieUrl = element.readsPie;
             var readLengthSmallPlotUrl = element.readLengthPlotSmall;
+            var overviewUrl = element.overviewUrl;
 
             if (os.platform() == "win32")
             {
@@ -1686,6 +1674,7 @@ class TextMobileStepper extends React.Component<{}, {
                 readLengthPlotUrl = self.convertUnix2Win(element.readLengthPlot);
                 readLengthSmallPlotUrl = self.convertUnix2Win(element.readLengthPlotSmall);
                 readsPieUrl = self.convertUnix2Win(element.readsPie);
+                overviewUrl = self.convertUnix2Win(element.overviewUrl);
             }
 
 
@@ -1789,6 +1778,8 @@ class TextMobileStepper extends React.Component<{}, {
                             <TableCell numeric>{this.numberFormat(element["totalBases"]-element["alignedLength"], "", 0)}</TableCell>
                             <TableCell numeric>{this.numberFormat(100*(element["totalBases"]-element["alignedLength"])/element["totalBases"], "%")}</TableCell>
                         </TableRow>
+
+                        
                     </TableBody>
                 </Table>;
                 
@@ -1820,43 +1811,45 @@ class TextMobileStepper extends React.Component<{}, {
                             {element["fastq"].map((x:any) => {return path.basename(x)}).join(", ")}
                         </Typography>
                         </div>
-                 
-                        
-                        
-                        
-                        
 
                         {tablePart}
 
+                        <Gallery
+                                heading={"Plots"}
+                                subheading={null}
+                                showThumbnails={false}
+                                images={[
+                                    {src: readsPieUrl, caption: "Read Pie"},
+                                    {src: basesPieUrl, caption: "Bases Pie"},
+                                    {src: readLengthPlotUrl, caption: "Read Lengths"},
+                                    {src: readLengthSmallPlotUrl, caption: "Read Lengths (<10k)"},
+                            ]}/>
 
-                        <div
+                        <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => {shell.openItem( overviewUrl )}}
                             style={{
-                                display: "block",
-                                verticalAlign: "center"}}>
+                                marginBottom: "20px",
+                                marginRight: "50px",
+                                marginLeft: "50px"}}>
 
-                            <img
-                                src={readsPieUrl}
-                                width="300px"
-                                height="auto"/> 
+                            Open HTML report&nbsp;
+                            <Icon>chrome_reader_mode</Icon>
+                        </Button>
 
-                            <img
-                                src={basesPieUrl}
-                                width="300px"
-                                height="auto"/>
+                        <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => {shell.openItem( this.state.outputDir )}}
+                            style={{
+                                marginBottom: "20px",
+                                marginRight: "50px",
+                                marginLeft: "50px"}}>
 
-
-                            <img 
-                                src={readLengthPlotUrl}
-                                width="300px"
-                                height="auto"/> 
-
-                            <img 
-                                src={readLengthSmallPlotUrl}
-                                width="300px"
-                                height="auto"/> 
-                        
-                        </div>
-
+                            Open tmp Folder&nbsp;
+                            <Icon>folder_special</Icon>
+                        </Button>
 
                     </CardContent>
 
@@ -1870,7 +1863,9 @@ class TextMobileStepper extends React.Component<{}, {
         })
 
         resultList = <List>{resultItems}</List>
-        resultTable = resultList
+        resultTable = <div>
+                            {resultList}
+                    </div>;
 
         
         console.log("Submitting resultTable");

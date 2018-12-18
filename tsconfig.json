@@ -41,5 +41,9 @@
   ],
   "exclude": [
     "dist"
+  ],
+  "typeRoots": [
+    "./node_modules/@types",
+    "./@Types"
   ]
 }
