@@ -6,6 +6,8 @@ Installation
 
 All pre-built binary releases can be found at `GitHub <https://github.com/mjoppich/igem_munich_2018/releases>`_ .
 
+However, the python scripts rely on additional software which must be made available.
+
 ====
 Mac OS
 ====
@@ -15,7 +17,15 @@ To be able to install sequ-into on your Mac OS system, first make sure you have 
 Support Package Installation:
 ====
 
-1. **Anaconda**
+1. **X-Code developer tools**
+
+In order to compile the alignment software, a C compiler must be installed. Mac OS users can do so by running
+::
+    xcode-select --install
+
+in the terminal.
+
+2. **Anaconda**
 
 * Download the installation package here: https://repo.angaconda.com/archive/Anaconda3-5.3.0-MacOSX-x86_64.pkg
 * Open your terminal window (for example by typing "terminal" in the spotlight search field)
@@ -32,7 +42,7 @@ and enter the following:
 
 If you have any trubles installing Anaconda you can review this site for more details and a visual installer: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
 
-2. **Bioconda**
+3. **Bioconda**
 
 Enter this in your terminal: 
 ::
@@ -40,20 +50,20 @@ Enter this in your terminal:
     conda config --add channels bioconda
     conda config --add channels conda-forge
 
-3. **Minimap2** 
+4. **Minimap2** 
 
 For aligning the reads to the reference:
 ::
      conda install -c bioconda mappy 
 
-4. **h5py**
+5. **h5py**
 
 For reading FAST5 files (they are essentially HDF5-format):
 ::
     conda install -c anaconda h5py
 
 
-5. **matplotlib**
+6. **matplotlib**
 For plotting purposes.
 To install this package with conda run **one** of the following:
 ::
@@ -93,7 +103,12 @@ Please note, the following guide is aimed at having an Ubuntu installed. However
 
 .. _wslpackinstall:
 
-Package Installation
+Package Installation (Automatic)
+====
+
+We have created a *cmd* script which you can simply execute by double-clicking on the downloaded file `after downloading it <https://gist.github.com/mjoppich/d1f5caf69bdb940f90f79b1a97f024b9>`_. This script asks you for your *WSL* password and will execute the below steps automatically.
+
+Package Installation (Manual)
 ====
 Unfortunately sequ-into depends on several smaller libraries and applications, which we now have to install. You may do so manually (below) or use a `script <https://gist.github.com/mjoppich/d1f5caf69bdb940f90f79b1a97f024b9>`_ we prepared for this task.
 :: 
@@ -102,8 +117,6 @@ Unfortunately sequ-into depends on several smaller libraries and applications, w
     sudo pip3 install pysam HTseq matplotlib h5py mappy
 
 You will be asked to enter your *WSL* password when you submit your first *sudo* command. However, since *sudo* will give you administrator right in *WSL*, it might also be that it asks for your password everytime.
-
-We have also created a *cmd* script which you can simply execute by double-clicking on the downloaded file `after downloading it <https://gist.github.com/mjoppich/d1f5caf69bdb940f90f79b1a97f024b9>`_. This script asks you for your *WSL* password and will execute the above steps automatically.
 
 The following will explain the packages and software going to be installed. Since you provided your *sudo*-password, you should get to know what we are doing ;) If you are not interested: congratulations, you're done!
 
@@ -116,7 +129,7 @@ After you have completed these steps, you are ready to use sequ-into!
 Executable
 ====
 
-We have built sequ-into as a portable app. You thus only need to place the downloaded executable at any location and can start using it!
+We have built sequ-into as a portable app. You thus only need to place the downloaded executable at any location and can start using it (after you have setup *WSL* once on your computer).
 
 ====
 Linux/Source

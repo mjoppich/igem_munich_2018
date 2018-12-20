@@ -178,8 +178,7 @@
     "@types/react-images": "^0.5.0",
     "aphrodite": "^2.2.3",
     "@types/aphrodite": "^0.5.13",
-    "prop-types": "^15.6.2",
-    "@types/prop-types": "^15.5.8"
+    "prop-types": "^15.6.2"
   },
   "dependencies": {
     "@material-ui/core": "^3.7.0",
