@@ -1,10 +1,10 @@
 # sequ-into - A straightforward desktop app for third generation sequencing read contamination analysis
 
-[![Build Status](https://travis-ci.org/mjoppich/igem_munich_2018.svg?branch=master)](https://travis-ci.org/mjoppich/igem_munich_2018)
+[![Build Status](https://travis-ci.org/mjoppich/sequ-into.svg?branch=master)](https://travis-ci.org/mjoppich/sequ-into)
 [![Documentation Status](https://readthedocs.org/projects/sequ-into/badge/?version=latest)](https://sequ-into.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/148335824.svg)](https://zenodo.org/badge/latestdoi/148335824)
 ![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)
-[![Maintainability](https://api.codeclimate.com/v1/badges/ffad1b8d8c74ed402a38/maintainability)](https://codeclimate.com/github/mjoppich/igem_munich_2018/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ffad1b8d8c74ed402a38/maintainability)](https://codeclimate.com/github/mjoppich/sequ-into/maintainability)
 
 ## Download
 
