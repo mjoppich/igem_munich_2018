@@ -553,6 +553,21 @@ class TextMobileStepper extends React.Component<{}, {
                  <Typography gutterBottom>
                     Click <em>Next</em> to proceed.
                  </Typography>
+
+                 <Typography gutterBottom>
+                    <Button
+                                variant="contained"
+                                size="small"
+                                onClick={() => {shell.openItem( path.join(this.getDataPath(), "windows_ubuntu_install.bat"))}}
+                                style={{
+                                    marginBottom: "20px",
+                                    marginRight: "50px",
+                                    marginLeft: "50px"}}>
+
+                                Setup WSL Environment&nbsp;
+                                <Icon>chrome_reader_mode</Icon>
+                            </Button>
+                 </Typography>
             </div>,
         
         alarmlabel: 
@@ -660,7 +675,7 @@ class TextMobileStepper extends React.Component<{}, {
                  <Typography gutterBottom>
                     Click <em>Start</em> to run the calculations.
                  </Typography>
-                </div>
+            </div>
             ,
         
         alarmlabel:
