@@ -25,20 +25,20 @@ In order to compile the alignment software, a C compiler must be installed. Mac 
 
 in the terminal.
 
-2. **Anaconda**
+2. **Miniconda/Anaconda**
 
-* Download the installation package here: https://repo.angaconda.com/archive/Anaconda3-5.3.0-MacOSX-x86_64.pkg
+* Download the installation package for Miniconda here https://conda.io/miniconda.html or Anaconda from https://www.anaconda.com/download/#macos . Miniconda is smaller in size, sufficient for sequ-into, but may require to download more data afterwards than Anaconda.
 * Open your terminal window (for example by typing "terminal" in the spotlight search field)
-and enter the following:
+and enter, depending on the version you downloaded, the following:
 ::
-    bash ~/Downloads/Anaconda3-5.3.0-MacOSX-x86_64.sh
+    bash ~/Downloads/Miniconda3-latest-MacOSX-x86_64.sh
 
 * The installer prompts “In order to continue the installation process, please review the license agreement.” Click ``Enter`` to view license terms.
 * Scroll to the bottom of the license terms and enter ``yes`` to agree to them.
 * The installer prompts you to press ``Enter`` to confirm the location. It may take a few minutes to complete.  We recommend you accept the default install location and press ``Enter``.
-* The installer prompts “Do you wish the installer to prepend the Anaconda install location to PATH in your /home/<user>/.bash_profile ?” We recommend ``yes``.
-* The installer finishes and displays “Thank you for installing Anaconda!”
-* The installer describes Microsoft VS Code and asks if you would like to install VS Code. Enter ``yes`` or ``no``. You don't need Microsoft VS Code to use sequ-into!
+* The installer prompts “Do you wish the installer to prepend the Miniconda/Anaconda install location to PATH in your /home/<user>/.bash_profile ?” We recommend ``yes``.
+* The installer finishes and displays “Thank you for installing Miniconda/Anaconda!”
+* If the installer asks to install Microsoft VS Code, enter ``yes`` or ``no``. You don't need Microsoft VS Code to use sequ-into!
 
 If you have any trubles installing Anaconda you can review this site for more details and a visual installer: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
 
@@ -52,25 +52,22 @@ Enter this in your terminal:
 
 4. **Minimap2** 
 
-For aligning the reads to the reference:
+For aligning the reads to the reference (enter y to proceed if asked - this may, depending on previous installed packages, download and install many required packages):
 ::
      conda install -c bioconda mappy 
 
 5. **h5py**
 
-For reading FAST5 files (they are essentially HDF5-format):
+For reading FAST5 files (they are essentially HDF5-format, proceed with `y`):
 ::
     conda install -c anaconda h5py
 
 
 6. **matplotlib**
 For plotting purposes.
-To install this package with conda run **one** of the following:
+To install this package with conda run (again proceed with `y`):
 ::
     conda install -c conda-forge matplotlib
-    conda install -c conda-forge/label/broken matplotlib
-    conda install -c conda-forge/label/testing matplotlib
-    conda install -c conda-forge/label/rc matplotlib
 
 Install sequ-into
 ====
