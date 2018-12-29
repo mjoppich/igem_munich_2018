@@ -1502,8 +1502,8 @@ class TextMobileStepper extends React.Component<{}, {
 
                             if (os.platform() == "darwin")
                             {
-                                var np = shellPath.sync();
-                                process.env.PATH = np;
+                                var darwinPaths = shellPath.sync();
+                                process.env.PATH = darwinPaths;
                             }
 
                             child = spawnSync(program, programArgs,{
