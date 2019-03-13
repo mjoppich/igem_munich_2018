@@ -95,7 +95,7 @@
       "icon": "build/app.ico"
     },
     "mac": {
-      "icon": "build/app.icns"
+      "icon": "./build/icon_small.icns"
     },
     "linux": {
       "target": [
@@ -147,8 +147,13 @@
     "css-loader": "^0.28.4",
     "css-modules-require-hook": "^4.0.6",
     "devtron": "^1.4.0",
+<<<<<<< HEAD
     "electron": "^3.1.1",
     "electron-builder": "^20.38.5",
+=======
+    "electron": "^3.0.13",
+    "electron-builder": "^20.38.4",
+>>>>>>> 705205171caa798e177ba9ecd2bb7c98151a8cc1
     "electron-builder-http": "^19.27.5",
     "electron-devtools-installer": "^2.0.1",
     "enzyme": "^3.8.0",
