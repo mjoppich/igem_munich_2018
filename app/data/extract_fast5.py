@@ -194,7 +194,7 @@ class Fast5File:
     def _guessType(self):
 
         for filetype in Fast5File.analyses_paths:
-
+            
             analyses_path = Fast5File.analyses_paths[filetype]
 
             group = -1
@@ -214,31 +214,35 @@ class Fast5File:
                 continue
 
             analyses_group = analyses_path % group
-            seqpath = self.join_paths(analyses_group, Fast5File.sequence_paths[filetype])
 
+            seqpath = self.join_paths(analyses_group, Fast5File.sequence_paths[filetype])
+    
             if not seqpath in self.hdf5file:
-                continue
+                #try alternative version
+                seqpath = self.join_paths(analyses_group, "BaseCalled_template")
+
+                if not seqpath in self.hdf5file:
+                    continue
 
             self.sequence_paths = {}
 
             # get analyses_group . 'basecall_1d'
             if filetype == Fast5TYPE.BASECALL_2D:
 
-                basecallAttrib = self._get_attribute(analyses_group, 'basecall_1d')
-
+                
+                basecallAttrib = self._get_attribute(analyses_group, 'basecall_1d')                
                 # if that returns None, attrib not existant => no 2D basecall
-                if basecallAttrib == None:
-                    continue
+                if basecallAttrib != None:
+                    
+                    basecall1dpath = basecallAttrib #basecall1dpath = '/Analyses/' + basecallAttrib
+                    self.sequence_paths[Fast5TYPE.BASECALL_1D] = self.join_paths( basecall1dpath , "BaseCalled_template" )
+                    self.sequence_paths[Fast5TYPE.BASECALL_1D_COMPL] = self.join_paths( basecall1dpath , "BaseCalled_complement" )
 
-                basecall1dpath = basecallAttrib #basecall1dpath = '/Analyses/' + basecallAttrib
+                    eventpath = '/' + self._get_attribute(basecall1dpath, 'event_detection', "Analyses/EventDetection_000")
+                    self.sequence_paths[Fast5TYPE.PRE_BASECALL] = eventpath
 
-                self.sequence_paths[Fast5TYPE.BASECALL_1D] = self.join_paths( basecall1dpath , "BaseCalled_template" )
-                self.sequence_paths[Fast5TYPE.BASECALL_1D_COMPL] = self.join_paths( basecall1dpath , "BaseCalled_complement" )
+
                 self.sequence_paths[Fast5TYPE.BASECALL_2D] = seqpath
-
-                eventpath = '/' + self._get_attribute(basecall1dpath, 'event_detection', "Analyses/EventDetection_000")
-                self.sequence_paths[Fast5TYPE.PRE_BASECALL] = eventpath
-
                 self.winner = Fast5TYPE.BASECALL_2D
 
             elif filetype == Fast5TYPE.BASECALL_1D_COMPL:
@@ -278,14 +282,19 @@ class Fast5File:
             # set up available sequences
 
             # sanity check
+            ftypeEjected=False
             for path in self.sequence_paths:
 
                 temp_path = self.sequence_paths[path]
                 exists = temp_path in self.hdf5file
 
-                if not exists:
+                if not exists and not path == Fast5TYPE.PRE_BASECALL:
                     #print( temp_path + " " + str(temp_path in self.hdf5file))
-                    pass
+                    ftypeEjected=True
+                    
+            if ftypeEjected:
+                #print("Eject ftype", filetype)
+                continue
 
             return filetype
 
@@ -295,7 +304,7 @@ class Fast5File:
 
         if readType == None:
             readType = self.winner
-
+       
         return self._read_fastq(readType)
 
 
@@ -404,6 +413,14 @@ class Fast5File:
 
         startTimes = self._read_attrib('start_time')
 
+        if startTimes == None:
+            path = "/Analyses/EventDetection_000/Reads/"+self.readID()
+            startTimes = self._get_attribute(path, "start_time", None)
+            
+
+        if startTimes == None:
+            return None
+
         if type(startTimes) == list:
             vReturn = [x + expStartTime for x in startTimes]
             return vReturn
@@ -418,8 +435,10 @@ class Fast5File:
         try:
             path = "/Raw/Reads/"
 
-            readsGroup = self.hdf5file[path]
+            if not path in self.hdf5file:
+                path = "/Analyses/EventDetection_000/Reads/"               
 
+            readsGroup = self.hdf5file[path]
             storedReads = readsGroup.keys()
 
             readNum = -1
@@ -547,7 +566,7 @@ class Fast5Directory:
 
         for nextFile in self.filesIT:
 
-            yield Fast5File(nextFile) 
+            yield nextFile
 
 
 
@@ -558,38 +577,51 @@ if __name__ == '__main__':
 
     ap.add_argument("--folder", type=str, required=True, help="path to the read file")
     ap.add_argument("--count", type=int, required=False, default=-1, help="path to the read file")
+    ap.add_argument("--log", type=argparse.FileType("w"), required=False, default=None, help="log file")
 
     args = ap.parse_args()
 
     f5folder = Fast5Directory(args.folder)
 
     iFilesInFolder = 0
+    iFilesProcessedInFolder = 0
     collectedOutput = []
 
     allOutput = []
 
     with open(args.folder + "/reads.fastq", 'w') as fout, open(args.folder + "/reads.info", 'w') as ftimeout:
 
-        for f5file in f5folder.collect():
+        for f5fileName in f5folder.collect():
+
+            iFilesInFolder += 1
 
             if args.count != -1 and iFilesInFolder > args.count:
                 break
 
-            output = f5file.getFastQ()
-            createDate = f5file.readCreateTime()
+            try:
+                f5file = Fast5File(f5fileName) 
 
-            if not type(createDate) == int:
-                print(createDate)
+                output = f5file.getFastQ()
+                createDate = f5file.readCreateTime()
 
-            #dateTime = parser.parse(createDate)
+                if not type(createDate) == int:
+                    print(createDate)
 
+                #dateTime = parser.parse(createDate)
+                if output == None:
+                    #print("Skipping", f5file.filename)
+                    if args.log != None:
+                        args.log.write("Skipping for no output: {fname}\n".format(fname=f5file.filename))
+                    continue
 
-            fout.write(str(output) + "\n")
+                fout.write(str(output) + "\n")
+                output.id = output.id.split(" ")[0]
+                ftimeout.write(output.id + "\t" + str(int(createDate)) + "\n")
+                iFilesProcessedInFolder += 1
+            except:
 
+                print("Could not read file", f5fileName, file=sys.stderr)
+                continue
 
-            output.id = output.id.split(" ")[0]
-            ftimeout.write(output.id + "\t" + str(int(createDate)) + "\n")
-            iFilesInFolder += 1
-
-    print("Folder done: " + str(f5folder.path) + " [Files: " + str(iFilesInFolder) + "]")
+    print("Folder done: " + str(f5folder.path) + " [Files: " + str(iFilesProcessedInFolder) + "] ("+str(iFilesInFolder)+")")
 

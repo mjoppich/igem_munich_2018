@@ -43,21 +43,25 @@ if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
 for rf in read_file:
-    if not rf.endswith(".fastq"):
+    if not (rf.endswith(".fastq") or rf.endswith(".fq")):
         print('Please enter contamination in fastq format \n *Please no spaces in file name!*')
+        print(rf)
         exit()
 
     if not os.path.isfile(rf):
         print('Read file does not exist \n *Please no spaces in file name!*')
+        print(rf)
         exit()
 
 for rf in cont_file:
-    if not rf.endswith(".fasta"):
-        print('Please enter contamination in fasta format \n *Please no spaces in file name!*')
+    if not (rf.endswith(".fasta") or rf.endswith(".fa")):
+        print('Please enter reference in fasta format \n *Please no spaces in file name!*')
+        print(rf)
         exit()
 
     if not os.path.isfile(rf):
-        print('Contamination file does not exist \n *Please no spaces in file name!*')
+        print('Reference file does not exist \n *Please no spaces in file name!*')
+        print(rf)
         exit()
 
 
@@ -110,6 +114,8 @@ def makeReport(resDict, fname):
     outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Total Bases", tval=resDict["totalBases"], rval=1.0) + "\n"
     outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Alignment Bases", tval=resDict["alignmentBases"], rval=resDict["alignmentBases"]/resDict["totalBases"]) + "\n"
     outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Aligned Length", tval=resDict["alignedLength"], rval=resDict["alignedLength"]/resDict["totalBases"]) + "\n"
+    outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Aligned Reads Bases", tval=resDict["alignedReadsBases"], rval=resDict["alignedReadsBases"]/resDict["totalBases"]) + "\n"
+    outHTML += "<tr><td>{tdesc}</td><td>{tval:8,d}</td><td>{rval:.5f}</td></tr>".format(tdesc="Unaligned Bases", tval=resDict["unalignedBases"], rval=resDict["unalignedBases"]/resDict["totalBases"]) + "\n"
     outHTML += "</tbody></table>"
 
 
@@ -154,9 +160,13 @@ for refFileIdx, refFile in enumerate(cont_file):
     totalBases = 0
     alignedBases = 0
     alignmentBases = 0
+
+    unalignedBases = 0
+    unalignedReads = 0
     
     totalReads = 0
     alignedReads = 0
+    alignedReadsBases = 0
 
     idAlignedReads = []
     idNotAlignedReads = []
@@ -185,11 +195,14 @@ for refFileIdx, refFile in enumerate(cont_file):
 
 
             for hit in a.map(seq): # traverse alignments
+
+                if not hit.is_primary:
+                    continue
+
                 hasHit = True
 
                 alignmentBases += hit.r_en-hit.r_st
                 alignedBases += hit.mlen
-
                 alignedLength += hit.blen
 
                 #if transcript
@@ -206,12 +219,15 @@ for refFileIdx, refFile in enumerate(cont_file):
 
             if not hasHit:
                 idNotAlignedReads.append(name)
+                unalignedReads += 1
+                unalignedBases += len(seq)
 
                 if extractUnalignedFile != None:
                     extractUnalignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
 
             else:
                 idAlignedReads.append(name)
+                alignedReadsBases += len(seq)
                 alignedReads += 1
 
                 if extractAlignedFile != None:
@@ -248,16 +264,16 @@ for refFileIdx, refFile in enumerate(cont_file):
     basesPiePlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "bases_pie.png")
 
     if makeImages:
-        labels = ('Aligned \n Reads \n (n={acount})'.format(acount=alignedReads), 'Unaligned \n Reads \n (n={acount})'.format(acount=totalReads-alignedReads))
-        plt.pie([alignedReads, (totalReads-alignedReads)], explode=(0,0), labels=labels, colors=['gold', 'yellowgreen'],
+        labels = ('Aligned \n Reads \n (n={acount})'.format(acount=alignedReads), 'Unaligned \n Reads \n (n={acount})'.format(acount=unalignedReads))
+        plt.pie([alignedReads, unalignedReads], explode=(0,0), labels=labels, colors=['gold', 'yellowgreen'],
                 autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
         plt.axis('equal')
 
         plt.savefig(readPiePlot)
         plt.close()
 
-        labels = ('Aligned \n Bases \n (n={acount})'.format(acount=alignedLength), 'Unaligned \n Bases \n (n={acount})'.format(acount=totalBases-alignedLength))
-        plt.pie([alignedLength, (totalBases - alignedLength)], explode=(0, 0), labels=labels, colors=['lightcoral', 'lightskyblue'],
+        labels = ('Aligned \n Bases \n (n={acount})'.format(acount=alignedBases), 'Unaligned \n Bases \n (n={acount})'.format(acount=unalignedBases))
+        plt.pie([alignedBases, unalignedBases], explode=(0, 0), labels=labels, colors=['lightcoral', 'lightskyblue'],
                 autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
         plt.axis('equal')
         plt.savefig(basesPiePlot)
@@ -269,7 +285,10 @@ for refFileIdx, refFile in enumerate(cont_file):
                     alignedReads=alignedReads,
                     totalBases=totalBases,
                     alignmentBases=alignmentBases,
-                    alignedLength=alignedLength
+                    alignedLength=alignedLength,
+                    unalignedBases=unalignedBases,
+                    unalignedReads=unalignedReads,
+                    alignedReadsBases=alignedReadsBases
                     )
                     #idAlignedReads=idAlignedReads,
                     #idNotAlignedReads=idNotAlignedReads
