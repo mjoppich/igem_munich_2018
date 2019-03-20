@@ -1,11 +1,26 @@
 import argparse
 import json
 import os
-
+from collections import defaultdict
 import re
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import math
+
+SMALL_SIZE = 20
+MEDIUM_SIZE = 22
+BIGGER_SIZE = 24
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+plt.rc('figure', autolayout=True)
+
 
 ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
 
@@ -136,6 +151,87 @@ def makeReport(resDict, fname):
         fout.write(outHTML)
 
 
+"""
+
+PREPARE RANK PLOTS
+
+
+"""
+
+read2infoFile = {}
+for x in read_file:
+    infoFile = os.path.splitext(x)[0] + ".info"
+
+    if os.path.isfile(infoFile):
+        read2infoFile[x] = infoFile
+
+
+read2RankPlotData = {}
+
+if len(read2infoFile) > 0:
+
+    for readFile in read2infoFile:
+
+        time2read = defaultdict(list)
+
+        with open(read2infoFile[readFile], 'r') as fin:
+
+            idcolumn = 0
+            timecolumn = 1
+
+            for idx, content in enumerate(fin):
+
+                acontent = content.strip().split("\t")
+                if idx == 0 and acontent[0] == "READ_ID":
+                    idcolumn = 1
+                    timecolumn = 6
+                    continue
+
+                readid = acontent[idcolumn].split(" ")[0]
+                readtime = int (acontent[timecolumn])
+                time2read[readtime].append(readid)
+
+
+        minReadTime = 10000000000000000000000000000000
+        maxReadTime = 0
+        readinfo_dict = dict()
+        rcount = 0
+        for time in sorted([x for x in time2read]):
+
+            for readid in time2read[time]:
+                readinfo_dict[readid] = rcount
+
+                minReadTime = min([rcount, minReadTime])
+                maxReadTime = max([rcount, maxReadTime])
+
+                rcount += 1
+
+
+        bucketSize = 1000
+        numBuckets = math.ceil(maxReadTime/1000)
+
+        def getBucketNum(time):
+
+            ntime = time-minReadTime
+
+            (full, rem) = divmod(ntime, bucketSize)
+
+            return int(full)
+
+        allBuckets = []
+        for x in range(0, numBuckets):
+            allBuckets.append({"aligned": [], "unaligned": []})
+
+
+        read2RankPlotData[readFile] = (readinfo_dict, minReadTime, maxReadTime, allBuckets)
+
+
+
+
+
+
+
+
 
 # Mapper/Aligner
 
@@ -233,6 +329,27 @@ for refFileIdx, refFile in enumerate(cont_file):
                 if extractAlignedFile != None:
                     extractAlignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
 
+            if fastqFile in read2RankPlotData:
+
+                (readinfo_dict, minReadTime, maxReadTime, allBuckets) = read2RankPlotData[fastqFile]
+
+                readTime = readinfo_dict.get(name, None)
+                name_len = (name, len(seq))
+
+                if readTime != None:
+
+                    readBucket = getBucketNum(readTime)
+                    if readBucket >= len(allBuckets):
+                        readBucket = len(allBuckets)-1
+
+                    if hasHit:
+                        allBuckets[readBucket]["aligned"].append(name_len)
+                    else:
+                        allBuckets[readBucket]["unaligned"].append(name_len)
+                
+                read2RankPlotData[fastqFile] = (readinfo_dict, minReadTime, maxReadTime, allBuckets)
+
+
     if refFileIdx == 0:
 
         try:
@@ -240,17 +357,17 @@ for refFileIdx, refFile in enumerate(cont_file):
             readsLengthPlot10k = os.path.join(output_dir,prefix+"reads_length_10000.png")
 
             plt.figure(0)
-            plt.ylabel('Frequency', fontsize=10)
-            plt.xlabel('Length of reads', fontsize=10)
-            plt.title('Length frequencies of all reads', fontsize=12)
+            plt.ylabel('Frequency')
+            plt.xlabel('Length of reads')
+            plt.title('Length frequencies of all reads')
             plt.hist(readLengths, bins=100, color='green')
             plt.savefig(readsLengthPlot)
             plt.close()
 
             plt.figure(1)
-            plt.ylabel('Frequency', fontsize=10)
-            plt.xlabel('Length of reads', fontsize=10)
-            plt.title('Length frequencies of all reads', fontsize=12)
+            plt.ylabel('Frequency')
+            plt.xlabel('Length of reads')
+            plt.title('Length frequencies of all reads')
             plt.hist([x for x in readLengths if x < 10000], bins=100, color='green')
             plt.savefig(readsLengthPlot10k)
             plt.close()
@@ -262,22 +379,69 @@ for refFileIdx, refFile in enumerate(cont_file):
 
     readPiePlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "read_pie.png")
     basesPiePlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "bases_pie.png")
+    rankPlot = None
 
     if makeImages:
-        labels = ('Aligned \n Reads \n (n={acount})'.format(acount=alignedReads), 'Unaligned \n Reads \n (n={acount})'.format(acount=unalignedReads))
-        plt.pie([alignedReads, unalignedReads], explode=(0,0), labels=labels, colors=['gold', 'yellowgreen'],
-                autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
+        plt.figure(2)
+        labels = ('Aligned\nReads\n(n={:,})'.format(alignedReads), 'Unaligned\nReads\n (n={:,})'.format(unalignedReads))
+        patches, texts, autotexts = plt.pie([alignedReads, unalignedReads], explode=(0,0), labels=labels, colors=['gold', 'yellowgreen'],
+                autopct='%1.1f%%', shadow=True, startangle=-10)
         plt.axis('equal')
-
-        plt.savefig(readPiePlot)
+        plt.savefig(readPiePlot, bbox_extra_artists=autotexts+texts)
         plt.close()
 
-        labels = ('Aligned \n Bases \n (n={acount})'.format(acount=alignedBases), 'Unaligned \n Bases \n (n={acount})'.format(acount=unalignedBases))
-        plt.pie([alignedBases, unalignedBases], explode=(0, 0), labels=labels, colors=['lightcoral', 'lightskyblue'],
-                autopct='%1.1f%%', shadow=True, startangle=140, textprops={'fontsize': 13})
+        plt.figure(3)
+        labels = ('Aligned\n Bases\n(n={:,})'.format(alignedReadsBases), 'Unaligned\nBases\n(n={:,})'.format(unalignedBases))
+        patches, texts, autotexts = plt.pie([alignedReadsBases, unalignedBases], explode=(0, 0), labels=labels, colors=['lightcoral', 'lightskyblue'],
+                autopct='%1.1f%%', shadow=True, startangle=-10)
         plt.axis('equal')
-        plt.savefig(basesPiePlot)
+        plt.savefig(basesPiePlot, bbox_extra_artists=autotexts+texts)
         plt.close()
+
+
+        """
+        PREPARE RANK PLOT
+        """
+
+        if fastqFile in read2RankPlotData:
+            (readinfo_dict, minReadTime, maxReadTime, allBuckets) = read2RankPlotData[fastqFile]
+
+            xdata = []
+            ydata = []
+
+            rankAlignedCount = 0
+            rankTotalCount = 0
+
+            for idx, bucket in enumerate(allBuckets):
+
+                rankAlignedBucket = len(bucket["aligned"])
+                rankUnalignedBucket = len(bucket["unaligned"])
+
+                rankAlignedCount += rankAlignedBucket
+                rankTotalCount += rankAlignedBucket + rankUnalignedBucket
+
+                rankAlignedFraction = 0
+                
+                if rankTotalCount > 0:
+                    rankAlignedFraction = rankAlignedCount/rankTotalCount
+
+                xdata.append( idx+1 )
+                ydata.append( rankAlignedFraction )
+
+            rankPlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "rank_plot.png")
+
+            plt.figure(4)
+
+
+            if len(xdata) < 2:
+                plt.scatter(xdata, ydata, marker="o", label="Aligned Fraction")
+            else:
+                plt.plot(xdata, ydata, label="Aligned Fraction")
+            plt.title(r'Impurity ratio in sequencing samples')
+            plt.xlabel(r'$x \cdot 1000$ reads')
+            plt.ylabel(r'Impurity ratio for first $x \cdot 1000$ reads [%]')
+            plt.savefig(rankPlot, bbox_inches="tight")
+            plt.close()
 
 
     tmp_dict = dict(
@@ -300,6 +464,9 @@ for refFileIdx, refFile in enumerate(cont_file):
         tmp_dict["basesPie"] = basesPiePlot
         tmp_dict["refs"] = [refFile]
         tmp_dict["overviewUrl"] = os.path.join(output_dir,prefix + "_" + fasta_outname + "overview.html")
+
+        if rankPlot != None:
+            tmp_dict["rankplot"] = rankPlot
 
 
         makeReport(tmp_dict, refFile)

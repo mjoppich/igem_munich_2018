@@ -51,6 +51,7 @@ class TextMobileStepper extends React.Component<{}, {
     inputFiles: Array<any>,
     saveFiles: any,
     inputRefs: Array<any>,
+    refPath2inputRef: any,
     outputDir: String,
     contamResult: any,
     contamStrRes: String,
@@ -71,6 +72,7 @@ class TextMobileStepper extends React.Component<{}, {
         saveFiles: JSON.parse("{}"),
         outputDir: "",
         inputRefs: new Array(),
+        refPath2inputRef: JSON.parse("{}"),
         contamResult: JSON.parse("{}"),
         contamStrRes: "",
         resultTable: <div></div>,
@@ -81,6 +83,8 @@ class TextMobileStepper extends React.Component<{}, {
         riboValues: new Array(),
         selectedRiboValues: new Array()
     };
+
+    contamRefPath2Element: any = {};
 
     constructor(props: any) {
         super(props);
@@ -502,7 +506,19 @@ class TextMobileStepper extends React.Component<{}, {
                                     onClick={() => self.handleRefPathDelete(element)}>
                                     <DeleteIcon />
                                 </IconButton>}
-        
+                            
+                            
+                            Contaminant:
+                            <Switch
+                            checked={element.isContaminant}
+                            color="primary"
+                            onChange={() => {
+                            element.isContaminant = !element.isContaminant;
+                                this.setState({ inputRefs: this.state.inputRefs })
+                            }} />
+
+
+                            Enabled:
                             <Switch
                                 checked={element.enabled}
                                 color="primary"
@@ -526,7 +542,7 @@ class TextMobileStepper extends React.Component<{}, {
                 <div>
                     <Typography gutterBottom>
                         To check what your reads truly consist of you need a reference against which the reads will be mapped. The reference might be a possible contamination,
-                        such as E. Coli, or a known genome that your reads ought to be representing. You can use RNA as well as DNA sequences, as long as they are in the FastA Format. You will find sequences for example on NCBI.
+                        such as E. Coli, or a known genome that your reads ought to be representing. You can use RNA as well as DNA sequences, as long as they are in the FASTA Format. You will find sequences for example on NCBI.
             </Typography>
 
                     <Typography gutterBottom>
@@ -572,7 +588,7 @@ class TextMobileStepper extends React.Component<{}, {
                         </svg>
 
                         <Typography component="span">
-                            Choose your FastA files.&nbsp;
+                            Choose your FASTA files.&nbsp;
                     </Typography>
 
                     </div>
@@ -1306,6 +1322,11 @@ class TextMobileStepper extends React.Component<{}, {
 
     convertUnix2Win(inpath: string) {
 
+        if ((inpath == null) || (inpath==undefined))
+        {
+            return inpath;
+        }
+
         // /mnt/c/test/file.ext
         var outpath = inpath.replace(/\//g, "\\");
         // \mnt\c\text\file.ext
@@ -1455,7 +1476,8 @@ class TextMobileStepper extends React.Component<{}, {
             this.state.inputRefs.push({
                 path: riboClassFilename,
                 type: "ribosomal RNA",
-                enabled: true
+                enabled: true,
+                isContaminant: true
             })
         })
 
@@ -1499,12 +1521,16 @@ class TextMobileStepper extends React.Component<{}, {
                         allFiles.push(inref);
                         refFiles.push(inref);
 
+                        self.contamRefPath2Element[inref] = element;
+
                     } else {
 
                         var inref = self.normalizePath(element.path);
                         command = command + inref + " "
                         allFiles.push(inref);
                         refFiles.push(inref);
+
+                        self.contamRefPath2Element[inref] = element;
 
                     }
                 }
@@ -1885,6 +1911,7 @@ class TextMobileStepper extends React.Component<{}, {
             var readsPieUrl = element.readsPie;
             var readLengthSmallPlotUrl = element.readLengthPlotSmall;
             var overviewUrl = element.overviewUrl;
+            var readRankUrl = element.rankplot;
 
             if (os.platform() == "win32") {
                 basesPieUrl = self.convertUnix2Win(element.basesPie);
@@ -1892,6 +1919,7 @@ class TextMobileStepper extends React.Component<{}, {
                 readLengthSmallPlotUrl = self.convertUnix2Win(element.readLengthPlotSmall);
                 readsPieUrl = self.convertUnix2Win(element.readsPie);
                 overviewUrl = self.convertUnix2Win(element.overviewUrl);
+                readRankUrl = self.convertUnix2Win(element.rankplot);
             }
 
 
@@ -1915,15 +1943,57 @@ class TextMobileStepper extends React.Component<{}, {
 
                 console.log(element["fastq"].map((x: any) => { path.basename(x) }).join(", "))
 
+                var origContamName = sContamName;
 
                 if (sContamName in self.transformedPaths) {
-                    sContamName = self.transformedPaths[sContamName];
+                    sContamName = self.transformedPaths[sContamName];    
                 }
+
+
+
+                
+                console.log(self.contamRefPath2Element)
+                console.log(element['refs'][0])
+                console.log(sContamName)
+
+                var analysisResult = null;
+
+                if (element['refs'][0] in self.contamRefPath2Element)
+                {
+                    var contamInputRef = self.contamRefPath2Element[element['refs'][0]];
+                    console.log(contamInputRef);
+                    console.log(self.state.inputRefs);
+
+                    var alignedReadsFraction = element['alignedReads'] / element['totalReads'];
+
+                    analysisResult = []
+
+                    if (contamInputRef.isContaminant)
+                    {
+                        if (alignedReadsFraction > 0.3)
+                        {
+                            analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! More than 30% of all reads align to impurity!</p>);
+                        }
+
+
+
+                    } else {
+
+                        if (alignedReadsFraction < 0.7)
+                        {
+                            analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! less than 70% of all reads align to target!</p>)
+                        }
+
+                    }
+                }
+
+                var contamResultInterpret = <div style={{ display: "inline-flex" }}>
+                {analysisResult}
+                </div>;
 
                 sContamName = self.getBasename(sContamName);
 
-
-
+            
 
                 var tablePart =
                     <Table>
@@ -2035,7 +2105,8 @@ class TextMobileStepper extends React.Component<{}, {
                                         {element["fastq"].map((x: any) => { return path.basename(x) }).join(", ")}
                                     </Typography>
                                 </div>
-
+                                
+                                {contamResultInterpret}
                                 {tablePart}
 
                                 <Gallery
@@ -2047,6 +2118,7 @@ class TextMobileStepper extends React.Component<{}, {
                                         { src: basesPieUrl, caption: "Bases Pie" },
                                         { src: readLengthPlotUrl, caption: "Read Lengths" },
                                         { src: readLengthSmallPlotUrl, caption: "Read Lengths (<10k)" },
+                                        { src: readRankUrl, caption: "Impurity over read bucket"}
                                     ]} />
 
                                 <Button
