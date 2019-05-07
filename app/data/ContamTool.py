@@ -58,7 +58,7 @@ if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
 for rf in read_file:
-    if not (rf.endswith(".fastq") or rf.endswith(".fq")):
+    if not (rf.endswith(".fastq") or rf.endswith(".fq") or rf.endswith(".tmp")):
         print('Please enter contamination in fastq format \n *Please no spaces in file name!*')
         print(rf)
         exit()
@@ -191,39 +191,25 @@ if len(read2infoFile) > 0:
                 readtime = int (acontent[timecolumn])
                 time2read[readtime].append(readid)
 
-
-        minReadTime = 10000000000000000000000000000000
-        maxReadTime = 0
-        readinfo_dict = dict()
-        rcount = 0
-        for time in sorted([x for x in time2read]):
-
-            for readid in time2read[time]:
-                readinfo_dict[readid] = rcount
-
-                minReadTime = min([rcount, minReadTime])
-                maxReadTime = max([rcount, maxReadTime])
-
-                rcount += 1
-
-
-        bucketSize = 1000
-        numBuckets = math.ceil(maxReadTime/1000)
-
-        def getBucketNum(time):
-
-            ntime = time-minReadTime
-
-            (full, rem) = divmod(ntime, bucketSize)
-
-            return int(full)
-
+        readid2bucket = {}
+        bucket2readid = defaultdict(set)
+        curBucketID = 0
         allBuckets = []
-        for x in range(0, numBuckets):
-            allBuckets.append({"aligned": [], "unaligned": []})
+        allBuckets.append({"aligned": [], "unaligned": []})
+
+        for timeStamp in sorted([x for x in time2read]):
+
+            for readID in time2read[timeStamp]:
+                
+                if len(bucket2readid[curBucketID]) == 1000:
+                    curBucketID += 1
+                    allBuckets.append({"aligned": [], "unaligned": []})
+
+                bucket2readid[curBucketID].add(readID)
+                readid2bucket[readID] = curBucketID
 
 
-        read2RankPlotData[readFile] = (readinfo_dict, minReadTime, maxReadTime, allBuckets)
+        read2RankPlotData[readFile] = (readid2bucket, bucket2readid, allBuckets)
 
 
 
@@ -331,14 +317,14 @@ for refFileIdx, refFile in enumerate(cont_file):
 
             if fastqFile in read2RankPlotData:
 
-                (readinfo_dict, minReadTime, maxReadTime, allBuckets) = read2RankPlotData[fastqFile]
+                (readid2bucket, bucket2readid, allBuckets) = read2RankPlotData[fastqFile]
 
-                readTime = readinfo_dict.get(name, None)
-                name_len = (name, len(seq))
+                readBucket = readid2bucket.get(name, None)
 
-                if readTime != None:
+                if readBucket != None:
 
-                    readBucket = getBucketNum(readTime)
+                    name_len = (name, len(seq))
+
                     if readBucket >= len(allBuckets):
                         readBucket = len(allBuckets)-1
 
@@ -347,7 +333,7 @@ for refFileIdx, refFile in enumerate(cont_file):
                     else:
                         allBuckets[readBucket]["unaligned"].append(name_len)
                 
-                read2RankPlotData[fastqFile] = (readinfo_dict, minReadTime, maxReadTime, allBuckets)
+                read2RankPlotData[fastqFile] = (readid2bucket, bucket2readid, allBuckets)
 
 
     if refFileIdx == 0:
@@ -404,7 +390,7 @@ for refFileIdx, refFile in enumerate(cont_file):
         """
 
         if fastqFile in read2RankPlotData:
-            (readinfo_dict, minReadTime, maxReadTime, allBuckets) = read2RankPlotData[fastqFile]
+            (readid2bucket, bucket2readid, allBuckets) = read2RankPlotData[fastqFile]
 
             xdata = []
             ydata = []
@@ -437,9 +423,9 @@ for refFileIdx, refFile in enumerate(cont_file):
                 plt.scatter(xdata, ydata, marker="o", label="Aligned Fraction")
             else:
                 plt.plot(xdata, ydata, label="Aligned Fraction")
-            plt.title(r'Impurity ratio in sequencing samples')
-            plt.xlabel(r'$x \cdot 1000$ reads')
-            plt.ylabel(r'Impurity ratio for first $x \cdot 1000$ reads [%]')
+            plt.title(r'Aligned ratio in sequencing samples')
+            plt.xlabel(r'First $x \cdot 1000$ reads')
+            plt.ylabel(r'Aligned ratio for first $x \cdot 1000$ reads [%]')
             plt.savefig(rankPlot, bbox_inches="tight")
             plt.close()
 

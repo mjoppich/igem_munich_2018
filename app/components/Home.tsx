@@ -38,7 +38,6 @@ var os = require("os");
 var fs = require('fs');
 const shellPath = require('shell-path');
 
-
 var dialog = remote.dialog;
 
 
@@ -61,7 +60,8 @@ class TextMobileStepper extends React.Component<{}, {
     showProgress2: boolean,
     showImages: boolean,
     riboValues: Array<any>,
-    selectedRiboValues: Array<any>
+    selectedRiboValues: Array<any>,
+    readExtractNumber: Number
 }>
 
 
@@ -81,7 +81,8 @@ class TextMobileStepper extends React.Component<{}, {
         showProgress2: false,
         showImages: false,
         riboValues: new Array(),
-        selectedRiboValues: new Array()
+        selectedRiboValues: new Array(),
+        readExtractNumber: 1000
     };
 
     contamRefPath2Element: any = {};
@@ -285,9 +286,21 @@ class TextMobileStepper extends React.Component<{}, {
 
             var icon = <Icon>insert_drive_file</Icon>;
             var enableFast5Extract = null;
+            var fullFast5Extract = null;
 
 
             if (element.type == "folder") {
+
+                if (!element.forceFast5Extract)
+                {
+                    element.forceFast5Extract = false;
+                }
+
+                if (!element.fullFast5Extract)
+                {
+                    element.fullFast5Extract = false;
+                }
+
                 icon = <Icon>folder_open</Icon>;
                 enableFast5Extract = <div><Switch
                     checked={element.forceFast5Extract}
@@ -296,6 +309,19 @@ class TextMobileStepper extends React.Component<{}, {
                     element.forceFast5Extract = !element.forceFast5Extract;
                         this.setState({ inputRefs: this.state.inputRefs })
                     }} /></div>
+
+                fullFast5Extract = <div><Switch
+                    checked={element.fullFast5Extract}
+                    color="primary"
+                    onChange={() => {
+                    element.fullFast5Extract = !element.fullFast5Extract;
+                        this.setState({ inputRefs: this.state.inputRefs })
+                    }} /></div>
+            } else if (element.type == "tmp_folder")
+            {
+                icon = <Icon>folder_open</Icon>;
+
+                // maybe 
             }
             var enableTrancript = null;
             enableTrancript = <div><Switch
@@ -320,11 +346,18 @@ class TextMobileStepper extends React.Component<{}, {
                     <FormGroup>
                         <FormControlLabel
                             control={enableFast5Extract === null ? <div></div> : enableFast5Extract}
-                            label={enableFast5Extract === null ? "" : "Re-Extract"} />
+                            label={element.forceFast5Extract ? "Re-extract reads" : "Update-extract reads"}
+                            labelPlacement="start" />
+
+                        <FormControlLabel
+                            control={fullFast5Extract === null ? <div></div> : fullFast5Extract}
+                            label={fullFast5Extract === null ? "" : "Extract all reads"}
+                            labelPlacement="start" />
 
                         <FormControlLabel
                             control={enableTrancript === null ? <div></div> : enableTrancript}
-                            label="Transcript" />
+                            label="Transcript"
+                            labelPlacement="start" />
                     </FormGroup>
 
                     <IconButton
@@ -352,6 +385,12 @@ class TextMobileStepper extends React.Component<{}, {
                     <Typography gutterBottom>
                         Each chosen file will be handled separately. This is also true if you upload the same file twice. If you wish to examine certain reads together, e.g. because they stem from
                 the same experiment, make sure to save them in a folder and upload that folder via <em>Choose Directory</em>. In order to analyse a single file, upload it via <em>Choose File</em>.
+             </Typography>
+             <Typography gutterBottom>
+                For read extraction (from a folder of FAST5 files) you can specify how many reads should be extracted (1000 by default).
+                If you set this value to a negative number, all reads will be extracted.
+                For a folder, you can force to "re-extract" reads, if you want to overwrite a preceeding run.
+                Here you can also specify to extract all reads (this overrides the previous setting).
              </Typography>
 
                     <Typography gutterBottom>
@@ -433,6 +472,28 @@ class TextMobileStepper extends React.Component<{}, {
                                 Choose Directory
                             <Icon>attach_file</Icon>
                             </Button>
+
+                            <Button
+                                variant="contained"
+                                color="default"
+                                component="label"
+                                onClick={() => this.handleSeqPath("tmp_folder")}
+                                style={{ marginTop: "10px" }}>
+                                Choose ONT Tmp Directory
+                            <Icon>attach_file</Icon>
+                            </Button>
+
+                            <TextField
+                            id="standard-number"
+                            label="Number of reads to Extract"
+                            value={this.state.readExtractNumber}
+                            onChange={(ev: any) => this.setState({readExtractNumber: ev.target.value})}
+                            type="number"
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            margin="normal"
+                            />
                         </CardActions>
 
                         <CardContent>
@@ -646,8 +707,21 @@ class TextMobileStepper extends React.Component<{}, {
                                 Currently selected ribosomal species: {this.state.selectedRiboValues.join(", ")}
                             </div>
                             
-                        <AutoSuggestChips datasource={this.state.riboValues} callback={(selValues) => {
-                            this.setState({selectedRiboValues: selValues});
+                        <AutoSuggestChips datasource={this.state.riboValues} callback={(addedChip) => {
+
+                                //extract sequence
+                                var riboClassFilename = self.extractRiboClass(addedChip, self.normalizePath(self.state.outputDir));
+
+                                //add extracted sequence to references
+                                this.state.inputRefs.push({
+                                    path: riboClassFilename,
+                                    type: "ribosomal RNA",
+                                    enabled: true,
+                                    isContaminant: true
+                                });
+                    
+                                this.setState({inputRefs: this.state.inputRefs});
+
                         }}/>
 
                         </CardContent>
@@ -983,26 +1057,79 @@ class TextMobileStepper extends React.Component<{}, {
                         </Button>
                     </Card>
 
+                    <Card
+                        style={{ marginTop: this.largeMargin }}>
+                        <CardContent>
 
-                    <div
+                        <Typography gutterBottom>
+                            How to continue? If you want to add a possible contamination source, go back.
+                            If you need to add your read's location, reset.
+                            If you have sequenced further and want to repeat the current analysis, redo your analysis <em>extracting all reads</em>.
+                        </Typography>
+
+                        <div
                         style={{
                             marginTop: this.largeMargin,
                             marginBottom: "25px",
                             marginRight: "50px"
                         }}>
+
+                        <Button
+                            variant="contained"
+                            onClick={() => { this.handleBack(false) }}
+                            size="large"
+                            style={{
+                                color: "white",
+                                marginRight: "50px"
+                            }}>
+                            Go back&nbsp;
+                                    <Icon>keyboard_backspace</Icon>
+                        </Button>
+
                         <Button
                             variant="contained"
                             onClick={() => { this.handleBack(true) }}
+                            size="large"
+                            style={{
+                                color: "white",
+                                marginRight: "50px"
+                            }}>
+                            Reset&nbsp;
+                                    <Icon>360</Icon>
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            onClick={() => { 
+                                var self=this;
+                                var win = remote.getCurrentWindow();
+
+                                win.webContents.session.clearStorageData(function() {
+                                    win.webContents.session.clearCache(function(){
+                                        self.state.resultTable = <p></p>;
+                                        self.state.readExtractNumber = -1;
+                                        self.setState({readExtractNumber: -1, resultTable: self.state.resultTable});
+                                        self.startPython();
+                                    });
+                                });
+
+   
+
+
+                            }}
                             size="large"
                             style={{
                                 backgroundColor: 'red',
                                 color: "white",
                                 marginRight: "50px"
                             }}>
-                            Reset&nbsp;
-                                    <Icon>bubble_chart</Icon>
+                            Redo Analysis (extract all)&nbsp;
+                                    <Icon>refresh</Icon>
                         </Button>
                     </div>
+                        </CardContent>
+                    </Card>
+
                 </div>,
         };
     }
@@ -1061,6 +1188,7 @@ class TextMobileStepper extends React.Component<{}, {
 
         if ((reset) || (newStep < 0)) {
             newStep = 0;
+            this.setState({selectedRiboValues: []})
         }
 
         this.setState(
@@ -1081,7 +1209,7 @@ class TextMobileStepper extends React.Component<{}, {
                     filters: [
                         {
                             name: 'FastQ',
-                            extensions: ['fastq', 'FASTAQ', 'fq', 'FQ']
+                            extensions: ['tmp', 'fastq', 'FASTAQ', 'fq', 'FQ']
                         }
                     ]
                 },
@@ -1105,7 +1233,7 @@ class TextMobileStepper extends React.Component<{}, {
 
                     self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
                 });
-        } else {
+        } else if (upType == "tmp_folder") {
             dialog.showOpenDialog(
                 { properties: ['openDirectory'] },
 
@@ -1115,6 +1243,25 @@ class TextMobileStepper extends React.Component<{}, {
                         return;
                     }
 
+                    dirName.forEach((element: any) => {
+                        //self.state.outputDir = path.join(element, 'tmp')
+                        self.state.inputFiles.push({
+                            path: element,
+                            type: upType,
+                        });
+                    });
+
+                    self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
+                });
+        } else if (upType == "folder") {
+            dialog.showOpenDialog(
+                { properties: ['openDirectory'] },
+
+                (dirName: any) => {
+                    if (dirName === undefined) {
+                        console.log("No file selected");
+                        return;
+                    }
 
                     dirName.forEach((element: any) => {
                         self.state.outputDir = path.join(element, 'tmp')
@@ -1123,7 +1270,6 @@ class TextMobileStepper extends React.Component<{}, {
                             type: upType,
                         });
                     });
-
 
                     self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
                 });
@@ -1342,18 +1488,48 @@ class TextMobileStepper extends React.Component<{}, {
 
     // ### STEP 4 ###
 
-    getAllReadFilesFromDir(dirPath: any) {
+getFilesInFolder(dirPath: any)
+{
+    var walk = function(dir) {
+        var results = [];
+        var list = fs.readdirSync(dir);
+        list.forEach(function(file) {
+            file = path.join(dir, file);
+            var stat = fs.statSync(file);
+            if (stat && stat.isDirectory()) { 
+                /* Recurse into a subdirectory */
+                results = results.concat(walk(file));
+            } else { 
+                /* Is a file */
+                results.push(file);
+            }
+        });
+        return results;
+    }
+
+    return walk(dirPath);
+}
+
+getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*FQ$/ig]) {
         var self = this;
-        var allFilesInDir = fs.readdirSync(dirPath);
-        var reportedFiles: any = [];
+        var allFilesInDir = this.getFilesInFolder(dirPath);
+        var reportedFiles: any = []; 
+        
+        console.log("Files in Dir")
+        console.log(allFilesInDir)
+
 
         allFilesInDir.forEach((myFile: any) => {
-            if (myFile.toUpperCase().endsWith("FASTQ") || myFile.toUpperCase().endsWith("FQ")) {
 
-                var pathToFile = self.normalizePath(path.join(dirPath, myFile));
+            for (var i=0; i < extensions.length; ++i)
+            {
+                if (myFile.toUpperCase().match(extensions[i])) {
 
-                reportedFiles.push(pathToFile);
+                    reportedFiles.push(myFile);
+                    break;
+                }
             }
+            
         });
 
         return reportedFiles;
@@ -1429,26 +1605,47 @@ class TextMobileStepper extends React.Component<{}, {
 
         self.state.inputFiles.forEach(element => {
 
+            console.log("For each input file")
+            console.log(element)
             console.log("TRANSCRIPT " + element.transcript);
             console.log("FAST5 " + element.forceFast5Extract);
+            console.log("FAST5 FULL " + element.fullFast5Extract);
 
             var stats = fs.lstatSync(element.path)
             if (stats.isDirectory()) {
 
                 processFilesForElement[element.path] = [];
 
-                var allFoundFiles: any = self.getAllReadFilesFromDir(element.path);
+                //var allFoundFiles: any = self.getAllReadFilesFromDir(element.path);
 
-                if ((allFoundFiles.length == 0) || (element.forceFast5Extract == true)) {
-                    console.log("Extracting reads" + element.path);
+                var allFoundFiles = [];
+                if (element.type == "folder")
+                {
+                    console.log("Extracting reads from folder" + element.path);
                     // extract reads
-                    self.extractReadsForFolder(element.path);
+                    self.extractReadsForFolder(element.path, element.forceFast5Extract, element.fullFast5Extract);
                     // get extracted reads
                     allFoundFiles = self.getAllReadFilesFromDir(element.path);
+                } else if (element.type == "tmp_folder") {
+
+                    allFoundFiles = self.getAllReadFilesFromDir(element.path, [/.*fastq.*\.tmp$/ig]);
+
                 }
+                
+
+                //if ((allFoundFiles.length == 0) || (element.forceFast5Extract == true)) {
+                //}
 
                 console.log("All found files")
                 console.log(allFoundFiles)
+
+
+                allFoundFiles = allFoundFiles.map(function(x) {
+                    return self.normalizePath(x);
+                });
+
+                console.log(allFoundFiles)
+
 
                 processFilesForElement[element.path] = allFoundFiles;
                 if (element.transcript) {
@@ -1466,22 +1663,6 @@ class TextMobileStepper extends React.Component<{}, {
         });
 
         
-
-        self.state.selectedRiboValues.forEach((orgClass) => {
-
-            //extract sequence
-            var riboClassFilename = self.extractRiboClass(orgClass, self.normalizePath(self.state.outputDir));
-
-            //add extracted sequence to references
-            this.state.inputRefs.push({
-                path: riboClassFilename,
-                type: "ribosomal RNA",
-                enabled: true,
-                isContaminant: true
-            })
-        })
-
-
         var processFileKeys = Object.keys(processFilesForElement);
         var totalProcessRuns: any = processFileKeys.length;
         var finishedFileKeys: any = [];
@@ -1537,6 +1718,8 @@ class TextMobileStepper extends React.Component<{}, {
             })
 
             let elem_prefix = allFiles.map((x: any) => self.makeExportPath(x)).join("_");
+            console.log(elem_prefix);
+            elem_prefix = elem_prefix.substring(0, 50)
             console.log(elem_prefix);
 
             command = command + "--o " + self.normalizePath(self.state.outputDir) + " "
@@ -1972,7 +2155,7 @@ class TextMobileStepper extends React.Component<{}, {
                     {
                         if (alignedReadsFraction > 0.3)
                         {
-                            analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! More than 30% of all reads align to impurity!</p>);
+                            analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! More than 30% of all reads align to CIN sequence!</p>);
                         }
 
 
@@ -1987,7 +2170,7 @@ class TextMobileStepper extends React.Component<{}, {
                     }
                 }
 
-                var contamResultInterpret = <div style={{ display: "inline-flex" }}>
+                var contamResultInterpret = <div>
                 {analysisResult}
                 </div>;
 
@@ -2077,7 +2260,19 @@ class TextMobileStepper extends React.Component<{}, {
                         </TableBody>
                     </Table>;
 
+                var allImages = [
+                    { src: readsPieUrl + "?" + new Date().getTime(), caption: "Read Pie" },
+                    { src: basesPieUrl + "?" + new Date().getTime(), caption: "Bases Pie" },
+                    { src: readLengthPlotUrl + "?" + new Date().getTime(), caption: "Read Lengths" },
+                    { src: readLengthSmallPlotUrl + "?" + new Date().getTime(), caption: "Read Lengths (<10k)" },
+                ];
 
+                if (readRankUrl)
+                {
+                    allImages.push({ src: readRankUrl +"?" + new Date().getTime(), caption: "Off-target rate over read bucket"})
+                }
+
+                console.log(allImages);
 
 
                 resultItems.push(
@@ -2113,13 +2308,7 @@ class TextMobileStepper extends React.Component<{}, {
                                     heading={"Plots"}
                                     subheading={null}
                                     showThumbnails={false}
-                                    images={[
-                                        { src: readsPieUrl, caption: "Read Pie" },
-                                        { src: basesPieUrl, caption: "Bases Pie" },
-                                        { src: readLengthPlotUrl, caption: "Read Lengths" },
-                                        { src: readLengthSmallPlotUrl, caption: "Read Lengths (<10k)" },
-                                        { src: readRankUrl, caption: "Impurity over read bucket"}
-                                    ]} />
+                                    images={allImages} />
 
                                 <Button
                                     variant="contained"
@@ -2171,10 +2360,22 @@ class TextMobileStepper extends React.Component<{}, {
         this.forceUpdate();
     }
 
-    extractReadsForFolder(folderPath: string) {
+    extractReadsForFolder(folderPath: string, forceExtract: boolean, fullExtract: boolean) {
         var nfolderPath = this.normalizePath(folderPath)
 
-        var command = this.getExtractReadsToolPath() + " --count 1000 --folder " + nfolderPath;
+        var reExtract = "--update";
+        if (forceExtract)
+        {
+            reExtract = ""
+        }
+
+        var extractCount = this.state.readExtractNumber;
+        if (fullExtract)
+        {
+            extractCount = -1;
+        }
+
+        var command = this.getExtractReadsToolPath() + " " + reExtract + " --count " + extractCount + " --folder " + nfolderPath;
 
         var program = "";
         var programArgs = null;

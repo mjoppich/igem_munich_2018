@@ -8,7 +8,7 @@ from collections import OrderedDict
 from enum import Enum
 from collections import OrderedDict, Counter
 
-import dateutil
+from dateutil import parser as dtparser
 import os
 
 class FASTQ:
@@ -122,6 +122,73 @@ class Fast5TYPE(Enum):
 class Fast5FileException(Exception):
     pass
 
+class Fast5FileTYPE(Enum):
+    SINGLE = 'SINGLE_FASTA'
+    MULTIFASTA = 'MULTI_FASTA'
+
+    def __str__(self):
+        return self.name
+
+class MFast5File:
+
+    def _open(self, keep_open):
+
+        self.hdf5file = h5py.File(self.filename, 'r')
+        self.type = self._guessType()
+
+    def __init__(self, path, keep_file_open = False):
+
+        self.hdf5file = None
+        self.filename = path
+        self.type = None
+        self.iterPaths = []
+        self.is_open = self._open(keep_file_open)
+
+        print(self.type)
+
+    def _guessType(self):
+
+        cntGrpsMulti = 0
+        cntGrpsSingle = 0
+
+        allIterPaths = list()
+        for grp in self.hdf5file:
+
+            if grp.startswith("read_"):
+                cntGrpsMulti += 1
+                if not grp in allIterPaths:
+                    allIterPaths.append(grp)
+            else:
+                cntGrpsSingle += 1
+
+        if cntGrpsSingle == 0:
+            self.iterPaths = list(allIterPaths)
+            return Fast5FileTYPE.MULTIFASTA
+
+        self.iterPaths = ["/"]
+        return Fast5FileTYPE.SINGLE
+
+    def __len__(self):
+        return len(self.iterPaths)
+        
+    def __iter__(self):
+
+        self.iterIdx = 0
+        return self
+
+    def __next__(self):
+
+        if self.iterIdx >= len(self.iterPaths):
+            raise StopIteration
+
+        iPath = self.iterPaths[self.iterIdx]
+        self.iterIdx += 1
+        return Fast5File(self.hdf5file[iPath], path=iPath)
+
+
+
+
+
 class Fast5File:
 
     @classmethod
@@ -139,12 +206,12 @@ class Fast5File:
     @classproperty
     def analyses_paths(cls):
         return OrderedDict([
-            (Fast5TYPE.BASECALL_2D, '/Analyses/Basecall_2D_%03d/'),
-            (Fast5TYPE.BASECALL_1D_COMPL, '/Analyses/Basecall_1D_%03d/'),
-            (Fast5TYPE.BASECALL_1D, '/Analyses/Basecall_1D_%03d/'),
-            (Fast5TYPE.BASECALL_RNN_1D, '/Analyses/Basecall_RNN_1D_%03d/'),
-            (Fast5TYPE.BARCODING, '/Analyses/Barcoding_%03d/'),
-            (Fast5TYPE.PRE_BASECALL, '/Analyses/EventDetection_%03d/')
+            (Fast5TYPE.BASECALL_2D, './Analyses/Basecall_2D_%03d/'),
+            (Fast5TYPE.BASECALL_1D_COMPL, './Analyses/Basecall_1D_%03d/'),
+            (Fast5TYPE.BASECALL_1D, './Analyses/Basecall_1D_%03d/'),
+            (Fast5TYPE.BASECALL_RNN_1D, './Analyses/Basecall_RNN_1D_%03d/'),
+            (Fast5TYPE.BARCODING, './Analyses/Barcoding_%03d/'),
+            (Fast5TYPE.PRE_BASECALL, './Analyses/EventDetection_%03d/')
             #(Fast5TYPE.UNKNOWN, "")
         ])
 
@@ -162,26 +229,22 @@ class Fast5File:
 
         ])
 
-    def __init__(self, path, group=0, keep_file_open = False):
+    def __init__(self, h5grp, path=None, group=0, keep_file_open = False):
 
-        self.filename = path
         self.type = None
+        self.filename = path
 
         self.sequence_paths = {}
         self.winner = Fast5TYPE.BASECALL_1D
 
-        self.hdf5file = None
-        self.is_open = self._open(keep_file_open)
+        self.hdf5file = h5grp
+        self.type = self._guessType()
 
         self.pore = (-1, -1)
         self.timestamp = 0
         self.readnum = 0
         self.read_length = 0
 
-    def _open(self, keep_open):
-
-        self.hdf5file = h5py.File(self.filename, 'r')
-        self.type = self._guessType()
 
         #self.printGroupsAttribs()
 
@@ -393,8 +456,8 @@ class Fast5File:
             return timestamp
         except:
             try:
-                from dateutil import parser
-                parsedTime = parser.parse(str(timeAttribData))
+                
+                parsedTime = dtparser.parse(str(timeAttribData))
                 timestamp = parsedTime.timestamp()
                 return int(timestamp)
 
@@ -557,10 +620,11 @@ class Fast5Directory:
         if not os.path.isdir(path):
             raise ValueError("Given path is not a directory: " + path)
 
-        self.path = Path(path)
+        self.path = os.path.abspath(path)#Path(path)
 
         print(self.path)
-        self.filesIT = self.path.glob("**/*.fast5")
+        self.filesIT = glob.glob(self.path +"/" + "**/*.fast5", recursive=True)
+        self.filesIT.sort(key=os.path.getctime)
 
     def collect(self):
 
@@ -572,16 +636,40 @@ class Fast5Directory:
 
 if __name__ == '__main__':
 
+    """
+    mf5 = MFast5File("/mnt/d/sequinto_tests/sequinto_tmp_t4/20190409_1501_MN24717_FAK00725_b2183091/fast5_fail/FAK00725_35c299f92b0bbeb2408f276ed29e011b2bbc896a_0.fast5")
+
+    print(len(mf5))
+
+    for read in mf5:
+        output = read.getFastQ()
+        print(output, read.filename)
+
+        if read.filename.endswith("df"):
+            read.printGroupsAttribs()
+
+        if output != None:
+            break
+
+    mf5 = MFast5File("/mnt/d/dev/data/minion_basecalled/170329_2d_sequencing_run_1.1_p12_pooled/workspace/20/MVPI22502_20170329_FNFAF18582_MN19136_sequencing_run_170329_2D_sequencing_run_1_1_P12_pooled_39634_ch82_read269_strand.fast5")
+
+    print(len(mf5))
+
+    for read in mf5:
+        output = read.getFastQ()
+        print(output)
+
+    exit()
+    """
 
     ap = argparse.ArgumentParser(description='--reads file1.fastq --cont file2.fasta file3.fasta')
 
     ap.add_argument("--folder", type=str, required=True, help="path to the read file")
     ap.add_argument("--count", type=int, required=False, default=-1, help="path to the read file")
+    ap.add_argument("--update", required=False, default=False, action="store_true", help="path to the read file")
     ap.add_argument("--log", type=argparse.FileType("w"), required=False, default=None, help="log file")
 
     args = ap.parse_args()
-
-    f5folder = Fast5Directory(args.folder)
 
     iFilesInFolder = 0
     iFilesProcessedInFolder = 0
@@ -589,39 +677,110 @@ if __name__ == '__main__':
 
     allOutput = []
 
-    with open(args.folder + "/reads.fastq", 'w') as fout, open(args.folder + "/reads.info", 'w') as ftimeout:
+    seenReadIDs = set()
+
+    openmode = "w"
+    readsFastqFile = args.folder + "/reads.fastq"
+    readsInfoFile = args.folder + "/reads.info"
+
+    seenFiles = set()
+    canUpdate = False
+
+    if args.update:
+
+        canUpdate = os.path.isfile(readsFastqFile) and os.path.isfile(readsInfoFile)
+
+        if canUpdate:
+
+            with open(readsInfoFile, 'r') as fin:
+
+                for line in fin:
+                    line = line.strip().split("\t")
+
+                    if len(line) < 3:
+                        continue
+
+                    seenFiles.add(line[2])
+
+            if len(seenFiles) > 0:
+                openmode = "a"
+
+    iFilesProcessedInFolder = len(seenFiles)
+    iFilesAdded = 0
+
+    print("Files already contained", iFilesProcessedInFolder, "Open Mode", openmode)
+
+    if iFilesProcessedInFolder == args.count:
+        print("Requirement already satisfied - quit!")
+        exit(0)
+
+    elif canUpdate and args.count >= 0 and iFilesProcessedInFolder > args.count:
+        print("Found already processed files", iFilesProcessedInFolder)
+        print("Number of processed larger than requested number - redo")
+        iFilesProcessedInFolder = 0
+        seenFiles = set()
+        openmode = 'w'
+
+    f5folder = Fast5Directory(args.folder)
+
+    iFilesNoSeq = 0
+
+    hasBeenThere = os.path.isfile(readsFastqFile) and os.path.isfile(readsInfoFile)
+
+    with open(readsFastqFile, openmode) as fout, open(readsInfoFile, openmode) as ftimeout:
 
         for f5fileName in f5folder.collect():
 
             iFilesInFolder += 1
 
-            if args.count != -1 and iFilesInFolder > args.count:
+            absFilePath = os.path.abspath(f5fileName)
+
+            if absFilePath in seenFiles:
+                continue
+
+            if args.count >= 0 and iFilesProcessedInFolder >= args.count:
                 break
 
             try:
-                f5file = Fast5File(f5fileName) 
+                f5file = MFast5File(f5fileName)
 
-                output = f5file.getFastQ()
-                createDate = f5file.readCreateTime()
 
-                if not type(createDate) == int:
-                    print(createDate)
+                for read in f5file:
 
-                #dateTime = parser.parse(createDate)
-                if output == None:
-                    #print("Skipping", f5file.filename)
-                    if args.log != None:
-                        args.log.write("Skipping for no output: {fname}\n".format(fname=f5file.filename))
-                    continue
+                    output = read.getFastQ()
+                    createDate = read.readCreateTime()
 
-                fout.write(str(output) + "\n")
-                output.id = output.id.split(" ")[0]
-                ftimeout.write(output.id + "\t" + str(int(createDate)) + "\n")
-                iFilesProcessedInFolder += 1
+                    if not type(createDate) == int:
+                        print(createDate)
+
+                    #dateTime = parser.parse(createDate)
+                    if output == None:
+                        #print("Skipping", f5file.filename)
+                        iFilesNoSeq += 1
+                        if args.log != None:
+                            args.log.write("Skipping for no output: {fname}\n".format(fname=read.id))
+                        continue
+
+                    
+                    if output.id in seenReadIDs:
+                        output.id = output.id + "_" + f5fileName.name.replace("/", "_").replace(" ", "_").replace("|", "_")
+
+                    seenReadIDs.add(output.id)
+
+                    fout.write(str(output) + "\n")
+
+                    ftimeout.write(output.id + "\t" + str(int(createDate)) + "\t" + absFilePath + "\n")
+                    iFilesProcessedInFolder += 1
+                    iFilesAdded += 1
             except:
 
                 print("Could not read file", f5fileName, file=sys.stderr)
                 continue
 
-    print("Folder done: " + str(f5folder.path) + " [Files: " + str(iFilesProcessedInFolder) + "] ("+str(iFilesInFolder)+")")
+
+    if not hasBeenThere and iFilesAdded == 0:
+        os.remove(readsFastqFile)
+        os.remove(readsInfoFile)
+
+    print("Folder done: " + str(f5folder.path) + " [Files: " + str(iFilesProcessedInFolder) + ", Added: " + str(iFilesAdded) + "] ("+str(iFilesInFolder)+"/"+str(iFilesNoSeq)+")")
 
