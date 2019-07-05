@@ -140,6 +140,9 @@ def makeReport(resDict, fname):
     outHTML += "<h2>Read Length Distribution (reads <= 10kbp)</h2>" + "\n"
     outHTML += "<img src=\"{tget}\"/>".format(tget=os.path.basename(resDict["readLengthPlotSmall"])) + "\n"
 
+    outHTML += "<h2>Read Length Distribution (aligned reads)</h2>" + "\n"
+    outHTML += "<img src=\"{tget}\"/>".format(tget=os.path.basename(resDict["alignedReadLengthPlot"])) + "\n"
+
     outHTML += "<h2>Aligned Reads Fraction</h2>" + "\n"
     outHTML += "<img src=\"{tget}\"/>".format(tget=os.path.basename(resDict["readsPie"])) + "\n"
 
@@ -265,6 +268,7 @@ for refFileIdx, refFile in enumerate(cont_file):
         extractUnalignedFile = open(os.path.join(output_dir, extract_prefix+ "_aligned_reads.fastq"), "w")
 
     readLengths = []
+    alignedReadLengths = []
 
     for fastqFile in read_file:
         for name, seq, qual in mp.fastx_read(fastqFile): # read a fasta/q sequence
@@ -312,6 +316,8 @@ for refFileIdx, refFile in enumerate(cont_file):
                 alignedReadsBases += len(seq)
                 alignedReads += 1
 
+                alignedReadLengths.append(len(seq))
+
                 if extractAlignedFile != None:
                     extractAlignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
 
@@ -347,15 +353,15 @@ for refFileIdx, refFile in enumerate(cont_file):
             plt.xlabel('Length of reads')
             plt.title('Length frequencies of all reads')
             plt.hist(readLengths, bins=100, color='green')
-            plt.savefig(readsLengthPlot)
+            plt.savefig(readsLengthPlot, bbox_inches="tight")
             plt.close()
 
             plt.figure(1)
             plt.ylabel('Frequency')
-            plt.xlabel('Length of reads')
-            plt.title('Length frequencies of all reads')
+            plt.xlabel('Length of reads (<10kbp)')
+            plt.title('Length frequencies of all reads (<10kbp)')
             plt.hist([x for x in readLengths if x < 10000], bins=100, color='green')
-            plt.savefig(readsLengthPlot10k)
+            plt.savefig(readsLengthPlot10k, bbox_inches="tight")
             plt.close()
 
         except ValueError:
@@ -365,6 +371,7 @@ for refFileIdx, refFile in enumerate(cont_file):
 
     readPiePlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "read_pie.png")
     basesPiePlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "bases_pie.png")
+    alignedReadsLengthPlot = os.path.join(output_dir,prefix + "_" + fasta_outname + "aligned_read_lengths.png")
     rankPlot = None
 
     if makeImages:
@@ -373,7 +380,7 @@ for refFileIdx, refFile in enumerate(cont_file):
         patches, texts, autotexts = plt.pie([alignedReads, unalignedReads], explode=(0,0), labels=labels, colors=['gold', 'yellowgreen'],
                 autopct='%1.1f%%', shadow=True, startangle=-10)
         plt.axis('equal')
-        plt.savefig(readPiePlot, bbox_extra_artists=autotexts+texts)
+        plt.savefig(readPiePlot, bbox_extra_artists=autotexts+texts, bbox_inches="tight")
         plt.close()
 
         plt.figure(3)
@@ -381,7 +388,15 @@ for refFileIdx, refFile in enumerate(cont_file):
         patches, texts, autotexts = plt.pie([alignedReadsBases, unalignedBases], explode=(0, 0), labels=labels, colors=['lightcoral', 'lightskyblue'],
                 autopct='%1.1f%%', shadow=True, startangle=-10)
         plt.axis('equal')
-        plt.savefig(basesPiePlot, bbox_extra_artists=autotexts+texts)
+        plt.savefig(basesPiePlot, bbox_extra_artists=autotexts+texts, bbox_inches="tight")
+        plt.close()
+
+        plt.figure(11)
+        plt.ylabel('Frequency')
+        plt.xlabel('Length of aligned reads')
+        plt.title('Length frequencies of aligned reads')
+        plt.hist(alignedReadLengths, bins=100, color='green')
+        plt.savefig(alignedReadsLengthPlot, bbox_inches="tight")
         plt.close()
 
 
@@ -446,6 +461,7 @@ for refFileIdx, refFile in enumerate(cont_file):
     if makeImages:
         tmp_dict["readLengthPlot"] = readsLengthPlot
         tmp_dict["readLengthPlotSmall"] = readsLengthPlot10k
+        tmp_dict["alignedReadLengthPlot"] = alignedReadsLengthPlot
         tmp_dict["readsPie"] = readPiePlot
         tmp_dict["basesPie"] = basesPiePlot
         tmp_dict["refs"] = [refFile]

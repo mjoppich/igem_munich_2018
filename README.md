@@ -21,9 +21,22 @@ After downloading the release from above, follow the [installation instruction](
 
 You can find step-by-step installation instructions in our [documentation](https://sequ-into.readthedocs.io/en/latest/install.html). There we also provide instructions on how to use sequ-into.
 
-We have also prepared a demonstration video on how to use sequ-into (links to youtube.com).
+We provide a video explaining how to use sequ-into with different input, particularly multi-FAST5, single-FAST5 and basecalled tmp-files:
 
-[![Youtube Link](https://img.youtube.com/vi/kJvXKR10pBE/0.jpg)](https://www.youtube.com/watch?v=kJvXKR10pBE)
+[![Youtube Link](https://img.youtube.com/vi/cWVpcSvWOiw/0.jpg)](https://www.youtube.com/watch?v=cWVpcSvWOiw)
+
+This use-case demonstrates how to setup sequ-into for analysing basecalled reads during sequencing:
+
+[![Youtube Link](https://img.youtube.com/vi/NgXFisnu5fw/0.jpg)](https://www.youtube.com/watch?v=NgXFisnu5fw)
+
+And we also have a video demonstrating how to use sequ-into to detect ribosomal RNA from single-FAST5 files:
+
+[![Youtube Link](https://img.youtube.com/vi/Vu91k7hkXa8/0.jpg)](https://www.youtube.com/watch?v=Vu91k7hkXa8)
+
+We demonstrate that sequ-into can be run while sequencing in the following video:
+
+[![Youtube Link](https://img.youtube.com/vi/OYMkHtITk1o/0.jpg)](https://www.youtube.com/watch?v=OYMkHtITk1o)
+
 
 ### Description
 Third generation sequencing techniques rapidly evolved as a common practice in molecular biology. Great advances have been made in terms of feasibility, cost, throughput, and read-length. However, sample contamination still poses a big issue: it complicates correct, high-quality downstream analysis of sequencing data and usage in medical applications. Furthermore, it might be unclear weather the sequenced reads represent the intended target. To address these issues we developed a cross-platform desktop application: Sequ-Into. Reads originating from unwanted sources are detected and summarized by a comprehensive statistical overview, but can also be filtered and exported in standardized FASTQ-format to facilitate custom evaluation of experimental findings. This holds also true for an evaluation weather the reads consist of the intended source, and allows for a positive selection of those reads who do. Sequ-Into creates a straightforward user experience by fusing an intuitive graphical-user-interface with state-of-the-art long-read alignment software.

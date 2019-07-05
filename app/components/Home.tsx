@@ -923,7 +923,7 @@ class TextMobileStepper extends React.Component<{}, {
                     </Typography>
 
                     <Typography gutterBottom>
-                        <strong>Contamination Results</strong> are first shown in a table. This is a statistical overview of your run per reference and file/directory.
+                        <strong>Impurity/Contamination/Off-targets (ICO) Results</strong> are first shown in a table. This is a statistical overview of your run per reference and file/directory.
                         These statistics are also visualized below in two <em>pie charts</em>.
                         Additionly, a <em>bar plot</em> shows you how often a certain read length was found in your file/directory of your sequencing experiment.
                         Consider these informations as an indicator of your sequencing quality.
@@ -2095,6 +2095,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
             var readLengthSmallPlotUrl = element.readLengthPlotSmall;
             var overviewUrl = element.overviewUrl;
             var readRankUrl = element.rankplot;
+            var alignedReadLengthUrl = element.alignedReadLengthPlot;
 
             if (os.platform() == "win32") {
                 basesPieUrl = self.convertUnix2Win(element.basesPie);
@@ -2103,6 +2104,8 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                 readsPieUrl = self.convertUnix2Win(element.readsPie);
                 overviewUrl = self.convertUnix2Win(element.overviewUrl);
                 readRankUrl = self.convertUnix2Win(element.rankplot);
+
+                alignedReadLengthUrl = self.convertUnix2Win(element.alignedReadLengthPlot);
             }
 
 
@@ -2141,6 +2144,14 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                 var analysisResult = null;
 
+                var alignedReadsName = "Aligned reads";
+                var unalignedReadsName = "Unaligned reads";
+            
+                var alignmentBasesName = "Alignment Bases";
+                var alignedBasesName = "Aligned Bases";
+                var alignedReadsBasesName = "Aligned Reads Bases";
+                var unalignedBasesName = "Unaligned Bases";
+
                 if (element['refs'][0] in self.contamRefPath2Element)
                 {
                     var contamInputRef = self.contamRefPath2Element[element['refs'][0]];
@@ -2155,10 +2166,15 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                     {
                         if (alignedReadsFraction > 0.3)
                         {
-                            analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! More than 30% of all reads align to CIN sequence!</p>);
+                            analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! More than 30% of all reads align to ICO sequence!</p>);
                         }
 
-
+                        alignedReadsName = "Aligned reads (off-target rate)";
+                        unalignedReadsName = "Unaligned reads (potential on-targets)";
+                        alignmentBasesName = "Alignment Bases (off-target)";
+                        alignedBasesName = "Aligned Bases (off-target)";
+                        alignedReadsBasesName = "Aligned Reads Bases (off-target)";
+                        unalignedBasesName = "Unaligned Bases (potential on-targets)";
 
                     } else {
 
@@ -2167,6 +2183,12 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                             analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! less than 70% of all reads align to target!</p>)
                         }
 
+                        alignedReadsName = "Aligned reads (on-target rate)";
+                        unalignedReadsName = "Unaligned reads (potential off-targets)";
+                        alignmentBasesName = "Alignment Bases (on-target)";
+                        alignedBasesName = "Aligned Bases (on-target)";
+                        alignedReadsBasesName = "Aligned Reads Bases (on-target)";
+                        unalignedBasesName = "Unaligned Bases (potential off-targets)";
                     }
                 }
 
@@ -2175,8 +2197,6 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                 </div>;
 
                 sContamName = self.getBasename(sContamName);
-
-            
 
                 var tablePart =
                     <Table>
@@ -2202,7 +2222,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                             <TableRow>
                                 <TableCell component="th" scope="row">
-                                    Aligned reads
+                                    {alignedReadsName}
                             </TableCell>
                                 <TableCell numeric>{this.numberFormat(element["alignedReads"], "", 0)}</TableCell>
                                 <TableCell numeric>{this.numberFormat(100 * element["alignedReads"] / element["totalReads"], "%")}</TableCell>
@@ -2210,7 +2230,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                             <TableRow>
                                 <TableCell component="th" scope="row">
-                                    Unaligned reads
+                                    {unalignedReadsName}
                             </TableCell>
                                 <TableCell numeric>{this.numberFormat(element["unalignedReads"], "", 0)}</TableCell>
                                 <TableCell numeric>{this.numberFormat((100 * (element["unalignedReads"]) / element["totalReads"]), "%")}</TableCell>
@@ -2226,7 +2246,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                             <TableRow>
                                 <TableCell component="th" scope="row">
-                                    Alignment bases
+                                    {alignmentBasesName}
                             </TableCell>
                                 <TableCell numeric>{this.numberFormat(element["alignmentBases"], "", 0)}</TableCell>
                                 <TableCell numeric>{this.numberFormat(100 * element["alignmentBases"] / element["totalBases"], "%")}</TableCell>
@@ -2234,7 +2254,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                             <TableRow>
                                 <TableCell component="th" scope="row">
-                                    Aligned bases
+                                    {alignedBasesName}
                             </TableCell>
                                 <TableCell numeric>{this.numberFormat(element["alignedLength"], "", 0)}</TableCell>
                                 <TableCell numeric>{this.numberFormat(100 * element["alignedLength"] / element["totalBases"], "%")}</TableCell>
@@ -2242,7 +2262,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                             <TableRow>
                                 <TableCell component="th" scope="row">
-                                    Aligned Reads bases
+                                    {alignedReadsBasesName}
                             </TableCell>
                                 <TableCell numeric>{this.numberFormat(element["alignedReadsBases"], "", 0)}</TableCell>
                                 <TableCell numeric>{this.numberFormat(100 * element["alignedReadsBases"] / element["totalBases"], "%")}</TableCell>
@@ -2250,7 +2270,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                             <TableRow>
                                 <TableCell component="th" scope="row">
-                                    Unaligned bases
+                                    {unalignedBasesName}
                             </TableCell>
                                 <TableCell numeric>{this.numberFormat(element["unalignedBases"], "", 0)}</TableCell>
                                 <TableCell numeric>{this.numberFormat(100 * (element["unalignedBases"]) / element["totalBases"], "%")}</TableCell>
@@ -2265,6 +2285,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                     { src: basesPieUrl + "?" + new Date().getTime(), caption: "Bases Pie" },
                     { src: readLengthPlotUrl + "?" + new Date().getTime(), caption: "Read Lengths" },
                     { src: readLengthSmallPlotUrl + "?" + new Date().getTime(), caption: "Read Lengths (<10k)" },
+                    { src: alignedReadLengthUrl + "?" + new Date().getTime(), caption:"Read Lengths (aligned reads)"}
                 ];
 
                 if (readRankUrl)

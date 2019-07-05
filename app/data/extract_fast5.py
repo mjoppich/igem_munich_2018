@@ -445,11 +445,19 @@ class Fast5File:
             return None
 
     def getSampleFrequency(self):
-        return int(self._get_attribute('/UniqueGlobalKey/context_tags', 'sample_frequency', 4000))
+        
+        if "context_tags" in self.hdf5file:
+            return int(self._get_attribute('context_tags', 'sample_frequency', 4000)) 
+        else:
+            return int(self._get_attribute('/UniqueGlobalKey/context_tags', 'sample_frequency', 4000))
 
     def getExperimentStartTime(self):
 
-        timeAttribData = self._get_attribute('/UniqueGlobalKey/tracking_id', 'exp_start_time', None)
+
+        if "tracking_id" in self.hdf5file:
+            timeAttribData = self._get_attribute('tracking_id', 'exp_start_time', None)
+        else:
+            timeAttribData = self._get_attribute('/UniqueGlobalKey/tracking_id', 'exp_start_time', None)
 
         try:
             timestamp = int(timeAttribData)
@@ -468,13 +476,20 @@ class Fast5File:
 
     def readCreateTime(self):
 
+
         expStartTime = self.getExperimentStartTime()
         sampleFrequency = self.getSampleFrequency()
+
+        #print(expStartTime)
+        #print(sampleFrequency)
 
         if expStartTime == None:
             return None
 
+        #self.printGroupsAttribs()
         startTimes = self._read_attrib('start_time')
+
+        #print(startTimes)
 
         if startTimes == None:
             path = "/Analyses/EventDetection_000/Reads/"+self.readID()
@@ -499,28 +514,40 @@ class Fast5File:
             path = "/Raw/Reads/"
 
             if not path in self.hdf5file:
-                path = "/Analyses/EventDetection_000/Reads/"               
+                path = "/Analyses/EventDetection_000/Reads/"    
 
-            readsGroup = self.hdf5file[path]
-            storedReads = readsGroup.keys()
+            if not path in self.hdf5file:
+                path = "Raw"    
 
-            readNum = -1
-            singleRead = True
-            if len(storedReads) > 1:
-                singleRead = False
 
-                readNum = set()
+            if path != "Raw":
 
-            for read in storedReads:
+                readsGroup = self.hdf5file[path]
+                storedReads = readsGroup.keys()
 
-                seqRead = self.hdf5file[path + read]
+                readNum = -1
+                singleRead = True
+                if len(storedReads) > 1:
+                    singleRead = False
 
-                if singleRead:
-                    return seqRead.attrs[attribname]
-                else:
-                    readNum.add(seqRead.attrs[attribname])
+                    readNum = set()
 
-            return readNum
+                for read in storedReads:
+
+                    seqRead = self.hdf5file[path + read]
+
+                    if singleRead:
+                        return seqRead.attrs[attribname]
+                    else:
+                        readNum.add(seqRead.attrs[attribname])
+
+                return readNum
+            
+            else:
+                
+                readsGroup = self.hdf5file[path]
+                return readsGroup.attrs[attribname]
+
 
         except:
 
@@ -747,31 +774,37 @@ if __name__ == '__main__':
 
                 for read in f5file:
 
-                    output = read.getFastQ()
-                    createDate = read.readCreateTime()
+                    try:
 
-                    if not type(createDate) == int:
-                        print(createDate)
+                        output = read.getFastQ()
 
-                    #dateTime = parser.parse(createDate)
-                    if output == None:
-                        #print("Skipping", f5file.filename)
-                        iFilesNoSeq += 1
-                        if args.log != None:
-                            args.log.write("Skipping for no output: {fname}\n".format(fname=read.id))
+                        #dateTime = parser.parse(createDate)
+                        if output == None:
+                            #print("Skipping", f5file.filename)
+                            iFilesNoSeq += 1
+                            if args.log != None:
+                                args.log.write("Skipping for no output: {fname}\n".format(fname=read.id))
+                            continue
+
+                        createDate = read.readCreateTime()
+                        if not type(createDate) == int:
+                            print(createDate)
+
+                        
+                        if output.id in seenReadIDs:
+                            output.id = output.id + "_" + f5fileName.name.replace("/", "_").replace(" ", "_").replace("|", "_")
+
+                        seenReadIDs.add(output.id)
+
+                        fout.write(str(output) + "\n")
+
+                        ftimeout.write(output.id + "\t" + str(int(createDate)) + "\t" + absFilePath + "\n")
+                        iFilesProcessedInFolder += 1
+                        iFilesAdded += 1
+
+                    except:
+                        #print("Could not process read in", f5fileName, file=sys.stderr)
                         continue
-
-                    
-                    if output.id in seenReadIDs:
-                        output.id = output.id + "_" + f5fileName.name.replace("/", "_").replace(" ", "_").replace("|", "_")
-
-                    seenReadIDs.add(output.id)
-
-                    fout.write(str(output) + "\n")
-
-                    ftimeout.write(output.id + "\t" + str(int(createDate)) + "\t" + absFilePath + "\n")
-                    iFilesProcessedInFolder += 1
-                    iFilesAdded += 1
             except:
 
                 print("Could not read file", f5fileName, file=sys.stderr)
