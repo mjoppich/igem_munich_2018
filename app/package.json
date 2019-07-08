@@ -1,13 +1,13 @@
 {
   "name": "sequ-into",
   "productName": "sequ-into",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Sequ-Into, an app to look into your freshly sequenced sequences.",
   "main": "./main.js",
   "author": {
     "name": "iGEM Munich 2018",
     "email": "joppich@bio.ifi.lmu.de",
-    "url": "https://github.com/RitaOlenchuk"
+    "url": "https://github.com/mjoppich/sequ-into"
   },
   "scripts": {
     "postinstall": "npm rebuild --runtime=electron --target=1.6.6 --disturl=https://atom.io/download/atom-shell --build-from-source"
