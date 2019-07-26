@@ -31,7 +31,9 @@ import { string } from 'prop-types';
 
 var lineReader = require('line-reader');
 const { shell } = require('electron');
-const { spawnSync } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
+var querystring = require('querystring');
+var http = require("http")
 
 var remote = require('electron').remote;
 var os = require("os");
@@ -736,7 +738,9 @@ class TextMobileStepper extends React.Component<{}, {
                 this.render()
 
                 var myFunction = function () {
-                    self.startPython();
+                    //self.startPython();
+                    self.startPythonServer();
+                    self.startAlignmentServerBased();
                 }
 
                 window.setTimeout(myFunction);
@@ -1097,7 +1101,32 @@ class TextMobileStepper extends React.Component<{}, {
                             Reset&nbsp;
                                     <Icon>360</Icon>
                         </Button>
+                        <Button
+                            variant="contained"
+                            onClick={() => { 
+                                var self=this;
+                                var win = remote.getCurrentWindow();
 
+                                win.webContents.session.clearStorageData(function() {
+                                    win.webContents.session.clearCache(function(){
+                                        //self.startPython();
+                                        self.startAlignmentServerBased()
+                                    });
+                                });
+
+   
+
+
+                            }}
+                            size="large"
+                            style={{
+                                backgroundColor: 'red',
+                                color: "white",
+                                marginRight: "50px"
+                            }}>
+                            Update Analysis&nbsp;
+                            <Icon>refresh</Icon>
+                        </Button>
                         <Button
                             variant="contained"
                             onClick={() => { 
@@ -1109,7 +1138,8 @@ class TextMobileStepper extends React.Component<{}, {
                                         self.state.resultTable = <p></p>;
                                         self.state.readExtractNumber = -1;
                                         self.setState({readExtractNumber: -1, resultTable: self.state.resultTable});
-                                        self.startPython();
+                                        //self.startPython();
+                                        self.startAlignmentServerBased()
                                     });
                                 });
 
@@ -1436,6 +1466,16 @@ class TextMobileStepper extends React.Component<{}, {
         return outPath;
     }
 
+    getReferenceServerPath() {
+        var sysPath = path.join(this.getDataPath(), "startAlignmentServer.py");
+
+        if (os.platform() == "win32") {
+            sysPath = this.normalizePath(sysPath);
+        }
+
+        return sysPath;
+    }
+
     getContamToolPath() {
         var sysPath = path.join(this.getDataPath(), "ContamTool.py");
 
@@ -1515,8 +1555,8 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
         var allFilesInDir = this.getFilesInFolder(dirPath);
         var reportedFiles: any = []; 
         
-        console.log("Files in Dir")
-        console.log(allFilesInDir)
+        //console.log("Files in Dir")
+        //console.log(allFilesInDir)
 
 
         allFilesInDir.forEach((myFile: any) => {
@@ -1592,6 +1632,273 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
         console.log(processOutput);
         
         return filename;
+    }
+
+    async startPythonServer()
+    {
+        /*
+        PREPARE REFERENCES
+        */
+       var self = this;
+       var refFiles = [];
+
+       self.state.inputRefs.forEach(element => {
+        if (element.enabled) {
+            console.log(element);
+            if (element.appfile === true) {
+                var inref = self.normalizePath(path.join(self.getDataPath(), element.path));
+                refFiles.push(inref);
+
+                self.contamRefPath2Element[inref] = element;
+
+            } else {
+
+                var inref = self.normalizePath(element.path);
+                refFiles.push(inref);
+
+                self.contamRefPath2Element[inref] = element;
+
+            }
+        }
+    })
+
+    self.startProcessAsync(
+        self.getReferenceServerPath() + " --references " + refFiles.join(" ")
+    );
+
+    }
+
+    async startAlignmentServerBased() {
+
+        /*
+        PREPARE READS
+        */
+       var self = this;
+
+       self.state.contamResult = {};
+       var processFilesForElement: any = {};
+       var processFilesTranscript: any = [];
+
+       var allFiles: any = [];
+
+       self.state.inputFiles.forEach(element => {
+
+           console.log("For each input file")
+           console.log(element)
+           console.log("TRANSCRIPT " + element.transcript);
+           console.log("FAST5 " + element.forceFast5Extract);
+           console.log("FAST5 FULL " + element.fullFast5Extract);
+
+           var stats = fs.lstatSync(element.path)
+           if (stats.isDirectory()) {
+
+               processFilesForElement[element.path] = [];
+
+               //var allFoundFiles: any = self.getAllReadFilesFromDir(element.path);
+
+               var allFoundFiles = [];
+               if (element.type == "folder")
+               {
+                   console.log("Extracting reads from folder" + element.path);
+                   // extract reads
+                   self.extractReadsForFolder(element.path, element.forceFast5Extract, element.fullFast5Extract);
+                   // get extracted reads
+                   allFoundFiles = self.getAllReadFilesFromDir(element.path);
+               } else if (element.type == "tmp_folder") {
+
+                   allFoundFiles = self.getAllReadFilesFromDir(element.path, [/.*fastq.*\.tmp$/ig]);
+
+               }
+
+               console.log("All found files")
+               console.log(allFoundFiles)
+
+               allFoundFiles = allFoundFiles.map(function(x) {
+                   return self.normalizePath(x);
+               });
+
+               console.log(allFoundFiles)
+               allFiles = allFiles.concat(allFoundFiles);
+
+
+               processFilesForElement[element.path] = allFoundFiles;
+               if (element.transcript) {
+                   processFilesTranscript = processFilesTranscript.concat(allFoundFiles);
+               }
+
+           } else {
+               processFilesForElement[element.path] = [self.normalizePath(element.path)];
+
+               allFiles.push(self.normalizePath(element.path))
+
+               if (element.transcript) {
+                   processFilesTranscript.push(element.path)
+               }
+
+           }
+
+       });
+
+
+       let elem_prefix = allFiles.map((x: any) => self.makeExportPath(x)).join("_");
+       console.log(elem_prefix);
+       elem_prefix = elem_prefix.substring(0, 50)
+       console.log(elem_prefix);
+
+       /*
+       Prepare server JSON
+       */
+
+       var outdir = self.normalizePath(self.state.outputDir);
+
+       var serverInfo = {
+           reads: allFiles,
+           results: outdir + "/.results",
+           outdir: outdir,
+           prefix: elem_prefix
+       }
+
+
+       console.log(serverInfo)
+
+       const serverOptions = {
+        hostname: 'localhost',
+        port: 5000,
+        path: '/align',
+        method: 'POST',
+        headers: {"content-type": "application/json",}
+      };
+
+      const req = http.request(serverOptions, (res) => {
+        console.log(`STATUS: ${res.statusCode}`);
+        console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => {
+          console.log(`BODY: ${chunk}`);
+
+
+          var newContamRes = JSON.parse(chunk);
+          console.log("new contam res")
+          console.log(newContamRes)
+
+          Object.keys(newContamRes).forEach(rkey => {
+            self.state.contamResult[rkey] = newContamRes[rkey];
+        });
+
+          console.log("set contam Result")
+          console.log(self.state.contamResult)
+
+          self.setState({ contamResult: self.state.contamResult })
+          self.makeContamResultTable()
+
+
+        });
+        res.on('end', () => {
+          console.log('No more data in response.');
+        });
+      });
+      
+      req.on('error', (e) => {
+        console.error(`problem with request: ${e.message}`);
+        console.error(e)
+        self.setState({
+            resultTable: <div>
+                <Card>
+                    <CardContent>
+                        <Typography color='secondary'>{e.message}</Typography>
+                        <Typography color='secondary'>{e}</Typography>
+
+                    </CardContent>
+                </Card>
+            </div>
+        })
+
+        self.handleNext();
+      });
+      
+      // Write data to request body
+      req.write(JSON.stringify(serverInfo))
+      req.end();
+
+      self.makeContamResultTable()
+      self.handleNext();
+
+
+    }
+
+    startProcessAsync(command)
+    {
+        // python
+        var program = "";
+        var programArgs = null;
+
+        if (os.platform() == "win32") {
+            program = "bash";
+            programArgs = ["-i", "-c", "python3 " + command];
+
+            console.log("Windows Version")
+            console.log(programArgs);
+
+        } else {
+
+            program = "python3";
+            var splitted_command = command.split(" ");
+            programArgs = splitted_command;
+
+            console.log("Unix Version")
+            console.log(programArgs);
+        }
+
+        if (os.platform() == "darwin") {
+            var np = shellPath.sync();
+            process.env.PATH = np;
+        }
+
+        spawn(program, programArgs, {
+            cwd: process.cwd(),
+            env: process.env,
+            stdio: 'pipe',
+            encoding: 'utf-8'
+        })
+    }
+
+    startProcessSync(command)
+    {
+        // python
+        var program = "";
+        var programArgs = null;
+        var child = null;
+
+        if (os.platform() == "win32") {
+            program = "bash";
+            programArgs = ["-i", "-c", "python3 " + command];
+
+            console.log("Windows Version")
+            console.log(programArgs);
+
+        } else {
+
+            program = "python3";
+            var splitted_command = command.split(" ");
+            programArgs = splitted_command;
+
+            console.log("Unix Version")
+            console.log(programArgs);
+        }
+
+        if (os.platform() == "darwin") {
+            var np = shellPath.sync();
+            process.env.PATH = np;
+        }
+
+        child = spawnSync(program, programArgs, {
+            cwd: process.cwd(),
+            env: process.env,
+            stdio: 'pipe',
+            encoding: 'utf-8'
+        })
+        
+        return child
     }
 
 
@@ -2077,6 +2384,9 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
     makeContamResultTable() {
         var resultTable = <div></div>;
         var self = this;
+
+        console.log("In contam result table")
+        console.log(Object.keys(self.state.contamResult))
 
 
         var resultItems: any = [];

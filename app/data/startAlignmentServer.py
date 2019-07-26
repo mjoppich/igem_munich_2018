@@ -114,12 +114,16 @@ def saveExistingResults( erInfo, erFile):
 
 def loadExistingResults( erFile ):
 
+    print("Trying to load existing result", erFile)
+
     try:
 
         if erFile == None:
             return {}
 
         if not os.path.isfile(erFile) or not os.path.exists(erFile):
+            print("Not a file", erFile)
+
             return {}
 
         # load results
@@ -198,6 +202,9 @@ def toBool(strElem):
 
     return False
 
+
+logFile = open("/tmp/silog", "w")
+
 @app.route('/align', methods=['POST'])
 def align():
     reqData = request.get_json(force=True, silent=True)
@@ -206,6 +213,7 @@ def align():
         return app.make_response((jsonify( {'error': 'invalid json'} ), 400, None))
 
 
+    print(reqData, file=logFile)
     """
 
     GETTING SETTINGS
@@ -254,6 +262,8 @@ def align():
 
             ## info file exists
             if os.path.isfile(infoFile):
+                print("INFO file for input", fastqFile, infoFile)
+
                 
                 with open(infoFile, 'r') as fin:
                     for line in fin:
@@ -300,7 +310,9 @@ def align():
             usedReadBatches = set()
 
             alreadyUsedBatches = existingResults.get(makeJsonKey(refFile, fastqFile), {}).get("usedReadBatches", set())
-            
+            readRankBuckets = []
+
+            print("Already used Batches/Ignoring Batches", alreadyUsedBatches)
 
             for name, seq, qual in mp.fastx_read(fastqFile): # read a fasta/q sequence
 
@@ -363,7 +375,6 @@ def align():
                     if extractAlignedFile != None:
                         extractAlignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
 
-                readRankBuckets = {}
                 if fastqFile in read2RankPlotData:
 
                     (readid2bucket, bucket2readid, readRankBuckets) = read2RankPlotData[fastqFile]
@@ -389,7 +400,6 @@ def align():
             # derived information
             tmp_dict = dict(
                             alignedReadLengths=alignedReadLengths,
-                            readRankBuckets=readRankBuckets,
                             allReadLengths=readLengths,
 
                             totalReads=totalReads,
@@ -400,17 +410,25 @@ def align():
                             unalignedBases=unalignedBases,
                             unalignedReads=unalignedReads,
                             alignedReadsBases=alignedReadsBases,
-                            usedReadBatches=usedReadBatches.union(alreadyUsedBatches)
+                            usedReadBatches=usedReadBatches.union(alreadyUsedBatches),
+                            fastq=[fastqFile],
+                            reference=[refFile]
                             )
                             #idAlignedReads=idAlignedReads,
                             #idNotAlignedReads=idNotAlignedReads
 
             print(refFile, fastqFile, tmp_dict["usedReadBatches"])
 
-            if refFile in existingResults:
+            if makeJsonKey(refFile, fastqFile) in existingResults:
+
+                originalRRB = existingResults[makeJsonKey(refFile, fastqFile)].get("readRankBuckets", [])
                 existingResults[makeJsonKey(refFile, fastqFile)]=mergeResults(existingResults[makeJsonKey(refFile, fastqFile)], tmp_dict)
+
+                existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = readRankBuckets
+
             else:
                 existingResults[makeJsonKey(refFile, fastqFile)] = tmp_dict
+                existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = readRankBuckets
 
     updatedFastqFiles = set()
 
@@ -446,8 +464,8 @@ def align():
             readPiePlot = os.path.join(output_dir,prefix + "_" + refreadFname + "read_pie.png")
             basesPiePlot = os.path.join(output_dir,prefix + "_" + refreadFname + "bases_pie.png")
 
-            prepareReadsPiePlot(alignedReads, unalignedReads, readPiePlot)
-            prepareBasesPiePlot(alignedReadsBases, unalignedBases, basesPiePlot)
+            prepareReadsPiePlot(currentElement["alignedReads"], currentElement["unalignedReads"], readPiePlot)
+            prepareBasesPiePlot(currentElement["alignmentBases"], currentElement["unalignedBases"], basesPiePlot)
 
             rankPlot = None
 
@@ -522,7 +540,13 @@ def mergeResults( dict1, dict2, resultType=dict):
 
             else:
 
-                if not type(v) == type(dict3[k]):
+                if type(dict3[k]) == list and type(v) == set:
+                    # special case for jsonified sets
+                    dict3[k] = set(dict3[k]).union(v)
+                    continue
+
+                elif not type(v) == type(dict3[k]):
+                    print(k, type(v), type(dict3[k]))
                     raise Exception("You try to merge two different objects!")
 
                 if type(v) == list:
