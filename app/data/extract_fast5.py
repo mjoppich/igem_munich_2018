@@ -144,7 +144,7 @@ class MFast5File:
         self.iterPaths = []
         self.is_open = self._open(keep_file_open)
 
-        print(self.type)
+        #print(self.type)
 
     def _guessType(self):
 
@@ -713,9 +713,12 @@ if __name__ == '__main__':
     seenFiles = set()
     canUpdate = False
 
+    extractionRound = 0
+
     if args.update:
 
         canUpdate = os.path.isfile(readsFastqFile) and os.path.isfile(readsInfoFile)
+        seenExtractionRounds = set([extractionRound])
 
         if canUpdate:
 
@@ -729,8 +732,16 @@ if __name__ == '__main__':
 
                     seenFiles.add(line[2])
 
+                    if len(line) >=4:
+                        seenExtractionRounds.add(int(line[3]))
+
             if len(seenFiles) > 0:
                 openmode = "a"
+
+        
+        extractionRound = max(seenExtractionRounds) + 1
+
+    extractionRound = str(extractionRound)
 
     iFilesProcessedInFolder = len(seenFiles)
     iFilesAdded = 0
@@ -798,7 +809,7 @@ if __name__ == '__main__':
 
                         fout.write(str(output) + "\n")
 
-                        ftimeout.write(output.id + "\t" + str(int(createDate)) + "\t" + absFilePath + "\n")
+                        ftimeout.write(output.id + "\t" + str(int(createDate)) + "\t" + absFilePath + "\t" + extractionRound + "\n")
                         iFilesProcessedInFolder += 1
                         iFilesAdded += 1
 
