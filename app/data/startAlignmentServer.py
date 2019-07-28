@@ -112,19 +112,19 @@ def saveExistingResults( erInfo, erFile):
 
 
 
-def loadExistingResults( erFile ):
+def loadExistingResults( erFile, defaultObj=dict ):
 
     print("Trying to load existing result", erFile)
 
     try:
 
         if erFile == None:
-            return {}
+            return defaultObj()
 
         if not os.path.isfile(erFile) or not os.path.exists(erFile):
             print("Not a file", erFile)
 
-            return {}
+            return defaultObj()
 
         # load results
 
@@ -135,7 +135,7 @@ def loadExistingResults( erFile ):
         return lres
     except:
 
-        return {}
+        return defaultObj()
 
 def calculateReadRanks(read2infoFile):
 
@@ -228,10 +228,33 @@ def align():
     output_dir = reqData.get("outdir", None)
     prefix = reqData.get("prefix", "")
 
+    """
 
-    extracted_not_aligned = None
-    extracted_aligned = None
-    extract_prefix = None
+    reads: self.allFiles,
+    results: outdir + "/.results",
+    outdir: outdir,
+    prefix: "extracted",
+    extractAligned: extractAligned,
+    extractUnaligned: extractUnaligned,
+    extractAllAligned: extractAllAligned,
+    extractAllUnaligned: extractAllUnaligned,
+    extractDir: readOutputDir
+
+    """
+
+    extractDir = reqData.get("extractDir", None)
+    extractAligned = reqData.get("extractAligned", None)
+    extractUnaligned = reqData.get("extractUnaligned", None)
+    extractAllAligned = reqData.get("extractAllAligned", None)
+    extractAllUnaligned = reqData.get("extractAllUnaligned", None)
+
+    canExtract = extractDir != None
+
+    if canExtract and extractAllAligned != None and len(extractAllAligned) > 0:
+        extractAllAlignedFile = None
+
+    if canExtract and extractAllUnaligned != None and len(extractAllUnaligned) > 0:
+        extractAllUnalignedFile = None
 
     """
 
@@ -240,6 +263,16 @@ def align():
     """
 
     existingResults = loadExistingResults(existingResultsInfo)
+    existingResultsOverview = loadExistingResults(existingResultsInfo + "_overview", defaultObj=list)
+
+    if len(existingResultsOverview) == 0:
+        existingResultsOverview = [set(), defaultdict(set)]
+
+    else:
+        existingResultsOverview[0] = set([(x[0], x[1]) for x in existingResultsOverview[0]])
+
+        for ex in existingResultsOverview[1]:
+            existingResultsOverview[1][ex] = set([(x[0], x[1]) for x in existingResultsOverview[1][ex]])
 
     read2infoFile = {}
     for x in readFiles:
@@ -255,6 +288,10 @@ def align():
         a = refFile2aligner[refFile]
 
         for fastqFile in readFiles:
+
+            reference_fname = re.sub('\W+', '_', refFile)    
+            reads_fname = re.sub('\W+', '_', fastqFile)    
+            refreadFname = "_".join([getShortName(reference_fname, 25), getShortName(reads_fname, 25)])
 
             ## preparing info file
             infoFile = os.path.splitext(fastqFile)[0] + ".info"
@@ -295,15 +332,28 @@ def align():
             idAlignedReads = []
             idNotAlignedReads = []
             
+            
+            def comboContained(ref, reads, einfo):
+
+                for x in einfo:
+
+                    if "ref" in x and x["ref"] != ref:
+                        continue
+
+                    if "reads" in x and x["reads"] == reads:
+                        return True
+
+                return False
+                        
 
             extractAlignedFile = None
             extractUnalignedFile = None
+            
+            if canExtract and comboContained(ref=refFile, reads=fastqFile, einfo=extractAligned):
+                extractAlignedFile = open(os.path.join(output_dir, prefix+"_" + refreadFname + "_aligned_reads.fastq"), "w")
 
-            if extracted_aligned:
-                extractAlignedFile = open(os.path.join(output_dir, extract_prefix+ "_aligned_reads.fastq"), "w")
-
-            if extracted_not_aligned:
-                extractUnalignedFile = open(os.path.join(output_dir, extract_prefix+ "_aligned_reads.fastq"), "w")
+            if canExtract and comboContained(ref=refFile, reads=fastqFile, einfo=extractUnaligned):
+                extractUnalignedFile = open(os.path.join(output_dir, prefix+"_" + refreadFname + "_unaligned_reads.fastq"), "w")
 
             readLengths = []
             alignedReadLengths = []
@@ -332,6 +382,8 @@ def align():
                 totalReads += 1
                 totalBases += len(seq)
                 readLengths.append(len(seq))
+
+                existingResultsOverview[0].add((fastqFile, name))
 
 
                 for hit in a.map(seq): # traverse alignments
@@ -366,6 +418,11 @@ def align():
                         extractUnalignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
 
                 else:
+                    
+                    if not refFile in existingResultsOverview[1]:
+                        existingResultsOverview[1][refFile] = set()
+                    existingResultsOverview[1][refFile].add((fastqFile, name))
+
                     idAlignedReads.append(name)
                     alignedReadsBases += len(seq)
                     alignedReads += 1
@@ -401,7 +458,6 @@ def align():
             tmp_dict = dict(
                             alignedReadLengths=alignedReadLengths,
                             allReadLengths=readLengths,
-
                             totalReads=totalReads,
                             alignedReads=alignedReads,
                             totalBases=totalBases,
@@ -411,8 +467,8 @@ def align():
                             unalignedReads=unalignedReads,
                             alignedReadsBases=alignedReadsBases,
                             usedReadBatches=usedReadBatches.union(alreadyUsedBatches),
-                            fastq=[fastqFile],
-                            reference=[refFile]
+                            fastq=set([fastqFile]),
+                            reference=set([refFile])
                             )
                             #idAlignedReads=idAlignedReads,
                             #idNotAlignedReads=idNotAlignedReads
@@ -432,6 +488,8 @@ def align():
 
     updatedFastqFiles = set()
 
+
+
     for mkey in existingResults:
 
         refFile, fastqFile = fromJsonKey(mkey)
@@ -439,7 +497,7 @@ def align():
         reference_fname = re.sub('\W+', '_', refFile)    
         reads_fname = re.sub('\W+', '_', fastqFile)    
 
-        refreadFname = "_".join([reference_fname, reads_fname])
+        refreadFname = "_".join([getShortName(reference_fname, 25), getShortName(reads_fname, 25)])
 
         currentElement = existingResults[mkey]
 
@@ -496,6 +554,11 @@ def align():
         makeReport(existingResults[makeJsonKey(refFile, fastqFile)], refFile)
 
     saveExistingResults(existingResults, existingResultsInfo)
+    saveExistingResults(existingResultsOverview, existingResultsInfo + "_overview")
+
+    upsetPlotPath = os.path.join(output_dir,prefix+ "upset_reads_length.png")
+
+    showReadAssignments(existingResultsOverview, upsetPlotPath)
 
     for mkey in existingResults:
         del existingResults[mkey]["alignedReadLengths"]
@@ -505,12 +568,25 @@ def align():
     #for mkey in existingResults:
     #    print(mkey, [x for x in existingResults[mkey]])
 
-    jsonStr = json.dumps(existingResults, cls=ResultEncoder)
+    jsonStr = json.dumps({
+        "general": {
+            "upset": upsetPlotPath
+        },
+        "analysis": existingResults
+    }, cls=ResultEncoder)
 
     retResponse = app.make_response((jsonStr, 200, None))
     retResponse.mimetype = "application/json"
 
     return retResponse
+
+
+def getShortName(inputStr, length):
+
+    if len(inputStr) < length:
+        return inputStr
+
+    return inputStr[-length:]
 
 keySplitString = "_;_"
 def makeJsonKey(k1, k2):
@@ -663,6 +739,29 @@ def prepareLengthFrequencyPlot( readLengths, readLengthPlot):
 
     prepareLengthHistograms(readLengths, readLengthPlot, titleAdd="(aligned, n=" + str(len(readLengths)) + ")")
     
+from upsetplot import plot
+from upsetplot import from_contents
+
+def showReadAssignments(assigns, upsetPlotPath):
+    #assigns should be a map from reffile -> set(readname)
+
+    
+    plotData = {}
+    allReadNames = assigns[0]
+
+    for x in assigns[1]:
+        plotData[x] = assigns[1][x]
+
+        allReadNames = allReadNames.difference(assigns[1][x])
+
+    plotData["Unaligned"] = allReadNames    
+
+    upIn = from_contents(plotData)
+    plot(upIn, subset_size="auto") 
+
+    plt.savefig(upsetPlotPath, bbox_inches="tight")
+
+    return upsetPlotPath
 
 
 

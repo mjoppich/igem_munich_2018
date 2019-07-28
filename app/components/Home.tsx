@@ -55,6 +55,7 @@ class TextMobileStepper extends React.Component<{}, {
     refPath2inputRef: any,
     outputDir: String,
     contamResult: any,
+    contamGeneral: any,
     contamStrRes: String,
     resultTable: any,
     helpExpanded: boolean,
@@ -76,6 +77,7 @@ class TextMobileStepper extends React.Component<{}, {
         inputRefs: new Array(),
         refPath2inputRef: JSON.parse("{}"),
         contamResult: JSON.parse("{}"),
+        contamGeneral: JSON.parse("{}"),
         contamStrRes: "",
         resultTable: <div></div>,
         helpExpanded: false,
@@ -88,6 +90,8 @@ class TextMobileStepper extends React.Component<{}, {
     };
 
     contamRefPath2Element: any = {};
+    referenceServer: any = null;
+    allFiles: any = [];
 
     constructor(props: any) {
         super(props);
@@ -1031,7 +1035,6 @@ class TextMobileStepper extends React.Component<{}, {
 
                     <Card>
                         <CardContent>
-                            <p>Contamination Results:</p>
                             {this.state.resultTable}
                         </CardContent>
                     </Card>
@@ -1662,7 +1665,14 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
         }
     })
 
-    self.startProcessAsync(
+    if (self.referenceServer != null)
+    {
+        console.log("Stopping reference server")
+        self.referenceServer.kill();
+    }
+
+    console.log("Starting reference server")
+    self.referenceServer = self.startProcessAsync(
         self.getReferenceServerPath() + " --references " + refFiles.join(" ")
     );
 
@@ -1739,6 +1749,8 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
        });
 
+       self.allFiles = allFiles;
+
 
        let elem_prefix = allFiles.map((x: any) => self.makeExportPath(x)).join("_");
        console.log(elem_prefix);
@@ -1781,9 +1793,14 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
           console.log("new contam res")
           console.log(newContamRes)
 
-          Object.keys(newContamRes).forEach(rkey => {
-            self.state.contamResult[rkey] = newContamRes[rkey];
+          var analysisResult = newContamRes["analysis"];
+          var generalResult = newContamRes["general"];
+
+          Object.keys(analysisResult).forEach(rkey => {
+            self.state.contamResult[rkey] = analysisResult[rkey];
         });
+
+          self.state.contamGeneral = generalResult;
 
           console.log("set contam Result")
           console.log(self.state.contamResult)
@@ -1854,12 +1871,14 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
             process.env.PATH = np;
         }
 
-        spawn(program, programArgs, {
+        var child = spawn(program, programArgs, {
             cwd: process.cwd(),
             env: process.env,
             stdio: 'pipe',
             encoding: 'utf-8'
         })
+
+        return child;
     }
 
     startProcessSync(command)
@@ -2151,6 +2170,117 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
     }
 
+    startAlignmentServerSave()
+    {
+        var self = this;
+
+        var extractAligned = [];
+        var extractUnaligned = [];
+
+        var extractAllAligned = [];
+        var extractAllUnaligned = [];
+
+        self.state.inputRefs.forEach(refElement => {
+
+            Object.keys(self.state.saveFiles[refElement.path]['aligned']).forEach((fileElement: any) => {
+
+                if (self.state.saveFiles[refElement.path]['aligned'][fileElement])
+                {
+                    var readsPath = self.normalizePath(fileElement)
+
+                    extractAligned.push( {read: readsPath, ref: refElement.path} )
+                }
+
+
+            });
+
+            Object.keys(self.state.saveFiles[refElement.path]['unaligned']).forEach((fileElement: any) => {
+
+                if (self.state.saveFiles[refElement.path]['unaligned'][fileElement])
+                {
+                    var readsPath = self.normalizePath(fileElement)
+
+                    extractUnaligned.push( {read: readsPath, ref: refElement.path} )
+                }
+            });
+        })
+
+        if ('all' in self.state.saveFiles) {
+        
+            Object.keys(self.state.saveFiles['all']['aligned']).forEach((fileElement: any) => {
+
+                if (self.state.saveFiles['all']['aligned'][fileElement])
+                {
+                    var readsPath = self.normalizePath(fileElement)
+
+                    extractAllAligned.push( {read: readsPath} )
+                }
+
+
+            });
+
+            Object.keys(self.state.saveFiles['all']['unaligned']).forEach((fileElement: any) => {
+
+                if (self.state.saveFiles['all']['unaligned'][fileElement])
+                {
+                    var readsPath = self.normalizePath(fileElement)
+
+                    extractAllUnaligned.push( {read: readsPath} )
+                }
+            });
+        
+        }
+
+
+        var outdir = self.normalizePath(self.state.outputDir);
+        var readOutputDir = self.normalizePath(path.join(self.state.outputDir, "/extractedFiles"))
+
+        var serverInfo = {
+            reads: self.allFiles,
+            results: outdir + "/.results",
+            outdir: outdir,
+            prefix: "extracted",
+            extractAligned: extractAligned,
+            extractUnaligned: extractUnaligned,
+            extractAllAligned: extractAllAligned,
+            extractAllUnaligned: extractAllUnaligned,
+            extractDir: readOutputDir
+        }
+ 
+ 
+        console.log(serverInfo)
+ 
+        const serverOptions = {
+         hostname: 'localhost',
+         port: 5000,
+         path: '/align',
+         method: 'POST',
+         headers: {"content-type": "application/json",}
+       };
+ 
+       const req = http.request(serverOptions, (res) => {
+         console.log(`STATUS: ${res.statusCode}`);
+         console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+         res.setEncoding('utf8');
+         res.on('data', (chunk) => {
+           console.log(`BODY: ${chunk}`);
+ 
+         });
+         res.on('end', () => {
+           console.log('No more data in response.');
+         });
+       });
+       
+       req.on('error', (e) => {
+         console.error(`problem with request: ${e.message}`);
+         console.error(e)
+       });
+       
+       // Write data to request body
+       req.write(JSON.stringify(serverInfo))
+       req.end();
+    }
+
 
     startPythonSave() {
 
@@ -2391,6 +2521,31 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
         var resultItems: any = [];
         var resultList = <List> {resultItems} </List>;
+
+        // general plots
+
+        var upsetPlotImage = self.state.contamGeneral["upset"];
+
+        console.log(self.state.contamGeneral);
+
+        if (os.platform() == "win32") {
+            upsetPlotImage = self.convertUnix2Win(upsetPlotImage);
+        }
+
+        var overviewPlots: any = [];
+        if (upsetPlotImage != undefined)
+        {
+            overviewPlots = [{ src: upsetPlotImage + "?" + new Date().getTime(), caption:"Overview of reads per reference"}]
+        }
+
+        var generalGallery = <Gallery
+        heading={"Overview Plots"}
+        subheading={null}
+        showThumbnails={false}
+        images={overviewPlots} />;
+
+        resultItems.push(generalGallery)
+        resultItems.push(<p>Contamination Results:</p>)
 
 
         Object.keys(self.state.contamResult).forEach((elemKey: any) => {
