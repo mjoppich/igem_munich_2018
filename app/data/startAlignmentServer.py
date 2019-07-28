@@ -249,23 +249,38 @@ def align():
     extractAllUnaligned = reqData.get("extractAllUnaligned", None)
 
     canExtract = extractDir != None
+    canExtractAllAligned = None
+    canExtractAllUnaligned = None
+
+    if canExtract:
+        print("Extract MODE")
 
     if canExtract and extractAllAligned != None and len(extractAllAligned) > 0:
         extractAllAlignedFile = None
+        canExtractAllAligned = set()
+        canExtractAllUnaligned = set()
 
     if canExtract and extractAllUnaligned != None and len(extractAllUnaligned) > 0:
         extractAllUnalignedFile = None
+        canExtractAllAligned = set()
+        canExtractAllUnaligned = set()
+
+    if not os.path.isdir(extractDir):
+        os.makedirs(extractDir)
 
     """
 
     PREPARING RESULTS
 
     """
+    existingResults = {}
+    existingResultsOverview = None
 
-    existingResults = loadExistingResults(existingResultsInfo)
-    existingResultsOverview = loadExistingResults(existingResultsInfo + "_overview", defaultObj=list)
+    if not canExtract:
+        existingResults = loadExistingResults(existingResultsInfo)
+        existingResultsOverview = loadExistingResults(existingResultsInfo + "_overview", defaultObj=list)
 
-    if len(existingResultsOverview) == 0:
+    if existingResultsOverview == None or len(existingResultsOverview) == 0:
         existingResultsOverview = [set(), defaultdict(set)]
 
     else:
@@ -335,6 +350,9 @@ def align():
             
             def comboContained(ref, reads, einfo):
 
+                if einfo == None:
+                    return False
+
                 for x in einfo:
 
                     if "ref" in x and x["ref"] != ref:
@@ -348,12 +366,12 @@ def align():
 
             extractAlignedFile = None
             extractUnalignedFile = None
-            
+
             if canExtract and comboContained(ref=refFile, reads=fastqFile, einfo=extractAligned):
-                extractAlignedFile = open(os.path.join(output_dir, prefix+"_" + refreadFname + "_aligned_reads.fastq"), "w")
+                extractAlignedFile = open(os.path.join(extractDir, prefix+"_" + refreadFname + "_aligned_reads.fastq"), "w")
 
             if canExtract and comboContained(ref=refFile, reads=fastqFile, einfo=extractUnaligned):
-                extractUnalignedFile = open(os.path.join(output_dir, prefix+"_" + refreadFname + "_unaligned_reads.fastq"), "w")
+                extractUnalignedFile = open(os.path.join(extractDir, prefix+"_" + refreadFname + "_unaligned_reads.fastq"), "w")
 
             readLengths = []
             alignedReadLengths = []
@@ -417,7 +435,13 @@ def align():
                     if extractUnalignedFile != None:
                         extractUnalignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
 
+                    if canExtractAllUnaligned != None:
+                        canExtractAllUnaligned.add((name, seq, qual))
+
                 else:
+
+                    if canExtractAllAligned != None:
+                        canExtractAllAligned.add((name, seq, qual))
                     
                     if not refFile in existingResultsOverview[1]:
                         existingResultsOverview[1][refFile] = set()
@@ -488,6 +512,27 @@ def align():
 
     updatedFastqFiles = set()
 
+
+    if canExtractAllAligned != None:
+        extractAlignedFile = open(os.path.join(extractDir, prefix+"_" + "all" + "_aligned_reads.fastq"), "w")
+
+        trueExtractAll = canExtractAllAligned.difference(canExtractAllUnaligned)
+
+        for name, seq, qual in trueExtractAll:
+            extractAlignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
+
+    if canExtractAllUnaligned != None:
+        extractUnalignedFile = open(os.path.join(extractDir, prefix+"_" + "all" + "_aligned_reads.fastq"), "w")
+
+        trueExtractAll = canExtractAllUnaligned.difference(canExtractAllAligned)
+
+        for name, seq, qual in trueExtractAll:
+            extractUnalignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
+
+
+    if canExtract:
+        retResponse = app.make_response(("{\"extract_status\": \"done\"}", 200, None))
+        return retResponse
 
 
     for mkey in existingResults:
