@@ -36,6 +36,8 @@ var querystring = require('querystring');
 var http = require("http")
 
 var remote = require('electron').remote;
+const path = require('path');
+
 var os = require("os");
 var fs = require('fs');
 const shellPath = require('shell-path');
@@ -43,7 +45,7 @@ const shellPath = require('shell-path');
 var dialog = remote.dialog;
 
 
-const path = require('path');
+
 const contaminants = require('data/contaminants.json');
 
 class TextMobileStepper extends React.Component<{}, {
@@ -1644,6 +1646,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
         */
        var self = this;
        var refFiles = [];
+       var refFileType = [];
 
        self.state.inputRefs.forEach(element => {
         if (element.enabled) {
@@ -1651,16 +1654,22 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
             if (element.appfile === true) {
                 var inref = self.normalizePath(path.join(self.getDataPath(), element.path));
                 refFiles.push(inref);
-
+                
                 self.contamRefPath2Element[inref] = element;
 
             } else {
 
                 var inref = self.normalizePath(element.path);
                 refFiles.push(inref);
-
                 self.contamRefPath2Element[inref] = element;
 
+            }
+
+            if (element.isContaminant)
+            {
+                refFileType.push("off_target")
+            } else {
+                refFileType.push("target")
             }
         }
     })
@@ -1673,7 +1682,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
     console.log("Starting reference server")
     self.referenceServer = self.startProcessAsync(
-        self.getReferenceServerPath() + " --references " + refFiles.join(" ")
+        self.getReferenceServerPath() + " --references " + refFiles.join(" ") + " --ref_type " + refFileType.join(" ")
     );
 
     }
@@ -2627,12 +2636,18 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                     analysisResult = []
 
+                    var alignedColor;
+                    var unalignedColor;
+
                     if (contamInputRef.isContaminant)
                     {
                         if (alignedReadsFraction > 0.3)
                         {
                             analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! More than 30% of all reads align to ICO sequence!</p>);
                         }
+
+                        alignedColor = "#f50057";
+                        unalignedColor = "#009440";
 
                         alignedReadsName = "Aligned reads (off-target rate)";
                         unalignedReadsName = "Unaligned reads (potential on-targets)";
@@ -2645,8 +2660,11 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
                         if (alignedReadsFraction < 0.7)
                         {
-                            analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! less than 70% of all reads align to target!</p>)
+                            analysisResult.push(<p key={analysisResult.length} style={{color: "#f50057"}}>Attention! Less than 70% of all reads align to target!</p>)
                         }
+
+                        unalignedColor = "#f50057";
+                        alignedColor = "#009440";
 
                         alignedReadsName = "Aligned reads (on-target rate)";
                         unalignedReadsName = "Unaligned reads (potential off-targets)";
@@ -2686,19 +2704,19 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                             </TableRow>
 
                             <TableRow>
-                                <TableCell component="th" scope="row">
+                                <TableCell component="th" scope="row" style={{color: alignedColor}}>
                                     {alignedReadsName}
                             </TableCell>
-                                <TableCell numeric>{this.numberFormat(element["alignedReads"], "", 0)}</TableCell>
-                                <TableCell numeric>{this.numberFormat(100 * element["alignedReads"] / element["totalReads"], "%")}</TableCell>
+                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(element["alignedReads"], "", 0)}</TableCell>
+                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedReads"] / element["totalReads"], "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
-                                <TableCell component="th" scope="row">
+                                <TableCell component="th" scope="row" style={{color: unalignedColor}}>
                                     {unalignedReadsName}
                             </TableCell>
-                                <TableCell numeric>{this.numberFormat(element["unalignedReads"], "", 0)}</TableCell>
-                                <TableCell numeric>{this.numberFormat((100 * (element["unalignedReads"]) / element["totalReads"]), "%")}</TableCell>
+                                <TableCell numeric style={{color: unalignedColor}}>{this.numberFormat(element["unalignedReads"], "", 0)}</TableCell>
+                                <TableCell numeric style={{color: unalignedColor}}>{this.numberFormat((100 * (element["unalignedReads"]) / element["totalReads"]), "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
@@ -2710,35 +2728,35 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                             </TableRow>
 
                             <TableRow>
-                                <TableCell component="th" scope="row">
+                                <TableCell component="th" scope="row" style={{color: alignedColor}}>
                                     {alignmentBasesName}
                             </TableCell>
-                                <TableCell numeric>{this.numberFormat(element["alignmentBases"], "", 0)}</TableCell>
-                                <TableCell numeric>{this.numberFormat(100 * element["alignmentBases"] / element["totalBases"], "%")}</TableCell>
+                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(element["alignmentBases"], "", 0)}</TableCell>
+                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(100 * element["alignmentBases"] / element["totalBases"], "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
-                                <TableCell component="th" scope="row">
+                                <TableCell component="th" scope="row" style={{color: alignedColor}}>
                                     {alignedBasesName}
                             </TableCell>
-                                <TableCell numeric>{this.numberFormat(element["alignedLength"], "", 0)}</TableCell>
-                                <TableCell numeric>{this.numberFormat(100 * element["alignedLength"] / element["totalBases"], "%")}</TableCell>
+                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(element["alignedLength"], "", 0)}</TableCell>
+                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedLength"] / element["totalBases"], "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
-                                <TableCell component="th" scope="row">
+                                <TableCell component="th" scope="row"  style={{color: alignedColor}}>
                                     {alignedReadsBasesName}
                             </TableCell>
-                                <TableCell numeric>{this.numberFormat(element["alignedReadsBases"], "", 0)}</TableCell>
-                                <TableCell numeric>{this.numberFormat(100 * element["alignedReadsBases"] / element["totalBases"], "%")}</TableCell>
+                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(element["alignedReadsBases"], "", 0)}</TableCell>
+                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedReadsBases"] / element["totalBases"], "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
-                                <TableCell component="th" scope="row">
+                                <TableCell component="th" scope="row"  style={{color: unalignedColor}}>
                                     {unalignedBasesName}
                             </TableCell>
-                                <TableCell numeric>{this.numberFormat(element["unalignedBases"], "", 0)}</TableCell>
-                                <TableCell numeric>{this.numberFormat(100 * (element["unalignedBases"]) / element["totalBases"], "%")}</TableCell>
+                                <TableCell numeric style={{color: unalignedColor}}>{this.numberFormat(element["unalignedBases"], "", 0)}</TableCell>
+                                <TableCell numeric style={{color: unalignedColor}}>{this.numberFormat(100 * (element["unalignedBases"]) / element["totalBases"], "%")}</TableCell>
                             </TableRow>
 
 

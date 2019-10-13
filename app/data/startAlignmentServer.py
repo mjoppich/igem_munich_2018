@@ -265,7 +265,7 @@ def align():
         canExtractAllAligned = set()
         canExtractAllUnaligned = set()
 
-    if not os.path.isdir(extractDir):
+    if canExtract and not os.path.isdir(extractDir):
         os.makedirs(extractDir)
 
     """
@@ -555,8 +555,8 @@ def align():
                 readLengths = currentElement["allReadLengths"]
                 alignedReadLengths = currentElement["alignedReadLengths"]
 
-                prepareLengthHistograms(readLengths, readsLengthPlot)
-                prepareLengthHistograms([x for x in readLengths if x < 10000], readsLengthPlot10k, titleAdd=" (<10kbp)")
+                prepareLengthHistograms(readLengths, readsLengthPlot, titleAdd=" (all, n={})".format(len(readLengths)))
+                prepareLengthHistograms([x for x in readLengths if x < 10000], readsLengthPlot10k, titleAdd=" < 10kbp")
 
                 updatedFastqFiles.add(fastqFile)
 
@@ -739,8 +739,8 @@ def prepareRankPlot(allBuckets, rankPlotPath):
     else:
         plt.plot(xdata, ydata, label="Aligned Fraction")
     plt.title(r'Aligned ratio in sequencing samples')
-    plt.xlabel(r'First $x \cdot 1000$ reads')
-    plt.ylabel(r'Aligned ratio for first $x \cdot 1000$ reads [%]')
+    plt.xlabel(r'$x$th bin of 1000 reads')
+    plt.ylabel(r'Aligned ratio [%]')
     plt.savefig(rankPlotPath, bbox_inches="tight")
     plt.close()
 
@@ -768,7 +768,7 @@ def prepareLengthHistograms(readLengths, plotPath, titleAdd=""):
     plt.figure()
     plt.ylabel('Frequency')
     plt.xlabel('Length of reads' + titleAdd)
-    plt.title('Length frequencies of all reads' + titleAdd)
+    plt.title('Length frequencies of reads' + titleAdd)
     plt.hist(readLengths, bins=100, color='green')
     plt.savefig(plotPath, bbox_inches="tight")
     plt.close()
@@ -782,9 +782,9 @@ def prepareLengthFrequencyPlot( readLengths, readLengthPlot):
     #plt.savefig(readLengthPlot, bbox_inches="tight")
     #plt.close()
 
-    prepareLengthHistograms(readLengths, readLengthPlot, titleAdd="(aligned, n=" + str(len(readLengths)) + ")")
+    prepareLengthHistograms(readLengths, readLengthPlot, titleAdd=" (aligned, n=" + str(len(readLengths)) + ")")
     
-from upsetplot import plot
+from ModUpset import UpSet
 from upsetplot import from_contents
 
 def showReadAssignments(assigns, upsetPlotPath):
@@ -802,7 +802,8 @@ def showReadAssignments(assigns, upsetPlotPath):
     plotData["Unaligned"] = allReadNames    
 
     upIn = from_contents(plotData)
-    plot(upIn, subset_size="auto") 
+    
+    UpSet(upIn, set2color=refFile2color, subset_size="auto").plot(None)
 
     plt.savefig(upsetPlotPath, bbox_inches="tight")
 
@@ -811,12 +812,15 @@ def showReadAssignments(assigns, upsetPlotPath):
 
 
 refFile2aligner = {}
+refFile2type = {}
+refFile2color = {}
 
 if __name__ == '__main__':
 
     ap = argparse.ArgumentParser(description='--references genome.fa')
 
     ap.add_argument("--references", type=argparse.FileType("r"), nargs='+', required=True, help="path to the read file")
+    ap.add_argument("--ref_type", type=str, nargs='+', required=False, default=None, help="path to the read file")
     ap.add_argument('--port', type=int, default=5000, required=False)
 
     args = ap.parse_args()
@@ -830,6 +834,16 @@ if __name__ == '__main__':
             raise Exception("ERROR: failed to load/build index")
 
         refFile2aligner[refFile.name] = a
+
+        if args.ref_type != None:
+            refFile2type[refFile.name] = args.ref_type[refFileIdx]
+        else:
+            refFile2type[refFile.name] = "target"
+
+        if refFile2type[refFile.name] == "target":
+            refFile2color[refFile.name] = "green"
+        else:
+            refFile2color[refFile.name] = "red"
 
 
     app.run(threaded=True, host="0.0.0.0", port=args.port)
