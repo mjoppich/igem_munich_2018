@@ -228,6 +228,9 @@ def align():
     output_dir = reqData.get("outdir", None)
     prefix = reqData.get("prefix", "")
 
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     """
 
     reads: self.allFiles,
@@ -556,7 +559,8 @@ def align():
                 alignedReadLengths = currentElement["alignedReadLengths"]
 
                 prepareLengthHistograms(readLengths, readsLengthPlot, titleAdd=" (all, n={})".format(len(readLengths)))
-                prepareLengthHistograms([x for x in readLengths if x < 10000], readsLengthPlot10k, titleAdd=" < 10kbp")
+                sub10kReads = [x for x in readLengths if x < 10000]
+                prepareLengthHistograms( sub10kReads, readsLengthPlot10k, titleAdd=" < 10kbp (n={})".format(len(sub10kReads)))
 
                 updatedFastqFiles.add(fastqFile)
 
