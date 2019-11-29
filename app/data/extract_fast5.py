@@ -785,6 +785,9 @@ if __name__ == '__main__':
 
                 for read in f5file:
 
+                    if args.count >= 0 and iFilesProcessedInFolder >= args.count:
+                        break
+
                     try:
 
                         output = read.getFastQ()

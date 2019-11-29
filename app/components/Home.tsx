@@ -66,7 +66,8 @@ class TextMobileStepper extends React.Component<{}, {
     showImages: boolean,
     riboValues: Array<any>,
     selectedRiboValues: Array<any>,
-    readExtractNumber: Number
+    readExtractNumber: Number,
+    useExistingResults:boolean
 }>
 
 
@@ -88,7 +89,8 @@ class TextMobileStepper extends React.Component<{}, {
         showImages: false,
         riboValues: new Array(),
         selectedRiboValues: new Array(),
-        readExtractNumber: 1000
+        readExtractNumber: 1000,
+        useExistingResults: false
     };
 
     contamRefPath2Element: any = {};
@@ -526,6 +528,19 @@ class TextMobileStepper extends React.Component<{}, {
                                     onChange={this.handleOutputDirChange('outputDir')}
                                     margin="normal" />
                             </div>
+
+                            <FormControlLabel
+        control={
+          <Switch
+            checked={this.state.useExistingResults}
+            onChange={() => {this.setState({useExistingResults: !this.state.useExistingResults})}}
+            color="primary"
+          />
+        }
+        label="Use existing results"
+      />
+
+                    
                         </CardContent>
                     </Card>
 
@@ -746,7 +761,9 @@ class TextMobileStepper extends React.Component<{}, {
                 var myFunction = function () {
                     //self.startPython();
                     self.startPythonServer();
-                    self.startAlignmentServerBased();
+
+                    setTimeout(() => {self.startAlignmentServerBased();}, 1000)
+                    
                 }
 
                 window.setTimeout(myFunction);
@@ -1073,7 +1090,8 @@ class TextMobileStepper extends React.Component<{}, {
                         <Typography gutterBottom>
                             How to continue? If you want to add a possible contamination source, go back.
                             If you need to add your read's location, reset.
-                            If you have sequenced further and want to repeat the current analysis, redo your analysis <em>extracting all reads</em>.
+                            If you have sequenced further, but did not reach your read limit yet (set in step 1), <em>Update Analysis</em>.
+                            If you have sequenced further and exceeded your set limit or want to stay up to date, <em>Redo Analysis (extract all)</em>.
                         </Typography>
 
                         <div
@@ -1681,6 +1699,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
     }
 
     console.log("Starting reference server")
+    console.log(self.getReferenceServerPath() + " --references " + refFiles.join(" ") + " --ref_type " + refFileType.join(" "))
     self.referenceServer = self.startProcessAsync(
         self.getReferenceServerPath() + " --references " + refFiles.join(" ") + " --ref_type " + refFileType.join(" ")
     );
@@ -1689,10 +1708,63 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
     async startAlignmentServerBased() {
 
+
+        console.log("Wait until server is ready")
+        var self = this;
+
+        var serverReady: boolean = false;
+
+
+        var readyServerOptions = self.getServerOptions("/ready")
+        readyServerOptions.method = "GET"
+        console.log(readyServerOptions)
+
+
+        function testServer(cb)
+        {
+
+            try
+            {
+                const req = http.get(readyServerOptions, (res) => { console.log("Ready"); serverReady = true; console.log(serverReady);
+                res.on('end', () => {
+                    console.log('No more data in response.');
+                  });
+            });
+            } catch {
+                // nothing
+            }
+
+
+            //console.log("TestServer")
+            //console.log(serverReady);
+            //console.log(self.state.activeStep);
+
+            if ((!serverReady) && (self.state.activeStep >= 1))
+            {
+                setTimeout(() => {testServer(cb)}, 1000);
+            } else {
+                console.log("Stopping ready check")
+                setTimeout(cb, 10);
+            }
+
+
+        }
+
+
+        testServer(self.runAlignmentServerBased.bind(this));
+
+    }
+
+    runAlignmentServerBased()
+    {
+
+        console.log("Run AlignmentServer Based")
+
         /*
         PREPARE READS
         */
-       var self = this;
+
+        var self=this;
 
        self.state.contamResult = {};
        var processFilesForElement: any = {};
@@ -1776,19 +1848,16 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
            reads: allFiles,
            results: outdir + "/.results",
            outdir: outdir,
-           prefix: elem_prefix
+           prefix: elem_prefix,
+           useExisting: self.state.useExistingResults
        }
 
 
        console.log(serverInfo)
 
-       const serverOptions = {
-        hostname: 'localhost',
-        port: 5000,
-        path: '/align',
-        method: 'POST',
-        headers: {"content-type": "application/json",}
-      };
+       //self.setState({useExistingResults: true})
+
+      const serverOptions = self.getServerOptions("/align");
 
       const req = http.request(serverOptions, (res) => {
         console.log(`STATUS: ${res.statusCode}`);
@@ -1825,15 +1894,14 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
       });
       
       req.on('error', (e) => {
-        console.error(`problem with request: ${e.message}`);
+        console.error("problem with request: " + e.message);
         console.error(e)
+        console.error(e.message)
         self.setState({
             resultTable: <div>
                 <Card>
                     <CardContent>
-                        <Typography color='secondary'>{e.message}</Typography>
-                        <Typography color='secondary'>{e}</Typography>
-
+                        <Typography color='secondary'>{<span>{e.message}</span>}</Typography>
                     </CardContent>
                 </Card>
             </div>
@@ -1850,6 +1918,19 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
       self.handleNext();
 
 
+    }
+
+    getServerOptions(path:String)
+    {
+        var serverOptions = {
+            hostname: 'localhost',
+            port: 5000,
+            path: path,
+            method: 'POST',
+            headers: {"content-type": "application/json",}
+          };
+
+        return serverOptions;
     }
 
     startProcessAsync(command)
@@ -1935,6 +2016,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
         var self = this;
 
         self.state.contamResult = {};
+        self.state.resultTable = <div></div>;
         var processFilesForElement: any = {};
         var processFilesTranscript: any = [];
 
@@ -2687,8 +2769,8 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                         <TableHead>
                             <TableRow>
                                 <TableCell>Number of</TableCell>
-                                <TableCell numeric>Absolute value</TableCell>
-                                <TableCell numeric>Relative value</TableCell>
+                                <TableCell align="right">Absolute value</TableCell>
+                                <TableCell align="right">Relative value</TableCell>
                             </TableRow>
                         </TableHead>
 
@@ -2699,64 +2781,64 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                                 <TableCell component="th" scope="row">
                                     Reads
                             </TableCell>
-                                <TableCell numeric>{this.numberFormat(element["totalReads"], "", 0)}</TableCell>
-                                <TableCell numeric>100%</TableCell>
+                                <TableCell align="right">{this.numberFormat(element["totalReads"], "", 0)}</TableCell>
+                                <TableCell align="right">100%</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell component="th" scope="row" style={{color: alignedColor}}>
                                     {alignedReadsName}
                             </TableCell>
-                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(element["alignedReads"], "", 0)}</TableCell>
-                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedReads"] / element["totalReads"], "%")}</TableCell>
+                                <TableCell align="right" style={{color: alignedColor}}>{this.numberFormat(element["alignedReads"], "", 0)}</TableCell>
+                                <TableCell align="right" style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedReads"] / element["totalReads"], "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell component="th" scope="row" style={{color: unalignedColor}}>
                                     {unalignedReadsName}
                             </TableCell>
-                                <TableCell numeric style={{color: unalignedColor}}>{this.numberFormat(element["unalignedReads"], "", 0)}</TableCell>
-                                <TableCell numeric style={{color: unalignedColor}}>{this.numberFormat((100 * (element["unalignedReads"]) / element["totalReads"]), "%")}</TableCell>
+                                <TableCell align="right" style={{color: unalignedColor}}>{this.numberFormat(element["unalignedReads"], "", 0)}</TableCell>
+                                <TableCell align="right" style={{color: unalignedColor}}>{this.numberFormat((100 * (element["unalignedReads"]) / element["totalReads"]), "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell component="th" scope="row">
                                     Bases
                             </TableCell>
-                                <TableCell numeric>{this.numberFormat(element["totalBases"], "", 0)}</TableCell>
-                                <TableCell numeric>100%</TableCell>
+                                <TableCell align="right">{this.numberFormat(element["totalBases"], "", 0)}</TableCell>
+                                <TableCell align="right">100%</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell component="th" scope="row" style={{color: alignedColor}}>
                                     {alignmentBasesName}
                             </TableCell>
-                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(element["alignmentBases"], "", 0)}</TableCell>
-                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(100 * element["alignmentBases"] / element["totalBases"], "%")}</TableCell>
+                                <TableCell align="right" style={{color: alignedColor}}>{this.numberFormat(element["alignmentBases"], "", 0)}</TableCell>
+                                <TableCell align="right" style={{color: alignedColor}}>{this.numberFormat(100 * element["alignmentBases"] / element["totalBases"], "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell component="th" scope="row" style={{color: alignedColor}}>
                                     {alignedBasesName}
                             </TableCell>
-                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(element["alignedLength"], "", 0)}</TableCell>
-                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedLength"] / element["totalBases"], "%")}</TableCell>
+                                <TableCell align="right" style={{color: alignedColor}}>{this.numberFormat(element["alignedLength"], "", 0)}</TableCell>
+                                <TableCell align="right" style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedLength"] / element["totalBases"], "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell component="th" scope="row"  style={{color: alignedColor}}>
                                     {alignedReadsBasesName}
                             </TableCell>
-                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(element["alignedReadsBases"], "", 0)}</TableCell>
-                                <TableCell numeric style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedReadsBases"] / element["totalBases"], "%")}</TableCell>
+                                <TableCell align="right" style={{color: alignedColor}}>{this.numberFormat(element["alignedReadsBases"], "", 0)}</TableCell>
+                                <TableCell align="right" style={{color: alignedColor}}>{this.numberFormat(100 * element["alignedReadsBases"] / element["totalBases"], "%")}</TableCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell component="th" scope="row"  style={{color: unalignedColor}}>
                                     {unalignedBasesName}
                             </TableCell>
-                                <TableCell numeric style={{color: unalignedColor}}>{this.numberFormat(element["unalignedBases"], "", 0)}</TableCell>
-                                <TableCell numeric style={{color: unalignedColor}}>{this.numberFormat(100 * (element["unalignedBases"]) / element["totalBases"], "%")}</TableCell>
+                                <TableCell align="right" style={{color: unalignedColor}}>{this.numberFormat(element["unalignedBases"], "", 0)}</TableCell>
+                                <TableCell align="right" style={{color: unalignedColor}}>{this.numberFormat(100 * (element["unalignedBases"]) / element["totalBases"], "%")}</TableCell>
                             </TableRow>
 
 

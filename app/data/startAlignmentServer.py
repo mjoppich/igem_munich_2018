@@ -203,7 +203,18 @@ def toBool(strElem):
     return False
 
 
-logFile = open("/tmp/silog", "w")
+
+
+@app.route('/ready')
+def is_ready():
+
+    retResponse = app.make_response((jsonify({'ready': True}), 200, None))
+    retResponse.mimetype = "application/json"
+
+    return retResponse
+
+
+
 
 @app.route('/align', methods=['POST'])
 def align():
@@ -250,6 +261,7 @@ def align():
     extractUnaligned = reqData.get("extractUnaligned", None)
     extractAllAligned = reqData.get("extractAllAligned", None)
     extractAllUnaligned = reqData.get("extractAllUnaligned", None)
+    useExistingResults = reqData.get("useExisting", None)
 
     canExtract = extractDir != None
     canExtractAllAligned = None
@@ -271,6 +283,15 @@ def align():
     if canExtract and not os.path.isdir(extractDir):
         os.makedirs(extractDir)
 
+    if useExistingResults == None:
+        useExistingResults = True
+
+    else:
+        if str(useExistingResults).upper() == "FALSE":
+            useExistingResults = False
+        else:
+            useExistingResults = True
+
     """
 
     PREPARING RESULTS
@@ -279,7 +300,7 @@ def align():
     existingResults = {}
     existingResultsOverview = None
 
-    if not canExtract:
+    if not canExtract and useExistingResults:
         existingResults = loadExistingResults(existingResultsInfo)
         existingResultsOverview = loadExistingResults(existingResultsInfo + "_overview", defaultObj=list)
 
@@ -792,6 +813,7 @@ from ModUpset import UpSet
 from upsetplot import from_contents
 
 def showReadAssignments(assigns, upsetPlotPath):
+    global logFile
     #assigns should be a map from reffile -> set(readname)
 
     
@@ -803,11 +825,21 @@ def showReadAssignments(assigns, upsetPlotPath):
 
         allReadNames = allReadNames.difference(assigns[1][x])
 
-    plotData["Unaligned"] = allReadNames    
+    plotData["Unaligned"] = allReadNames
+
+    aoCount = 1
+    while len(plotData) < 2:
+        plotData["Ignored {}".format(aoCount)] = []
+
+    print("show Read Assignments Data", file=logFile)
+    for x in plotData:
+        print(x, len(plotData[x]), file=logFile)
+
+    logFile.flush()
 
     upIn = from_contents(plotData)
     
-    UpSet(upIn, set2color=refFile2color, subset_size="auto").plot(None)
+    UpSet(upIn, set2color=refFile2color, subset_size="auto", show_counts='%d').plot(None)
 
     plt.savefig(upsetPlotPath, bbox_inches="tight")
 
@@ -829,9 +861,18 @@ if __name__ == '__main__':
 
     args = ap.parse_args()
 
+    logFile = open("/tmp/silog", "w")
+
+    sys.stdout = logFile
+    sys.stderr = logFile
+
+    print("Starting server on node {}".format(args.port), file=logFile)
 
 
     for refFileIdx, refFile in enumerate(args.references):
+
+        print("Loading ref file {}".format(refFile), file=logFile)
+        logFile.flush()
 
         a = mp.Aligner(refFile.name)  # load or build index
         if not a:
@@ -849,6 +890,6 @@ if __name__ == '__main__':
         else:
             refFile2color[refFile.name] = "red"
 
-
+    print("Hosting server", file=logFile)
     app.run(threaded=True, host="0.0.0.0", port=args.port)
 
