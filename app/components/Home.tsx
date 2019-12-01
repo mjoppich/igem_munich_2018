@@ -26,7 +26,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Gallery from './ImageGallery';
 import AutoSuggestChips from './ChipInput';
-import { string } from 'prop-types';
+import { string, element } from 'prop-types';
 
 
 var lineReader = require('line-reader');
@@ -111,6 +111,17 @@ class TextMobileStepper extends React.Component<{}, {
                 self.state.inputRefs.push(contaminant);
             });
         }
+    }
+
+    setup_environment_ubuntu()
+    {
+
+        if (os.platform() == "win32") {
+            return;
+        }
+
+        var scriptname = path.join(this.getDataPath(), "ubuntu_install.sh")
+        shell.openItem("xterm -e \"sh "+scriptname+"\"")
     }
 
 
@@ -423,6 +434,22 @@ class TextMobileStepper extends React.Component<{}, {
                             }}>
 
                             Setup WSL Environment&nbsp;
+                            <Icon>chrome_reader_mode</Icon>
+                        </Button>
+                    </Typography>
+
+                    <Typography gutterBottom>
+                        <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => { this.setup_environment_ubuntu() }}
+                            style={{
+                                marginBottom: "20px",
+                                marginRight: "50px",
+                                marginLeft: "50px"
+                            }}>
+
+                            Setup Ubuntu Environment&nbsp;
                             <Icon>chrome_reader_mode</Icon>
                         </Button>
                     </Typography>
@@ -1064,6 +1091,7 @@ class TextMobileStepper extends React.Component<{}, {
                         style={{ marginTop: this.largeMargin }}>
                         <CardContent>
                             <p>Extract Reads:</p>
+                            <p>Extracting Reads may take a while.</p>
                             {saveFileList}
                         </CardContent>
 
@@ -1071,7 +1099,7 @@ class TextMobileStepper extends React.Component<{}, {
                             variant="contained"
                             size="small"
                             disabled={this.state.showProgress2}
-                            onClick={() => { this.startPythonSave() }}
+                            onClick={() => { this.startAlignmentServerSave() }}
                             style={{
                                 marginBottom: "20px",
                                 marginRight: "50px",
@@ -1483,6 +1511,10 @@ class TextMobileStepper extends React.Component<{}, {
             var driveLetter = outPath[0];
             outPath = outPath.replace(driveLetter + ":/", "/mnt/"+driveLetter.toLowerCase()+"/")
 
+            //console.log("Normalize Path")
+            //console.log(inpath)
+            //console.log(outPath)
+
             this.transformedPaths[outPath] = inpath;
         }
 
@@ -1653,6 +1685,14 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
         processOutput = child.output[1];
         console.log(processOutput);
+
+        if (os.platform() == "win32")
+        {
+            console.log("Riboseq convert")
+            console.log(filename)
+            filename = this.convertUnix2Win(filename);
+            console.log(filename)
+        }
         
         return filename;
     }
@@ -1672,15 +1712,11 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
             if (element.appfile === true) {
                 var inref = self.normalizePath(path.join(self.getDataPath(), element.path));
                 refFiles.push(inref);
-                
                 self.contamRefPath2Element[inref] = element;
-
             } else {
-
                 var inref = self.normalizePath(element.path);
                 refFiles.push(inref);
                 self.contamRefPath2Element[inref] = element;
-
             }
 
             if (element.isContaminant)
@@ -2261,6 +2297,19 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
 
     }
 
+    getPathOfRefElement(element)
+    {
+        if (element.appfile === true) {
+            var inref = this.normalizePath(path.join(this.getDataPath(), element.path));
+            return inref;
+        } else {
+            var inref = this.normalizePath(element.path);
+            return inref;
+        }
+
+        return element.path;
+    }
+
     startAlignmentServerSave()
     {
         var self = this;
@@ -2271,6 +2320,8 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
         var extractAllAligned = [];
         var extractAllUnaligned = [];
 
+        console.log("In startAlignmentServerSave")
+
         self.state.inputRefs.forEach(refElement => {
 
             Object.keys(self.state.saveFiles[refElement.path]['aligned']).forEach((fileElement: any) => {
@@ -2278,8 +2329,9 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                 if (self.state.saveFiles[refElement.path]['aligned'][fileElement])
                 {
                     var readsPath = self.normalizePath(fileElement)
+                    var refElemPath = self.getPathOfRefElement(refElement)
 
-                    extractAligned.push( {read: readsPath, ref: refElement.path} )
+                    extractAligned.push( {reads: readsPath, ref: refElemPath} )
                 }
 
 
@@ -2290,8 +2342,9 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                 if (self.state.saveFiles[refElement.path]['unaligned'][fileElement])
                 {
                     var readsPath = self.normalizePath(fileElement)
+                    var refElemPath = self.getPathOfRefElement(refElement)
 
-                    extractUnaligned.push( {read: readsPath, ref: refElement.path} )
+                    extractUnaligned.push( {reads: readsPath, ref: refElemPath} )
                 }
             });
         })
@@ -2304,7 +2357,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                 {
                     var readsPath = self.normalizePath(fileElement)
 
-                    extractAllAligned.push( {read: readsPath} )
+                    extractAllAligned.push( {reads: readsPath} )
                 }
 
 
@@ -2316,7 +2369,7 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                 {
                     var readsPath = self.normalizePath(fileElement)
 
-                    extractAllUnaligned.push( {read: readsPath} )
+                    extractAllUnaligned.push( {reads: readsPath} )
                 }
             });
         
@@ -2335,7 +2388,8 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
             extractUnaligned: extractUnaligned,
             extractAllAligned: extractAllAligned,
             extractAllUnaligned: extractAllUnaligned,
-            extractDir: readOutputDir
+            extractDir: readOutputDir,
+            useExistingResults: false
         }
  
  

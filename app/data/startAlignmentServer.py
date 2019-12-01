@@ -268,19 +268,30 @@ def align():
     canExtractAllUnaligned = None
 
     if canExtract:
-        print("Extract MODE")
+        print("Extract MODE", file=logFile)
 
-    if canExtract and extractAllAligned != None and len(extractAllAligned) > 0:
-        extractAllAlignedFile = None
-        canExtractAllAligned = set()
-        canExtractAllUnaligned = set()
+        def makeNormPaths(inobj):
+            newEA = []  
+            for x in inobj:
+                print(x, file=logFile)
+                ny = {}
+                for y in x:
+                    ny[y] = os.path.normpath(x[y])
+                newEA.append(ny)
 
-    if canExtract and extractAllUnaligned != None and len(extractAllUnaligned) > 0:
-        extractAllUnalignedFile = None
-        canExtractAllAligned = set()
-        canExtractAllUnaligned = set()
+            return newEA
+
+
+        print("Aligned extract", file=logFile)
+        if extractAligned != None:
+            extractAligned = makeNormPaths(extractAligned)
+
+        print("Unaligned extract", file=logFile)
+        if extractUnaligned != None:
+            extractUnaligned = makeNormPaths(extractUnaligned)
 
     if canExtract and not os.path.isdir(extractDir):
+        print("Creating Extract Dir", extractDir)
         os.makedirs(extractDir)
 
     if useExistingResults == None:
@@ -322,14 +333,52 @@ def align():
 
     read2RankPlotData = calculateReadRanks(read2infoFile)
 
-    for refFileIdx, refFile in enumerate(refFile2aligner):
+    logFile.flush()
 
-        a = refFile2aligner[refFile]
+    for fastqFile in readFiles:
 
-        for fastqFile in readFiles:
+        reads_fname = re.sub('\W+', '_', fastqFile)    
+
+        print("FastqFile", fastqFile, reads_fname, file=logFile)
+
+        extractAllAlignedFile = None
+        extractAllUnalignedFile = None
+
+        canExtractAllAligned = None
+        canExtractAllUnaligned = None
+
+        if canExtract:
+
+            for x in extractAllAligned:                
+                if "reads" in x and os.path.normpath(x["reads"]) == fastqFile:
+                    extractAllAlignedFile = open(os.path.join(extractDir, prefix+"_" + "all" + "_aligned_"+getShortName(reads_fname, 25)+".fastq"), "w")
+                    break
+
+            for x in extractAllUnaligned:                
+                if "reads" in x and os.path.normpath(x["reads"]) == fastqFile:
+                    extractAllUnalignedFile = open(os.path.join(extractDir, prefix+"_" + "all" + "_unaligned_"+getShortName(reads_fname, 25)+".fastq"), "w")
+                    break
+
+
+
+        for refFileIdx, refFile in enumerate(refFile2aligner):
+
+            canExtractAllAlignedFQ = None
+            canExtractAllUnalignedFQ = None
+
+            if extractAllAlignedFile != None or extractAllUnalignedFile != None:
+                canExtractAllAlignedFQ = set()
+                canExtractAllUnalignedFQ = set()
+
+
+            print("RefFile",refFile, file=logFile)
+
+            a = refFile2aligner[refFile]
+
+            print("Aligning:", refFile, fastqFile, file=logFile)
+            logFile.flush()
 
             reference_fname = re.sub('\W+', '_', refFile)    
-            reads_fname = re.sub('\W+', '_', fastqFile)    
             refreadFname = "_".join([getShortName(reference_fname, 25), getShortName(reads_fname, 25)])
 
             ## preparing info file
@@ -393,9 +442,17 @@ def align():
 
             if canExtract and comboContained(ref=refFile, reads=fastqFile, einfo=extractAligned):
                 extractAlignedFile = open(os.path.join(extractDir, prefix+"_" + refreadFname + "_aligned_reads.fastq"), "w")
+            else:
+                if canExtract:
+                    print("Combo not contained in aligned:", refFile, fastqFile, extractAligned, file=logFile)
+                    logFile.flush()
 
             if canExtract and comboContained(ref=refFile, reads=fastqFile, einfo=extractUnaligned):
                 extractUnalignedFile = open(os.path.join(extractDir, prefix+"_" + refreadFname + "_unaligned_reads.fastq"), "w")
+            else:
+                if canExtract:
+                    print("Combo not contained in unaligned:", refFile, fastqFile, extractUnaligned, file=logFile)
+                    logFile.flush()
 
             readLengths = []
             alignedReadLengths = []
@@ -459,13 +516,13 @@ def align():
                     if extractUnalignedFile != None:
                         extractUnalignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
 
-                    if canExtractAllUnaligned != None:
-                        canExtractAllUnaligned.add((name, seq, qual))
+                    if canExtractAllUnalignedFQ != None:
+                        canExtractAllUnalignedFQ.add((name, seq, qual))
 
                 else:
 
-                    if canExtractAllAligned != None:
-                        canExtractAllAligned.add((name, seq, qual))
+                    if canExtractAllAlignedFQ != None:
+                        canExtractAllAlignedFQ.add((name, seq, qual))
                     
                     if not refFile in existingResultsOverview[1]:
                         existingResultsOverview[1][refFile] = set()
@@ -502,6 +559,8 @@ def align():
 
             # full information
 
+
+
             # derived information
             tmp_dict = dict(
                             alignedReadLengths=alignedReadLengths,
@@ -534,31 +593,46 @@ def align():
                 existingResults[makeJsonKey(refFile, fastqFile)] = tmp_dict
                 existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = readRankBuckets
 
-    updatedFastqFiles = set()
+            if extractAlignedFile != None:
+                extractAlignedFile.close()
+
+            if extractUnalignedFile != None:
+                extractUnalignedFile.close()
 
 
-    if canExtractAllAligned != None:
-        extractAlignedFile = open(os.path.join(extractDir, prefix+"_" + "all" + "_aligned_reads.fastq"), "w")
+            if canExtractAllAligned == None and canExtractAllAlignedFQ != None:
+                canExtractAllAligned = canExtractAllAlignedFQ
+            elif canExtractAllAligned != None and canExtractAllAlignedFQ != None:
+                canExtractAllAligned = canExtractAllAligned.intersection(canExtractAllAlignedFQ)
 
-        trueExtractAll = canExtractAllAligned.difference(canExtractAllUnaligned)
+            if canExtractAllUnaligned == None and canExtractAllUnalignedFQ != None:
+                canExtractAllUnaligned = canExtractAllUnalignedFQ
+            elif canExtractAllUnaligned != None and canExtractAllUnalignedFQ != None:
+                canExtractAllUnaligned = canExtractAllUnaligned.intersection(canExtractAllUnalignedFQ)
+    
+        if extractAllAlignedFile != None:
 
-        for name, seq, qual in trueExtractAll:
-            extractAlignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
+            trueExtractAll = canExtractAllAligned.difference(canExtractAllUnaligned)
 
-    if canExtractAllUnaligned != None:
-        extractUnalignedFile = open(os.path.join(extractDir, prefix+"_" + "all" + "_aligned_reads.fastq"), "w")
+            for name, seq, qual in trueExtractAll:
+                extractAllAlignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
+            extractAllAlignedFile.close()
 
-        trueExtractAll = canExtractAllUnaligned.difference(canExtractAllAligned)
+        if extractAllUnalignedFile != None:
 
-        for name, seq, qual in trueExtractAll:
-            extractUnalignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
+            trueExtractAll = canExtractAllUnaligned.difference(canExtractAllAligned)
+
+            for name, seq, qual in trueExtractAll:
+                extractAllUnalignedFile.write("@"+name + "\n" + seq + "\n+\n" + qual + "\n")
+            extractAllUnalignedFile.close()
 
 
     if canExtract:
         retResponse = app.make_response(("{\"extract_status\": \"done\"}", 200, None))
+        logFile.flush()
         return retResponse
 
-
+    updatedFastqFiles = set()
     for mkey in existingResults:
 
         refFile, fastqFile = fromJsonKey(mkey)
@@ -617,7 +691,8 @@ def align():
             existingResults[makeJsonKey(refFile, fastqFile)] = currentElement
 
         except ValueError:
-            print('Some problems witd read file: Secondary ID line in FASTQ file doesnot start witd ''+''.')
+            print('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
+            logFile.flush()
             exit()
 
 
@@ -647,6 +722,8 @@ def align():
 
     retResponse = app.make_response((jsonStr, 200, None))
     retResponse.mimetype = "application/json"
+
+    logFile.flush()
 
     return retResponse
 
@@ -872,23 +949,28 @@ if __name__ == '__main__':
     for refFileIdx, refFile in enumerate(args.references):
 
         print("Loading ref file {}".format(refFile), file=logFile)
+        print("Ref File path", refFile.name, file=logFile)
+
+        refFilePath = os.path.normpath(refFile.name)
+        print("Normed Ref File Path", refFile.name, refFilePath, file=logFile)
+
         logFile.flush()
 
-        a = mp.Aligner(refFile.name)  # load or build index
+        a = mp.Aligner(refFilePath)  # load or build index
         if not a:
             raise Exception("ERROR: failed to load/build index")
 
-        refFile2aligner[refFile.name] = a
+        refFile2aligner[refFilePath] = a
 
         if args.ref_type != None:
-            refFile2type[refFile.name] = args.ref_type[refFileIdx]
+            refFile2type[refFilePath] = args.ref_type[refFileIdx]
         else:
-            refFile2type[refFile.name] = "target"
+            refFile2type[refFilePath] = "target"
 
-        if refFile2type[refFile.name] == "target":
-            refFile2color[refFile.name] = "green"
+        if refFile2type[refFilePath] == "target":
+            refFile2color[refFilePath] = "green"
         else:
-            refFile2color[refFile.name] = "red"
+            refFile2color[refFilePath] = "red"
 
     print("Hosting server", file=logFile)
     app.run(threaded=True, host="0.0.0.0", port=args.port)
