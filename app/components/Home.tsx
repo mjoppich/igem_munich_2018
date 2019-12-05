@@ -27,6 +27,11 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Gallery from './ImageGallery';
 import AutoSuggestChips from './ChipInput';
 import { string, element } from 'prop-types';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 
 var lineReader = require('line-reader');
@@ -67,7 +72,8 @@ class TextMobileStepper extends React.Component<{}, {
     riboValues: Array<any>,
     selectedRiboValues: Array<any>,
     readExtractNumber: Number,
-    useExistingResults:boolean
+    useExistingResults:boolean,
+    outputDirDialog: boolean
 }>
 
 
@@ -90,7 +96,8 @@ class TextMobileStepper extends React.Component<{}, {
         riboValues: new Array(),
         selectedRiboValues: new Array(),
         readExtractNumber: 1000,
-        useExistingResults: false
+        useExistingResults: false,
+        outputDirDialog: false
     };
 
     contamRefPath2Element: any = {};
@@ -322,6 +329,7 @@ class TextMobileStepper extends React.Component<{}, {
                     element.fullFast5Extract = false;
                 }
 
+
                 icon = <Icon>folder_open</Icon>;
                 enableFast5Extract = <div><Switch
                     checked={element.forceFast5Extract}
@@ -338,11 +346,20 @@ class TextMobileStepper extends React.Component<{}, {
                     element.fullFast5Extract = !element.fullFast5Extract;
                         this.setState({ inputRefs: this.state.inputRefs })
                     }} /></div>
+
             } else if (element.type == "tmp_folder")
             {
                 icon = <Icon>folder_open</Icon>;
 
-                // maybe 
+                if (!element.forceFast5Extract)
+                {
+                    element.forceFast5Extract = true;
+                }
+
+                if (!element.fullFast5Extract)
+                {
+                    element.fullFast5Extract = true;
+                }
             }
             var enableTrancript = null;
             enableTrancript = <div><Switch
@@ -554,6 +571,46 @@ class TextMobileStepper extends React.Component<{}, {
                                     fullWidth
                                     onChange={this.handleOutputDirChange('outputDir')}
                                     margin="normal" />
+
+                                <Button onClick={() => {
+
+                                    dialog.showOpenDialog(
+                                        { properties: ['openDirectory'] },
+
+                                        (dirName: any) => {
+                                            if (dirName === undefined) {
+                                                console.log("No file selected");
+                                                return;
+                                            }
+
+                                            dirName.forEach((element: any) => {
+                                                self.state.outputDir = element;
+                                            });
+
+                                            self.setState({ outputDir: self.state.outputDir })
+                                        });
+
+                                }} color="primary">Select TMP Folder</Button>
+
+                                <Dialog
+                                        open={self.state.outputDirDialog}
+                                        onClose={() => {self.setState({outputDirDialog: false})}}
+                                        aria-labelledby="alert-dialog-title"
+                                        aria-describedby="alert-dialog-description"
+                                    >
+                                        <DialogTitle id="alert-dialog-title">{"Please check the output directory!"}</DialogTitle>
+                                        <DialogContent>
+                                        <DialogContentText id="alert-dialog-description">
+                                            The output directory has ben set automatically. Please check this does not interfere with other operations (e.g. MinKNOW).
+                                        </DialogContentText>
+                                        </DialogContent>
+                                        <DialogActions>
+
+                                        <Button onClick={() => {self.setState({outputDirDialog: false})}} color="primary" autoFocus>
+                                            Ok
+                                        </Button>
+                                        </DialogActions>
+                                    </Dialog>
                             </div>
 
                             <FormControlLabel
@@ -1303,7 +1360,13 @@ class TextMobileStepper extends React.Component<{}, {
                     }
 
                     fileNames.forEach((element: any) => {
-                        self.state.outputDir = path.join(path.dirname(element), "tmp");
+
+                        if ((self.state.outputDir == undefined) || (self.state.outputDir == null) || (self.state.outputDir == ""))
+                        {
+                            self.state.outputDir = path.join(element, 'tmp')
+                            self.state.outputDirDialog = true;
+                        }
+
                         self.state.inputFiles.push({
                             path: element,
                             type: upType,
@@ -1312,7 +1375,7 @@ class TextMobileStepper extends React.Component<{}, {
                     });
 
 
-                    self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
+                    self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir, outputDirDialog: self.state.outputDirDialog })
                 });
         } else if (upType == "tmp_folder") {
             dialog.showOpenDialog(
@@ -1325,14 +1388,20 @@ class TextMobileStepper extends React.Component<{}, {
                     }
 
                     dirName.forEach((element: any) => {
-                        //self.state.outputDir = path.join(element, 'tmp')
+                        
+                        if ((self.state.outputDir == undefined) || (self.state.outputDir == null) || (self.state.outputDir == ""))
+                        {
+                            self.state.outputDir = path.join(element, 'tmp')
+                            self.state.outputDirDialog = true;
+                        }
+                        
                         self.state.inputFiles.push({
                             path: element,
                             type: upType,
                         });
                     });
 
-                    self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir })
+                    self.setState({ inputFiles: self.state.inputFiles, outputDir: self.state.outputDir, outputDirDialog: self.state.outputDirDialog })
                 });
         } else if (upType == "folder") {
             dialog.showOpenDialog(
@@ -1833,7 +1902,9 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
                    allFoundFiles = self.getAllReadFilesFromDir(element.path);
                } else if (element.type == "tmp_folder") {
 
-                   allFoundFiles = self.getAllReadFilesFromDir(element.path, [/.*fastq.*\.tmp$/ig]);
+                    console.log("Using reads from folder" + element.path);
+                    // note that the file itself has to start with fastq -> then the tmp-files are already fastq :)
+                    allFoundFiles = self.getAllReadFilesFromDir(element.path, [/.*fastq.*\.tmp$/ig]);
 
                }
 

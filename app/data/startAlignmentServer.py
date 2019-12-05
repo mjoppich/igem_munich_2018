@@ -18,7 +18,7 @@ import os
 import mappy as mp
 import json
 from itertools import chain
-
+import logging
 from flask import Flask
 
 app = Flask(__name__)
@@ -181,6 +181,9 @@ def calculateReadRanks(read2infoFile):
                     bucket2readid[curBucketID].add(readID)
                     readid2bucket[readID] = curBucketID
 
+            logging.debug("bucket2readid")
+            for bucketID in bucket2readid:
+                logging.debug("bucketID {} length {}".format(bucketID, len(bucket2readid[bucketID])))
 
             read2RankPlotData[readFile] = (readid2bucket, bucket2readid, allBuckets)
 
@@ -224,7 +227,7 @@ def align():
         return app.make_response((jsonify( {'error': 'invalid json'} ), 400, None))
 
 
-    print(reqData, file=logFile)
+    logging.debug(reqData)
     """
 
     GETTING SETTINGS
@@ -268,12 +271,12 @@ def align():
     canExtractAllUnaligned = None
 
     if canExtract:
-        print("Extract MODE", file=logFile)
+        logging.debug("Extract MODE")
 
         def makeNormPaths(inobj):
             newEA = []  
             for x in inobj:
-                print(x, file=logFile)
+                logging.debug(x)
                 ny = {}
                 for y in x:
                     ny[y] = os.path.normpath(x[y])
@@ -282,16 +285,16 @@ def align():
             return newEA
 
 
-        print("Aligned extract", file=logFile)
+        logging.debug("Aligned extract")
         if extractAligned != None:
             extractAligned = makeNormPaths(extractAligned)
 
-        print("Unaligned extract", file=logFile)
+        logging.debug("Unaligned extract")
         if extractUnaligned != None:
             extractUnaligned = makeNormPaths(extractUnaligned)
 
     if canExtract and not os.path.isdir(extractDir):
-        print("Creating Extract Dir", extractDir)
+        logging.debug("Creating Extract Dir {}".format(extractDir) )
         os.makedirs(extractDir)
 
     if useExistingResults == None:
@@ -331,15 +334,11 @@ def align():
         if os.path.isfile(infoFile):
             read2infoFile[x] = infoFile
 
-    read2RankPlotData = calculateReadRanks(read2infoFile)
-
-    logFile.flush()
-
     for fastqFile in readFiles:
 
         reads_fname = re.sub('\W+', '_', fastqFile)    
 
-        print("FastqFile", fastqFile, reads_fname, file=logFile)
+        logging.debug("FastqFile {} {}".format( fastqFile, reads_fname) )
 
         extractAllAlignedFile = None
         extractAllUnalignedFile = None
@@ -363,6 +362,8 @@ def align():
 
         for refFileIdx, refFile in enumerate(refFile2aligner):
 
+            read2RankPlotData = calculateReadRanks(read2infoFile)
+
             canExtractAllAlignedFQ = None
             canExtractAllUnalignedFQ = None
 
@@ -371,12 +372,11 @@ def align():
                 canExtractAllUnalignedFQ = set()
 
 
-            print("RefFile",refFile, file=logFile)
+            logging.debug("RefFile {}".format( refFile))
 
             a = refFile2aligner[refFile]
 
-            print("Aligning:", refFile, fastqFile, file=logFile)
-            logFile.flush()
+            logging.debug("Aligning: {} {}".format( refFile, fastqFile) )
 
             reference_fname = re.sub('\W+', '_', refFile)    
             refreadFname = "_".join([getShortName(reference_fname, 25), getShortName(reads_fname, 25)])
@@ -444,15 +444,13 @@ def align():
                 extractAlignedFile = open(os.path.join(extractDir, prefix+"_" + refreadFname + "_aligned_reads.fastq"), "w")
             else:
                 if canExtract:
-                    print("Combo not contained in aligned:", refFile, fastqFile, extractAligned, file=logFile)
-                    logFile.flush()
+                    logging.debug("Combo not contained in aligned: {} {} {}".format(refFile, fastqFile, extractAligned))
 
             if canExtract and comboContained(ref=refFile, reads=fastqFile, einfo=extractUnaligned):
                 extractUnalignedFile = open(os.path.join(extractDir, prefix+"_" + refreadFname + "_unaligned_reads.fastq"), "w")
             else:
                 if canExtract:
-                    print("Combo not contained in unaligned:", refFile, fastqFile, extractUnaligned, file=logFile)
-                    logFile.flush()
+                    logging.debug("Combo not contained in unaligned: {} {} {}".format( refFile, fastqFile, extractUnaligned) )
 
             readLengths = []
             alignedReadLengths = []
@@ -461,7 +459,9 @@ def align():
             alreadyUsedBatches = existingResults.get(makeJsonKey(refFile, fastqFile), {}).get("usedReadBatches", set())
             readRankBuckets = []
 
-            print("Already used Batches/Ignoring Batches", alreadyUsedBatches)
+            logging.debug("Already used Batches/Ignoring Batches {}".format( alreadyUsedBatches))
+
+            fastqAlreadyContained = 0
 
             for name, seq, qual in mp.fastx_read(fastqFile): # read a fasta/q sequence
 
@@ -470,11 +470,12 @@ def align():
                     usedReadBatches.add( readBatch )
 
                     if readBatch in alreadyUsedBatches:
+                        fastqAlreadyContained += 1
                         continue
                 else:
 
                     if len(readName2Batch) > 0:
-                        print("Unknown read name", name)
+                        logging.warn("Unknown read name", name)
 
                 hasHit = False
 
@@ -558,7 +559,7 @@ def align():
                     read2RankPlotData[fastqFile] = (readid2bucket, bucket2readid, readRankBuckets)
 
             # full information
-
+            logging.debug("Finished Fastq {} with skipped reads {}".format(fastqFile, fastqAlreadyContained))
 
 
             # derived information
@@ -580,16 +581,34 @@ def align():
                             #idAlignedReads=idAlignedReads,
                             #idNotAlignedReads=idNotAlignedReads
 
-            print(refFile, fastqFile, tmp_dict["usedReadBatches"])
+            logging.debug("{} {} {}".format(refFile, fastqFile, tmp_dict["usedReadBatches"]))
+
+            (a, b, readRankBuckets) = read2RankPlotData[fastqFile]
+            logging.debug("read rank buckets stats")
+            for bIdx, readRankBucket in enumerate(readRankBuckets):
+                logging.debug("{} {} {} {} {}".format(refFile, fastqFile, bIdx, len(readRankBucket["aligned"]), len(readRankBucket["unaligned"])))
 
             if makeJsonKey(refFile, fastqFile) in existingResults:
 
                 originalRRB = existingResults[makeJsonKey(refFile, fastqFile)].get("readRankBuckets", [])
                 existingResults[makeJsonKey(refFile, fastqFile)]=mergeResults(existingResults[makeJsonKey(refFile, fastqFile)], tmp_dict)
 
-                existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = readRankBuckets
+                exReadRankBuck = existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"]
+                for bucketID in readRankBuckets:
+
+                    alignedElems = readRankBuckets[bucketID]["aligned"]
+                    unalignedElems = readRankBuckets[bucketID]["unaligned"]
+
+                    if not bucketID in exReadRankBuck:
+                        exReadRankBuck[bucketID] = {"aligned": [], "unaligned": []}
+
+                    exReadRankBuck[bucketID]["aligned"] += alignedElems
+                    exReadRankBuck[bucketID]["unaligned"] += unalignedElems
+
+                existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = exReadRankBuck                    
 
             else:
+                (a, b, readRankBuckets) = read2RankPlotData[fastqFile]
                 existingResults[makeJsonKey(refFile, fastqFile)] = tmp_dict
                 existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = readRankBuckets
 
@@ -629,7 +648,7 @@ def align():
 
     if canExtract:
         retResponse = app.make_response(("{\"extract_status\": \"done\"}", 200, None))
-        logFile.flush()
+        logging.debug("Extract exit")
         return retResponse
 
     updatedFastqFiles = set()
@@ -671,9 +690,8 @@ def align():
 
             rankPlot = None
 
-            if fastqFile in read2RankPlotData:
-                (readid2bucket, bucket2readid, allBuckets) = read2RankPlotData[fastqFile]
-
+            if "readRankBuckets" in currentElement:
+                allBuckets = currentElement["readRankBuckets"]
                 rankPlot = os.path.join(output_dir,prefix + "_" + refreadFname + "rank_plot.png")
                 prepareRankPlot(allBuckets, rankPlot)
 
@@ -691,8 +709,8 @@ def align():
             existingResults[makeJsonKey(refFile, fastqFile)] = currentElement
 
         except ValueError:
-            print('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
-            logFile.flush()
+            logging.error('Some problems with read file: Secondary ID line in FASTQ file doesnot start with ''+''.')
+
             exit()
 
 
@@ -723,8 +741,7 @@ def align():
     retResponse = app.make_response((jsonStr, 200, None))
     retResponse.mimetype = "application/json"
 
-    logFile.flush()
-
+    logging.debug("general exit")
     return retResponse
 
 
@@ -817,10 +834,14 @@ def prepareRankPlot(allBuckets, rankPlotPath):
     rankAlignedCount = 0
     rankTotalCount = 0
 
+    logging.debug("Read Rank Plot")
+
     for idx, bucket in enumerate(allBuckets):
 
-        rankAlignedBucket = len(bucket["aligned"])
-        rankUnalignedBucket = len(bucket["unaligned"])
+        rankAlignedBucket = len(set(bucket["aligned"]))
+        rankUnalignedBucket = len(set(bucket["unaligned"]))
+
+        logging.debug("Bucket Idx {} Aligned: {} Unaligned: {}".format(idx, rankAlignedBucket, rankUnalignedBucket))
 
         rankAlignedCount += rankAlignedBucket
         rankTotalCount += rankAlignedBucket + rankUnalignedBucket
@@ -832,6 +853,8 @@ def prepareRankPlot(allBuckets, rankPlotPath):
 
         xdata.append( idx+1 )
         ydata.append( rankAlignedFraction )
+
+    logging.debug("Read Rank Plot Finish")
 
 
     plt.figure()
@@ -890,7 +913,6 @@ from ModUpset import UpSet
 from upsetplot import from_contents
 
 def showReadAssignments(assigns, upsetPlotPath):
-    global logFile
     #assigns should be a map from reffile -> set(readname)
 
     
@@ -908,11 +930,10 @@ def showReadAssignments(assigns, upsetPlotPath):
     while len(plotData) < 2:
         plotData["Ignored {}".format(aoCount)] = []
 
-    print("show Read Assignments Data", file=logFile)
+    logging.debug("show Read Assignments Data")
     for x in plotData:
-        print(x, len(plotData[x]), file=logFile)
+        logging.debug("{} {}".format(x, len(plotData[x])))
 
-    logFile.flush()
 
     upIn = from_contents(plotData)
     
@@ -938,23 +959,20 @@ if __name__ == '__main__':
 
     args = ap.parse_args()
 
-    logFile = open("/tmp/silog", "w")
+    logging.basicConfig(filename="/tmp/silog",level=logging.DEBUG, filemode='w')
+    mplLogger = logging.getLogger('matplotlib')
+    mplLogger.setLevel(logging.WARNING)
 
-    sys.stdout = logFile
-    sys.stderr = logFile
-
-    print("Starting server on node {}".format(args.port), file=logFile)
+    logging.info("Starting server on node {}".format(args.port))
 
 
     for refFileIdx, refFile in enumerate(args.references):
 
-        print("Loading ref file {}".format(refFile), file=logFile)
-        print("Ref File path", refFile.name, file=logFile)
+        logging.debug("Loading ref file {}".format(refFile))
+        logging.debug("Ref File path {}".format(refFile.name))
 
         refFilePath = os.path.normpath(refFile.name)
-        print("Normed Ref File Path", refFile.name, refFilePath, file=logFile)
-
-        logFile.flush()
+        logging.debug("Normed Ref File Path {} {}".format(refFile.name, refFilePath))
 
         a = mp.Aligner(refFilePath)  # load or build index
         if not a:
@@ -972,6 +990,6 @@ if __name__ == '__main__':
         else:
             refFile2color[refFilePath] = "red"
 
-    print("Hosting server", file=logFile)
+    logging.debug("Hosting server")
     app.run(threaded=True, host="0.0.0.0", port=args.port)
 
