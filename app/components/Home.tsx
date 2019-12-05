@@ -123,14 +123,27 @@ class TextMobileStepper extends React.Component<{}, {
     setup_environment_ubuntu()
     {
 
-        if (os.platform() == "win32") {
+        if ((os.platform() == "win32") || (os.platform() == "darwin")) {
             return;
         }
 
         var scriptname = path.join(this.getDataPath(), "ubuntu_install.sh")
         shell.openItem("xterm -e \"sh "+scriptname+"\"")
     }
+    setup_environment_macos()
+    {
 
+        if ((os.platform() == "win32") || (os.platform() == "Linux")) {
+            return;
+        }
+
+        var scriptname = path.join(this.getDataPath(), "macos_install.sh")
+        console.log(scriptname)
+        //shell.openItem("open -a Terminal "+scriptname)
+
+        var execFile = require('child_process').execFile;
+        var child = execFile('open', ['-a', 'Terminal', scriptname]);
+    }
 
     getDataPath() {
 
@@ -453,9 +466,7 @@ class TextMobileStepper extends React.Component<{}, {
                             Setup WSL Environment&nbsp;
                             <Icon>chrome_reader_mode</Icon>
                         </Button>
-                    </Typography>
 
-                    <Typography gutterBottom>
                         <Button
                             variant="contained"
                             size="small"
@@ -467,6 +478,20 @@ class TextMobileStepper extends React.Component<{}, {
                             }}>
 
                             Setup Ubuntu Environment&nbsp;
+                            <Icon>chrome_reader_mode</Icon>
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => { this.setup_environment_macos() }}
+                            style={{
+                                marginBottom: "20px",
+                                marginRight: "50px",
+                                marginLeft: "50px"
+                            }}>
+
+                            Setup Mac OS Environment&nbsp;
                             <Icon>chrome_reader_mode</Icon>
                         </Button>
                     </Typography>
@@ -1363,7 +1388,7 @@ class TextMobileStepper extends React.Component<{}, {
 
                         if ((self.state.outputDir == undefined) || (self.state.outputDir == null) || (self.state.outputDir == ""))
                         {
-                            self.state.outputDir = path.join(element, 'tmp')
+                            self.state.outputDir = path.join(path.dirname(element), "tmp");
                             self.state.outputDirDialog = true;
                         }
 
@@ -2064,8 +2089,12 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
         }
 
         if (os.platform() == "darwin") {
+
+            console.log("Starting on MAC OS")
             var np = shellPath.sync();
             process.env.PATH = np;
+
+            console.log(process.env.PATH)
         }
 
         var child = spawn(program, programArgs, {
