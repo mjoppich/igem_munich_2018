@@ -1,7 +1,7 @@
 {
   "name": "sequ-into",
   "productName": "sequ-into",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Sequ-Into, an app to look into your freshly sequenced sequences.",
   "main": "./main.js",
   "author": {

@@ -1,7 +1,7 @@
 {
   "name": "sequ-into",
   "productName": "sequ-into",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Electron application boilerplate based on TypeScript, React, React Router, Webpack, React Hot Loader for rapid application development",
   "main": "main.js",
   "scripts": {
