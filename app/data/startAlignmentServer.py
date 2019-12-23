@@ -585,22 +585,26 @@ def align():
 
             (a, b, readRankBuckets) = read2RankPlotData[fastqFile]
             logging.debug("read rank buckets stats")
-            for bIdx, readRankBucket in enumerate(readRankBuckets):
-                logging.debug("{} {} {} {} {}".format(refFile, fastqFile, bIdx, len(readRankBucket["aligned"]), len(readRankBucket["unaligned"])))
+            for bIdx, rRB in enumerate(readRankBuckets):
+                logging.debug("{} {} {} {} {}".format(refFile, fastqFile, bIdx, len(rRB["aligned"]), len(rRB["unaligned"])))
 
             if makeJsonKey(refFile, fastqFile) in existingResults:
 
                 originalRRB = existingResults[makeJsonKey(refFile, fastqFile)].get("readRankBuckets", [])
                 existingResults[makeJsonKey(refFile, fastqFile)]=mergeResults(existingResults[makeJsonKey(refFile, fastqFile)], tmp_dict)
 
-                exReadRankBuck = existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"]
-                for bucketID in readRankBuckets:
+                logging.debug("orig read rank buckets stats")
+                for bIdx, orrb in enumerate(originalRRB):
+                    logging.debug("{} {} {} {} {}".format(refFile, fastqFile, bIdx, len(orrb["aligned"]), len(orrb["unaligned"])))
 
-                    alignedElems = readRankBuckets[bucketID]["aligned"]
-                    unalignedElems = readRankBuckets[bucketID]["unaligned"]
+                exReadRankBuck = list(originalRRB)#existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"]
+                for bucketID, rrBucket in enumerate(readRankBuckets):
 
-                    if not bucketID in exReadRankBuck:
-                        exReadRankBuck[bucketID] = {"aligned": [], "unaligned": []}
+                    alignedElems = rrBucket["aligned"]
+                    unalignedElems = rrBucket["unaligned"]
+
+                    if len(exReadRankBuck) <= bucketID:
+                        exReadRankBuck.append( {"aligned": [], "unaligned": []} )
 
                     exReadRankBuck[bucketID]["aligned"] += alignedElems
                     exReadRankBuck[bucketID]["unaligned"] += unalignedElems
@@ -838,8 +842,11 @@ def prepareRankPlot(allBuckets, rankPlotPath):
 
     for idx, bucket in enumerate(allBuckets):
 
-        rankAlignedBucket = len(set(bucket["aligned"]))
-        rankUnalignedBucket = len(set(bucket["unaligned"]))
+        nbucketAligned = set([tuple(x) for x in bucket["aligned"]])
+        nbucketUnaligned = set([tuple(x) for x in bucket["unaligned"]])
+
+        rankAlignedBucket = len(nbucketAligned)
+        rankUnalignedBucket = len(nbucketUnaligned)
 
         logging.debug("Bucket Idx {} Aligned: {} Unaligned: {}".format(idx, rankAlignedBucket, rankUnalignedBucket))
 
