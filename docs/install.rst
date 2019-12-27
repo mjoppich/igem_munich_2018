@@ -19,55 +19,15 @@ Support Package Installation:
 
 1. **X-Code developer tools**
 
-In order to compile the alignment software, a C compiler must be installed. Mac OS users can do so by running
+In oder to install python and required dependencies, you must prepare your Mac OS to have xcode-select tools installed (this is a package provided by Apple/Mac OS). Mac OS users can do so by running
 ::
     xcode-select --install
 
 in the terminal.
 
-2. **Miniconda/Anaconda**
+Follow the instructions displayed on your computer. Mac OS will download and install all required packages.
 
-* Download the installation package for Miniconda here https://conda.io/miniconda.html or Anaconda from https://www.anaconda.com/download/#macos . Miniconda is smaller in size, sufficient for sequ-into, but may require to download more data afterwards than Anaconda.
-* Open your terminal window (for example by typing "terminal" in the spotlight search field)
-and enter, depending on the version you downloaded, the following:
-::
-    bash ~/Downloads/Miniconda3-latest-MacOSX-x86_64.sh
-
-* The installer prompts “In order to continue the installation process, please review the license agreement.” Click ``Enter`` to view license terms.
-* Scroll to the bottom of the license terms and enter ``yes`` to agree to them.
-* The installer prompts you to press ``Enter`` to confirm the location. It may take a few minutes to complete.  We recommend you accept the default install location and press ``Enter``.
-* The installer prompts “Do you wish the installer to prepend the Miniconda/Anaconda install location to PATH in your /home/<user>/.bash_profile ?” We recommend ``yes``.
-* The installer finishes and displays “Thank you for installing Miniconda/Anaconda!”
-* If the installer asks to install Microsoft VS Code, enter ``yes`` or ``no``. You don't need Microsoft VS Code to use sequ-into!
-
-If you have any trubles installing Anaconda you can review this site for more details and a visual installer: http://docs.anaconda.com/anaconda/install/mac-os/#macos-graphical-install
-
-3. **Bioconda**
-
-Enter this in your terminal: 
-::
-    conda config --add channels defaults
-    conda config --add channels bioconda
-    conda config --add channels conda-forge
-
-4. **Minimap2** 
-
-For aligning the reads to the reference (enter y to proceed if asked - this may, depending on previous installed packages, download and install many required packages):
-::
-     conda install -c bioconda mappy 
-
-5. **h5py**
-
-For reading FAST5 files (they are essentially HDF5-format, proceed with `y`):
-::
-    conda install -c anaconda h5py
-
-
-6. **matplotlib**
-For plotting purposes.
-To install this package with conda run (again proceed with `y`):
-::
-    conda install -c conda-forge matplotlib
+After having installed xcode-select, you can install sequ-into.
 
 Install sequ-into
 ====
@@ -79,8 +39,19 @@ A DMG image will be downloaded. Open the image and drag the sequ-into app into y
 .. image:: ./images/mac/dmg_drag.png
    :scale: 40
 
-You are now ready to use sequ-into.
+You are now ready to start sequ-into. It might be necessary to convince Mac OS to run this app for security reasons. We have created a brief tutorial which shows you how you can achieve this: :ref:`macossecurityinstall` .
 
+Install dependencies
+====
+
+The authors of sequ-into prepared a shell script to automatically install the required python dependencies. 
+You can access it from the first step description menu:
+
+
+.. image:: ./images/mac/setup_environment.png
+   :scale: 40
+
+Click on the *Setup MAC OS Environment* button and enter your user account password (you must be administrator). Beware, that due to technical limitations, your password will be shown on the console once.
 
 ====
 Windows
@@ -103,15 +74,17 @@ Please note, the following guide is aimed at having an Ubuntu installed. However
 Package Installation (Automatic)
 ====
 
-We have created a *cmd* script which you can simply execute by double-clicking on the downloaded file `after downloading it <https://gist.github.com/mjoppich/d1f5caf69bdb940f90f79b1a97f024b9>`_. This script asks you for your *WSL* password and will execute the below steps automatically.
+The easist way to install all dependencies is to expand the description on the first step and click the *Setup WSL environment* button.
+This starts a *cmd* script which asks you for your *WSL* password and will execute the below steps automatically.
 
 Package Installation (Manual)
 ====
-Unfortunately sequ-into depends on several smaller libraries and applications, which we now have to install. You may do so manually (below) or use a `script <https://gist.github.com/mjoppich/d1f5caf69bdb940f90f79b1a97f024b9>`_ we prepared for this task.
+
+Unfortunately sequ-into depends on several smaller libraries and applications, which we now have to install into WSL.
 :: 
     sudo apt-get update
-    sudo apt-get install git build-essential python3 python3-pip libhdf5-serial-dev
-    sudo pip3 install pysam HTseq matplotlib h5py mappy
+    sudo apt-get install git build-essential python3 python3-pip hdf5-tools libhdf5-serial-dev
+    sudo pip3 install mappy matplotlib h5py flask pandas upsetplot
 
 You will be asked to enter your *WSL* password when you submit your first *sudo* command. However, since *sudo* will give you administrator right in *WSL*, it might also be that it asks for your password everytime.
 
@@ -149,5 +122,40 @@ You will find the sequ-into application in igem_munich_2018/release/ .
 In order to have all python scripts running, please install the following dependencies. You may leave *python3-pip* out if you are using your own pip or anaconda.
 ::
     sudo apt-get update
-    sudo apt-get install git build-essential python3 python3-pip libhdf5-serial-dev
-    sudo pip3 install pysam HTseq matplotlib h5py mappy
+    sudo apt-get install git build-essential python3 python3-pip hdf5-tools libhdf5-serial-dev
+    sudo pip3 install mappy matplotlib h5py flask pandas upsetplot
+
+
+.. _macossecurityinstall:
+
+====
+Overriding Mac OS security settings
+====
+
+In order to execute non-App-store apps on Mac OS, you must force your Mac to do so (or pay the authors some money, so we can afford the registration :) ).
+
+Upon downloading and dragging sequ-into into the Apps folder on your Mac (Programme folder in the screenshots), you can double-click on the sequ-into app.
+
+.. image:: ./images/mac/select_app_1.png
+   :scale: 40
+
+A popup will be shown, telling you that you download sequ-into from some remote location and that the app is not signed. Hence you can either cancel or move the app into the bin.
+
+.. image:: ./images/mac/select_app_2.png
+   :scale: 40
+
+In order to allow the execution of sequ-into, please go into your Settings -> Security -> General. Verify that you allow to download apps from the app store and verified developers.
+Since you already tried to execute sequ-into once, the general page will also tell you, that the execution of the *sequ-into* app has been blocked, because it has not been created by a verified developer. A button enables you to open sequ-into anyway. Click on that button.
+
+.. image:: ./images/mac/select_app_3.png
+   :scale: 40
+
+After hitting the button to open sequ-into anyway, another popup will be shown. It will again tell you that Mac OS does not know who created the app, and that this app is potentially unsafe. This time, it also allows you to *Open* the app. Click on *Open*.
+
+.. image:: ./images/mac/select_app_4.png
+   :scale: 40
+
+After all these steps, we could finally convince Mac OS to run sequ-into. Congratulations!
+
+.. image:: ./images/mac/select_app_5.png
+   :scale: 40

@@ -12,7 +12,9 @@ For all recent versions of Windows 10 you can start with step 1.
 
 .. warning:: Some antivirus software (e.g. Kaspersky) disable internet access for unknown/new programs. Make sure you have internet access!
 
-Step 1: Activate WSL feature
+On newer Windows systems, step 1 might not be needed.
+
+Step 1: Activate WSL feature 
 -----------------------------
 
 First WSL has to be enabled from Windows features.
