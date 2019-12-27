@@ -94,8 +94,8 @@ You will be asked to enter your *WSL* password when you submit your first *sudo*
 
 The following will explain the packages and software going to be installed. Since you provided your *sudo*-password, you should get to know what we are doing ;) If you are not interested: congratulations, you're done!
 
-First a basic developer package has to be installed, which is done by installing *git* for version control/access to repositories, *build-essential* to get C/C++ compilers (to build other software) and python3 for generating reads from fast5 files and making the statistics.
-*python3-pip* is the python package manager which we need to install some python packages, and finally libhdf5 is needed to access fast5 files. For alignment of the reads we rely on `mappy/minimap2 <https://pypi.org/project/mappy/>`_ .
+First a basic developer package has to be installed, which is done by installing *git* for version control/access to repositories, *build-essential* to get C/C++ compilers (to build other software) and python3 for running the online-/incremental algorithm, generating reads from fast5 files and making the statistics.
+*python3-pip* is the python package manager which is need to install further python packages. Finally libhdf5, hdf5-tools and h5py are needed to access fast5 files. For alignment of the reads we rely on `mappy/minimap2 <https://pypi.org/project/mappy/>`_ . matplotlib and upsetplot is needed to prepare plots. pandas is used to prepare data for the plots and flask is used to run the server for the incremental updates.
 
 After you have completed these steps, you are ready to use sequ-into!
 
