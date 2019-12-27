@@ -37,7 +37,7 @@ In order to install sequ-into, go to the `sequ-into repository <https://github.c
 A DMG image will be downloaded. Open the image and drag the sequ-into app into your applications folder.
 
 .. image:: ./images/mac/dmg_drag.png
-   :scale: 40
+   :scale: 80
 
 You are now ready to start sequ-into. It might be necessary to convince Mac OS to run this app for security reasons. We have created a brief tutorial which shows you how you can achieve this: :ref:`macossecurityinstall` .
 
@@ -146,7 +146,7 @@ Upon downloading and dragging sequ-into into the Apps folder on your Mac (Progra
 A popup will be shown, telling you that you download sequ-into from some remote location and that the app is not signed. Hence you can either cancel or move the app into the bin.
 
 .. image:: ./images/mac/select_app_2.png
-   :scale: 40
+   :scale: 100
 
 In order to allow the execution of sequ-into, please go into your Settings -> Security -> General. Verify that you allow to download apps from the app store and verified developers.
 Since you already tried to execute sequ-into once, the general page will also tell you, that the execution of the *sequ-into* app has been blocked, because it has not been created by a verified developer. A button enables you to open sequ-into anyway. Click on that button.
