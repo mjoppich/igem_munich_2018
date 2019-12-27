@@ -74,7 +74,11 @@ Please note, the following guide is aimed at having an Ubuntu installed. However
 Package Installation (Automatic)
 ====
 
-The easist way to install all dependencies is to expand the description on the first step and click the *Setup WSL environment* button.
+The easist way to install all dependencies is to expand the description on the first step and click the *Setup WSL environment* button:
+
+.. image:: ./images/setup_environments.png
+   :scale: 40
+
 This starts a *cmd* script which asks you for your *WSL* password and will execute the below steps automatically.
 
 Package Installation (Manual)
