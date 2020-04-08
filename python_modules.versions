@@ -1,0 +1,65 @@
+Name: mappy
+Version: 2.16
+Summary: Minimap2 python binding
+Home-page: https://github.com/lh3/minimap2
+Author: Heng Li
+Author-email: lh3@me.com
+License: MIT
+Location: /usr/local/lib/python3.6/dist-packages
+Requires: 
+Required-by: 
+---
+Name: matplotlib
+Version: 3.1.1
+Summary: Python plotting package
+Home-page: https://matplotlib.org
+Author: John D. Hunter, Michael Droettboom
+Author-email: matplotlib-users@python.org
+License: PSF
+Location: /usr/local/lib/python3.6/dist-packages
+Requires: python-dateutil, kiwisolver, cycler, pyparsing, numpy
+Required-by: keggx, venn, vaex-viz, vaex-arrow, UpSetPlot, seaborn, scikit-image, matplotlib-venn, dabest
+---
+Name: h5py
+Version: 2.9.0
+Summary: Read and write HDF5 files from Python
+Home-page: http://www.h5py.org
+Author: Andrew Collette
+Author-email: andrew.collette@gmail.com
+License: BSD
+Location: /home/mjoppich/.local/lib/python3.6/site-packages
+Requires: numpy, six
+Required-by: ont-fast5-api, ont-albacore, vaex-hdf5, Keras-Applications
+---
+Name: Flask
+Version: 0.11.1
+Summary: A microframework based on Werkzeug, Jinja2 and good intentions
+Home-page: http://github.com/pallets/flask/
+Author: Armin Ronacher
+Author-email: armin.ronacher@active-4.com
+License: BSD
+Location: /usr/local/lib/python3.6/dist-packages
+Requires: itsdangerous, click, Werkzeug, Jinja2
+Required-by: pyvolume, nlpcube, Flask-Mail, Flask-JSON, Flask-Cors
+---
+Name: pandas
+Version: 0.24.0
+Summary: Powerful data structures for data analysis, time series, and statistics
+Home-page: http://pandas.pydata.org
+Author: None
+Author-email: None
+License: BSD
+Location: /usr/local/lib/python3.6/dist-packages
+Requires: numpy, pytz, python-dateutil
+Required-by: keggx, vaex-core, UpSetPlot, statsmodels, seaborn, pywsd, dabest
+---
+Name: UpSetPlot
+Version: 0.3.0
+Summary: Draw Lex et al.'s UpSet plots with Pandas and Matplotlib
+Home-page: https://upsetplot.readthedocs.io
+Author: Joel Nothman
+Author-email: joel.nothman@gmail.com
+License: BSD 3-Clause License
+Location: /usr/local/lib/python3.6/dist-packages
+Requires: pandas, matplotlib
+Required-by: 

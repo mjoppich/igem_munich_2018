@@ -147,22 +147,25 @@ def calculateReadRanks(read2infoFile):
 
             time2read = defaultdict(list)
 
-            with open(read2infoFile[readFile], 'r') as fin:
+            infoFilename = read2infoFile[readFile]
 
-                idcolumn = 0
-                timecolumn = 1
+            if infoFilename != None:
+                with open(infoFilename, 'r') as fin:
 
-                for idx, content in enumerate(fin):
+                    idcolumn = 0
+                    timecolumn = 1
 
-                    acontent = content.strip().split("\t")
-                    if idx == 0 and acontent[0] == "READ_ID":
-                        idcolumn = 1
-                        timecolumn = 6
-                        continue
+                    for idx, content in enumerate(fin):
 
-                    readid = acontent[idcolumn].split(" ")[0]
-                    readtime = int (acontent[timecolumn])
-                    time2read[readtime].append(readid)
+                        acontent = content.strip().split("\t")
+                        if idx == 0 and acontent[0] == "READ_ID":
+                            idcolumn = 1
+                            timecolumn = 6
+                            continue
+
+                        readid = acontent[idcolumn].split(" ")[0]
+                        readtime = int (acontent[timecolumn])
+                        time2read[readtime].append(readid)
 
             readid2bucket = {}
             bucket2readid = defaultdict(set)
@@ -333,6 +336,8 @@ def align():
 
         if os.path.isfile(infoFile):
             read2infoFile[x] = infoFile
+        #else:
+        #    read2infoFile[x] = None
 
     for fastqFile in readFiles:
 
@@ -583,10 +588,11 @@ def align():
 
             logging.debug("{} {} {}".format(refFile, fastqFile, tmp_dict["usedReadBatches"]))
 
-            (a, b, readRankBuckets) = read2RankPlotData[fastqFile]
-            logging.debug("read rank buckets stats")
-            for bIdx, rRB in enumerate(readRankBuckets):
-                logging.debug("{} {} {} {} {}".format(refFile, fastqFile, bIdx, len(rRB["aligned"]), len(rRB["unaligned"])))
+            if fastqFile in read2RankPlotData:
+                (a, b, readRankBuckets) = read2RankPlotData[fastqFile]
+                logging.debug("read rank buckets stats")
+                for bIdx, rRB in enumerate(readRankBuckets):
+                    logging.debug("{} {} {} {} {}".format(refFile, fastqFile, bIdx, len(rRB["aligned"]), len(rRB["unaligned"])))
 
             if makeJsonKey(refFile, fastqFile) in existingResults:
 
@@ -612,9 +618,11 @@ def align():
                 existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = exReadRankBuck                    
 
             else:
-                (a, b, readRankBuckets) = read2RankPlotData[fastqFile]
                 existingResults[makeJsonKey(refFile, fastqFile)] = tmp_dict
-                existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = readRankBuckets
+
+                if fastqFile in read2RankPlotData:
+                    (a, b, readRankBuckets) = read2RankPlotData[fastqFile]
+                    existingResults[makeJsonKey(refFile, fastqFile)]["readRankBuckets"] = readRankBuckets
 
             if extractAlignedFile != None:
                 extractAlignedFile.close()
@@ -728,9 +736,11 @@ def align():
     showReadAssignments(existingResultsOverview, upsetPlotPath)
 
     for mkey in existingResults:
-        del existingResults[mkey]["alignedReadLengths"]
-        del existingResults[mkey]["readRankBuckets"]
-        del existingResults[mkey]["allReadLengths"]
+
+        for field in ["alignedReadLengths", "readRankBuckets", "allReadLengths"]:
+            if field in existingResults[mkey]:
+                del existingResults[mkey][field]
+
 
     #for mkey in existingResults:
     #    print(mkey, [x for x in existingResults[mkey]])
