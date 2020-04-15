@@ -20,7 +20,7 @@
     "package": "npm run build && build --publish never",
     "package-win": "npm run build && build --win --x64",
     "package-mac": "npm run build && electron-builder --mac",
-    "package-linux": "npm run build && build --linux",
+    "package-linux": "npm run build && electron-builder --linux",
     "package-all": "npm run build && build -mwl",
     "cleanup": "mop -v"
   },
