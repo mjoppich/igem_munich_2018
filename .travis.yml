@@ -1,0 +1,19 @@
+language: node_js
+
+dist: bionic
+sudo: required
+
+before_install:
+ - pwd
+ - sudo apt-get -qq update
+ - sudo apt-get install -y git build-essential python3 python3-pip hdf5-tools libhdf5-serial-dev
+ - cd ~
+ - pwd
+ - git clone https://github.com/mjoppich/sequ-into
+ - 
+
+before_script:
+  - cd ~
+  - cd sequ-into && npm install
+  
+script: npm run package-linux
