@@ -2770,17 +2770,24 @@ getAllReadFilesFromDir(dirPath: any, extensions: Array<any> = [/.*FASTQ$/ig, /.*
         // general plots
 
         var upsetPlotImage = self.state.contamGeneral["upset"];
+        var overviewImage = self.state.contamGeneral["overview"];
+
 
         console.log(self.state.contamGeneral);
 
         if (os.platform() == "win32") {
             upsetPlotImage = self.convertUnix2Win(upsetPlotImage);
+            overviewImage = self.convertUnix2Win(overviewImage);
         }
 
         var overviewPlots: any = [];
         if (upsetPlotImage != undefined)
         {
-            overviewPlots = [{ src: upsetPlotImage + "?" + new Date().getTime(), caption:"Overview of reads per reference"}]
+            overviewPlots.push({ src: upsetPlotImage + "?" + new Date().getTime(), caption:"Overview of reads per reference"})
+        }
+        if (overviewImage != undefined)
+        {
+            overviewPlots.push({ src: overviewImage + "?" + new Date().getTime(), caption:"Overview of reads per contaminant type"})
         }
 
         var generalGallery = <Gallery

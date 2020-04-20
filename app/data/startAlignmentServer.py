@@ -731,9 +731,11 @@ def align():
     saveExistingResults(existingResults, existingResultsInfo)
     saveExistingResults(existingResultsOverview, existingResultsInfo + "_overview")
 
-    upsetPlotPath = os.path.join(output_dir,prefix+ "upset_reads_length.png")
+    upsetPlotPath = os.path.join(output_dir,prefix+ "upset_reads_aligned.png")
+    overviewPlotPath = os.path.join(output_dir,prefix+ "pie_reads_aligned.png")
 
     showReadAssignments(existingResultsOverview, upsetPlotPath)
+    showReadAssignmentOverview(existingResultsOverview, overviewPlotPath)
 
     for mkey in existingResults:
 
@@ -926,13 +928,49 @@ def prepareLengthFrequencyPlot( readLengths, readLengthPlot):
 
     prepareLengthHistograms(readLengths, readLengthPlot, titleAdd=" (aligned, n=" + str(len(readLengths)) + ")")
     
+
+def showReadAssignmentOverview(assigns, plotPath):
+
+    global refFile2type
+    global refFile2color
+
+    plotData = {}
+    allReadNames = assigns[0]
+   
+    for x in assigns[1]:
+        plotData[refFile2type[x]] = assigns[1][x]
+        allReadNames = allReadNames.difference(assigns[1][x])
+
+    plotData["Unaligned"] = allReadNames
+
+    unalignedCount = len(plotData.get("Unaligned", []))
+    offtargetCount = len(plotData.get("off_target", []))
+    ontargetCount = len(plotData.get("target", []))
+
+    plt.figure()
+    labels = (  'Off-target\n Reads\n(n={:,})'.format(offtargetCount),
+                'On-target\n Reads\n(n={:,})'.format(ontargetCount),
+                'Unaligned\n Reads\n(n={:,})'.format(unalignedCount)
+            )
+
+    colors = (
+        'lightcoral', 'lightskyblue', "grey"
+    )
+
+    patches, texts, autotexts = plt.pie([offtargetCount, ontargetCount, unalignedCount], explode=(0, 0, 0), labels=labels, colors=colors,
+            autopct='%1.1f%%', shadow=True, startangle=-10)
+    plt.axis('equal')
+
+    plt.savefig(plotPath, bbox_extra_artists=autotexts+texts, bbox_inches="tight")
+    plt.close()
+
+    return plotPath
+
 from ModUpset import UpSet
 from upsetplot import from_contents
 
 def showReadAssignments(assigns, upsetPlotPath):
-    #assigns should be a map from reffile -> set(readname)
-
-    
+    #assigns should be a map from reffile -> set(readname)    
     plotData = {}
     allReadNames = assigns[0]
 
@@ -957,6 +995,7 @@ def showReadAssignments(assigns, upsetPlotPath):
     UpSet(upIn, set2color=refFile2color, subset_size="auto", show_counts='%d').plot(None)
 
     plt.savefig(upsetPlotPath, bbox_inches="tight")
+    plt.close()
 
     return upsetPlotPath
 
